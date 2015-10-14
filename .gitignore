@@ -1,0 +1,16 @@
+logs
+target
+.idea
+.idea_modules
+.classpath
+.project
+.settings
+/RUNNING_PID
+
+app/assets/js/node_modules
+public/javascripts
+project/target
+project/project
+activator
+activator-launch-1.3.2.jar
+*.DS_Store*
