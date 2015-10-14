@@ -9,6 +9,7 @@ target
 
 app/assets/js/node_modules
 public/javascripts
+public/stylesheets
 project/target
 project/project
 activator
@@ -28,6 +29,7 @@ lib_managed/
 src_managed/
 project/boot/
 project/plugins/project/
+
 
 # Scala-IDE specific
 .scala_dependencies
