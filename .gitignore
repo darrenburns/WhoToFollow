@@ -13,4 +13,4 @@ project/target
 project/project
 activator
 activator-launch-1.3.2.jar
-*.DS_Store*
+.DS_Store
