@@ -1,6 +1,7 @@
 package init
 
 
+import actors.TweetStreamActor
 import actors.WordCountActor.ActiveTwitterStream
 import akka.actor.{ActorRef, ActorSystem}
 import com.google.inject.{Inject, Singleton}
@@ -18,16 +19,8 @@ object SparkInit {
 
 @Singleton
 class ApplicationStartup @Inject() (system: ActorSystem,
-                                     @Named("pipelineSupervisor") pipelineSupervisor: ActorRef) extends TwitterAuth {
+                                     @Named("tweetStreamActor") tweetStreamActor: ActorRef) {
 
-  val streamHandle: ReceiverInputDStream[Status] = initialise()
-  pipelineSupervisor ! ActiveTwitterStream(streamHandle)
-
-  def initialise(): ReceiverInputDStream[Status] = {
-    println("Initialising")
-    checkTwitterKeys()
-    TwitterUtils.createStream(SparkInit.ssc, None)
-  }
 
 }
 

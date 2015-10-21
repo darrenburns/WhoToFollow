@@ -1,19 +1,33 @@
 package actors
 
 import actors.PipelineSupervisor.WordCountUpdate
+import actors.WordCountActor.ActiveTwitterStream
 import akka.actor.Actor
 import akka.actor.Status.{Failure, Success}
 import akka.util.Timeout
 import com.google.inject.Singleton
 import play.api.libs.iteratee.{Iteratee, Enumerator, Concurrent}
-import play.api.libs.json.{Json, JsValue}
+import play.api.libs.json.{Writes, Json, JsValue}
 import play.api.mvc.WebSocket
+import twitter4j.Status
 
 import scala.collection.immutable.HashMap
 
 
 object WebSocketSupervisor {
   case class OutputChannel(name: String)
+
+
+  implicit val statusWrites = new Writes[Status] {
+    def writes(status: Status) = Json.obj(
+      "id" -> status.getId,
+      "text" -> status.getText,
+      "username" -> status.getUser.getName,
+      "screenname" -> status.getUser.getScreenName,
+      "date" -> status.getCreatedAt,
+      "retweets" -> status.getRetweetCount
+    )
+  }
 }
 
 case class ChannelTriple(in: Iteratee[JsValue, Unit], out: Enumerator[JsValue],
@@ -25,13 +39,26 @@ class WebSocketSupervisor extends Actor {
 
   protected[this] var channels: HashMap[String, ChannelTriple] = HashMap.empty
 
+  // Create the default:primary channel which just sends tweets to the client
+  channels = channels + ("default:primary" -> createChannel("default:primary"))
+
   override def receive = {
+    case TweetBatch(tweets) =>
+      val primaryChannelTriple = channels.get("default:primary")
+      primaryChannelTriple match {
+        case Some(chTriple) =>
+          val json = Json.toJson(tweets)
+          println("Sending tweets to client")
+          chTriple.channel push json
+        case None =>
+          println("Channel 'default:primary' doesn't exist.")
+      }
     case OutputChannel(name) =>
       println("Get or Else")
       channels.get(name) match {
         case Some(ch) =>
           println("Channel already exists.")
-          sender ! ch
+          sender ! Right((ch.in, ch.out))
         case None =>
           println("Create channel called")
           val ch = createChannel(name)

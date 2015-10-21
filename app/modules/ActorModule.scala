@@ -1,6 +1,6 @@
 package modules
 
-import actors.{WebSocketSupervisor, PipelineSupervisor, WordCountActor}
+import actors.{TweetStreamActor, WebSocketSupervisor, PipelineSupervisor, WordCountActor}
 import com.google.inject.AbstractModule
 import play.api.libs.concurrent.AkkaGuiceSupport
 
@@ -9,5 +9,6 @@ class ActorModule extends AbstractModule with AkkaGuiceSupport {
     bindActor[WordCountActor]("wordCountActor")
     bindActor[PipelineSupervisor]("pipelineSupervisor")
     bindActor[WebSocketSupervisor]("webSocketSupervisor")
+    bindActor[TweetStreamActor]("tweetStreamActor")
   }
 }

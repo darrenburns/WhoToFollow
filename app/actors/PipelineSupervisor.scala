@@ -20,7 +20,8 @@ object PipelineSupervisor {
 @Singleton
 class PipelineSupervisor @Inject()
   (@Named("wordCountActor") wordCountActor: ActorRef,
-   @Named("webSocketSupervisor") webSocketSupervisor: ActorRef) extends Actor {
+   @Named("webSocketSupervisor") webSocketSupervisor: ActorRef,
+   @Named("tweetStreamActor") tweetStreamActor: ActorRef) extends Actor {
 
   import PipelineSupervisor._
 
@@ -28,7 +29,8 @@ class PipelineSupervisor @Inject()
   override def receive = {
     // Send the ActiveTwitterStream to anywhere that needs it.
     case stream @ ActiveTwitterStream(handle) =>
-      wordCountActor ! stream
+      wordCountActor forward stream
+
     case update @ WordCountUpdate(results) =>
       webSocketSupervisor forward update
   }
