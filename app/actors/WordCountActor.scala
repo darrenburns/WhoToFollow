@@ -1,60 +1,55 @@
 package actors
 
-import akka.actor.{ActorSystem, Actor, ActorRef, Props}
-import com.google.inject.Inject
+import actors.PipelineSupervisor.WordCountUpdate
+import akka.actor.{Actor, ActorRef}
+import com.fasterxml.jackson.databind.JsonNode
 import com.google.inject.name.Named
-import models.WordCount
+import com.google.inject.{Inject, Singleton}
 import org.apache.spark.streaming._
 import org.apache.spark.streaming.dstream.{DStream, ReceiverInputDStream}
 import org.slf4j.LoggerFactory
-import play.api.libs.concurrent.Akka
-import play.api.libs.json._
+import play.api.libs.json.{JsNumber, Writes, Json}
+import play.mvc.WebSocket
 import twitter4j.Status
 
-import play.api.Play.current
-
-import scala.collection.immutable.HashSet
-import scala.collection.mutable.ListBuffer
-
 object WordCountActor {
-
   val logger = LoggerFactory.getLogger(getClass)
-  lazy val wordCountActor: ActorRef = Akka.system.actorOf(Props(classOf[WordCountActor]))
-
   case class ActiveTwitterStream(dStream: ReceiverInputDStream[Status])
+  case class ActivateOutputStream(out: WebSocket.Out[JsonNode])
+  case class WordCount(word: String, count: Int)
+
+  implicit val wordCountWrites = new Writes[WordCount] {
+    def writes(wordCount: WordCount) = Json.obj(
+      "word" -> wordCount.word,
+      "count" -> wordCount.count
+    )
+  }
 }
 
-case class ResultUpdate(results: List[WordCount])
 
-class WordCountActor @Inject() (actorSystem: ActorSystem,
-                                 @Named("userWatcherActor") userWatcherActor: ActorRef) extends Actor {
+/*
+ TODO: this should do nothing other than run in the
+ background after starting, and send messages. it is
+ permanently occupied and cannot receive messages
+ while blocked
+ */
+
+@Singleton
+class WordCountActor @Inject() (@Named("pipelineSupervisor") supervisor: ActorRef) extends Actor {
   import actors.WordCountActor._
-//
-//  implicit val wordCountWrites = new Writes[WordCount] {
-//    def writes(wordCount: WordCount) = Json.obj(
-//      "word" -> wordCount.word,
-//      "count" -> wordCount.count
-//    )
-//  }
 
   override def receive = {
     case ActiveTwitterStream(stream) => processStream(stream)  // Initialise
-    case _ => logger.debug("WordCountActor received a non-valid Twitter stream ")
+    case _ => logger.debug("WordCountActor received an unrecognised request.")
   }
 
-  /*
-     For now we define processing the stream to be simply printing hashtags to the console.
-     */
   def processStream(stream: ReceiverInputDStream[Status]): Unit = {
-    logger.debug("Processing Twitter stream")
-    println("Inside processStream")
     val hashTags = stream.flatMap(status => status.getText.split(" ")).filter(_.startsWith("#"))
     val counts = getWordCountStreamInWindow(hashTags, 10, 10)  // TODO: Get stream window parameters from config
-    println("Got counts")
     counts.foreachRDD(rdd => {
-      userWatcherActor ! ResultUpdate(rdd.take(10).toList)
+      supervisor ! WordCountUpdate(rdd.take(10).toList)
     })
-    println("Calling stream.context.start()")
+    // TODO: Probably need to move this.
     stream.context.start()
     stream.context.awaitTermination()
   }

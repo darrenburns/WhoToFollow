@@ -4,7 +4,7 @@
 
 # Home page
 GET     /                                           controllers.Application.index
-GET     /ws/twitter-feed                            controllers.Application.resultStream
+GET     /ws/:channelName                            controllers.Application.getChannel(channelName: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)

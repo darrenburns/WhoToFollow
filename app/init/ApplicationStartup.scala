@@ -18,10 +18,10 @@ object SparkInit {
 
 @Singleton
 class ApplicationStartup @Inject() (system: ActorSystem,
-                                     @Named("wordCountActor") wordCountActor: ActorRef) extends TwitterAuth {
+                                     @Named("pipelineSupervisor") pipelineSupervisor: ActorRef) extends TwitterAuth {
 
   val streamHandle: ReceiverInputDStream[Status] = initialise()
-  wordCountActor ! ActiveTwitterStream(streamHandle)
+  pipelineSupervisor ! ActiveTwitterStream(streamHandle)
 
   def initialise(): ReceiverInputDStream[Status] = {
     println("Initialising")
