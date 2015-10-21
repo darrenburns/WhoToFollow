@@ -7,21 +7,31 @@ class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            htCounts: []
+            tweets: [],
+            hashtagCounts: []
         }
     }
 
     componentWillMount() {
-        let htCounts = new WebSocket('ws://localhost:9000/ws/twitter-ht-counts');
-        htCounts.onmessage = event => {
-            this.setState({htCounts: JSON.parse(event.data).data})
-        }
+        let tweets = new WebSocket('ws://localhost:9000/ws/default:primary');
+        let hashtagCounts = new WebSocket('ws://localhost:9000/ws/test');
+        tweets.onmessage = event => {
+            this.setState({tweets: JSON.parse(event.data)})
+        };
+        hashtagCounts.onmessage = event => {
+            this.setState({hashtagCounts: JSON.parse(event.data)})
+        };
     }
 
     render() {
-        let htCountList = this.state.htCounts.map((item, idx) => {
+        let tweetList = this.state.tweets.map(item => {
             return (
-                <Card key={idx}><em>{item.word}</em>: {item.count} occurrences</Card>
+                <Card key={item.id}><strong>{item.screenname}</strong> <em>@{item.username}</em> <br/>{item.text}</Card>
+            )
+        });
+        let htCounts = this.state.hashtagCounts.map((item, idx) => {
+            return (
+                <Card key={idx}><strong>{item.word}</strong>: {item.count} occurrences</Card>
             )
         });
         return (
@@ -31,10 +41,12 @@ class App extends React.Component {
                 </Row>
                 <Row>
                     <Col sm="60%">
-                        <Card>Tweet stream</Card>
+                        <h2>Tweet stream</h2>
+                        {tweetList}
                     </Col>
                     <Col sm="40%">
-                        {htCountList}
+                        <h2>Hashtag counts</h2>
+                        {htCounts}
                     </Col>
                 </Row>
             </Container>
