@@ -25,7 +25,8 @@ object WebSocketSupervisor {
       "username" -> status.getUser.getName,
       "screenname" -> status.getUser.getScreenName,
       "date" -> status.getCreatedAt,
-      "retweets" -> status.getRetweetCount
+      "retweets" -> status.getRetweetCount,
+      "avatar" -> status.getUser.getProfileImageURL
     )
   }
 }

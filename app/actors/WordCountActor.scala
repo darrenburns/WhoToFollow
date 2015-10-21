@@ -44,8 +44,16 @@ class WordCountActor @Inject() (@Named("pipelineSupervisor") supervisor: ActorRe
   }
 
   def processStream(stream: ReceiverInputDStream[Status]): Unit = {
-    val hashTags = stream.flatMap(status => status.getText.split(" ")).filter(_.startsWith("#"))
-    val counts = getWordCountStreamInWindow(hashTags, 10, 10)  // TODO: Get stream window parameters from config
+    val allWords = stream.flatMap(status => status.getText.split(" "))
+//      .filter(_.startsWith("#"))
+
+    // Get rid of stopword and useless information
+    val stopWords = stream.context.sparkContext.textFile("conf/stopwords.txt")
+    val stopWordsSet = stopWords.collect().toSet
+    val words = allWords.filter(word =>
+      !stopWordsSet.contains(word.toLowerCase)
+    )
+    val counts = getWordCountStreamInWindow(words, 10*60, 2)  // TODO: Get stream window parameters from config
     counts.foreachRDD(rdd => {
       supervisor ! WordCountUpdate(rdd.take(10).toList)
     })

@@ -8,7 +8,7 @@ import com.google.inject.{Inject, Singleton}
 import init.{SparkInit, TwitterAuth}
 import org.apache.spark.streaming.twitter.TwitterUtils
 import play.api.libs.json.{Json, Writes}
-import twitter4j.Status
+import twitter4j.{FilterQuery, Status}
 
 case class TweetBatch(tweets: List[Status])
 
