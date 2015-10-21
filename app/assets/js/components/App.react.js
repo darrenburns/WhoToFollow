@@ -1,7 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {Container, Row, Col, Card, InputGroup,
-    FormInput, Button, Spinner} from 'elemental';
+import {Container, Row, Col, Card} from 'elemental';
+import Tweet from './Tweet.react';
+import SearchBar from './SearchBar.react';
 
 class App extends React.Component {
 
@@ -24,19 +25,10 @@ class App extends React.Component {
         };
     }
 
-
-
     render() {
-        let tweetList = this.state.tweets.map((item, idx) => {
+        let tweetList = this.state.tweets.map((tweet, idx) => {
             return (
-                <Card key={idx}>
-                    <Row>
-                        <Col sm="20%"><img src={item.avatar} alt={item.username + "s avatar"} width="50" height="50"/></Col>
-                        <Col sm="80%">
-                            <strong>@{item.screenname}</strong> <em>{item.username}</em> <br/>{item.text}
-                        </Col>
-                    </Row>
-                </Card>
+                <Tweet key={idx} tweet={tweet}/>
             )
         });
         let htCounts = this.state.hashtagCounts.map((item, idx) => {
@@ -53,28 +45,20 @@ class App extends React.Component {
                 </Row>
                 <Row>
                     <Col sm="100%">
-                        <InputGroup contiguous>
-                            <InputGroup.Section grow>
-                                <FormInput type="text" placeholder="Type a #hashtag to get recommendations..." />
-                            </InputGroup.Section>
-                            <InputGroup.Section>
-                                <Button type="primary">Go!</Button>
-                            </InputGroup.Section>
-                        </InputGroup>
+                        <SearchBar placeholder="Type a #hashtag to get recommendations..."
+                            buttonText="Go!" />
                     </Col>
                 </Row>
                 <Row>
                     <Col sm="50%">
                         <h3>Tweet stream</h3>
                         <p>Showing batches of 20 tweets.</p>
-                        <hr/>
                         {tweetList}
                     </Col>
                     <Col sm="50%">
                         <h3>Word counts</h3>
                         <p>Over a 10 minutes window. Updates every 2 seconds.</p>
-                        <hr/>
-                        {htCounts || <Spinner size="lg" />}
+                        {htCounts}
                     </Col>
                 </Row>
             </Container>
