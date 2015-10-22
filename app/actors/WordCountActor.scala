@@ -45,7 +45,7 @@ class WordCountActor @Inject() (@Named("pipelineSupervisor") supervisor: ActorRe
 
   def processStream(stream: ReceiverInputDStream[Status]): Unit = {
     val allWords = stream.flatMap(status => status.getText.split(" "))
-//      .filter(_.startsWith("#"))
+      .filter(_.startsWith("#"))  // TODO: Remove this filter
 
     // Get rid of stopword and useless information
     val stopWords = stream.context.sparkContext.textFile("conf/stopwords.txt")

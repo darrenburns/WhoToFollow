@@ -56,7 +56,7 @@ class App extends React.Component {
                         {tweetList}
                     </Col>
                     <Col sm="50%">
-                        <h3>Word counts</h3>
+                        <h3>Hashtag counts</h3>
                         <p>Over a 10 minutes window. Updates every 2 seconds.</p>
                         {htCounts}
                     </Col>
