@@ -1,14 +1,10 @@
 package actors
 
 import actors.PipelineSupervisor.WordCountUpdate
-import actors.WordCountActor.ActiveTwitterStream
 import akka.actor.Actor
-import akka.actor.Status.{Failure, Success}
-import akka.util.Timeout
 import com.google.inject.Singleton
-import play.api.libs.iteratee.{Iteratee, Enumerator, Concurrent}
-import play.api.libs.json.{Writes, Json, JsValue}
-import play.api.mvc.WebSocket
+import play.api.libs.iteratee.{Concurrent, Enumerator, Iteratee}
+import play.api.libs.json.{JsValue, Json, Writes}
 import twitter4j.Status
 
 import scala.collection.immutable.HashMap

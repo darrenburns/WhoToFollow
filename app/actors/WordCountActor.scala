@@ -8,7 +8,7 @@ import com.google.inject.{Inject, Singleton}
 import org.apache.spark.streaming._
 import org.apache.spark.streaming.dstream.{DStream, ReceiverInputDStream}
 import org.slf4j.LoggerFactory
-import play.api.libs.json.{JsNumber, Writes, Json}
+import play.api.libs.json.{Json, Writes}
 import play.mvc.WebSocket
 import twitter4j.Status
 

@@ -2,13 +2,11 @@ package actors
 
 import actors.WordCountActor.ActiveTwitterStream
 import akka.actor.{Actor, ActorRef}
-import akka.actor.Actor.Receive
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
 import init.{SparkInit, TwitterAuth}
 import org.apache.spark.streaming.twitter.TwitterUtils
-import play.api.libs.json.{Json, Writes}
-import twitter4j.{FilterQuery, Status}
+import twitter4j.Status
 
 case class TweetBatch(tweets: List[Status])
 
