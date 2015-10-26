@@ -1,12 +1,12 @@
 package modules
 
-import actors.{TweetStreamActor, WebSocketSupervisor, PipelineSupervisor, WordCountActor}
+import actors._
 import com.google.inject.AbstractModule
 import play.api.libs.concurrent.AkkaGuiceSupport
 
 class ActorModule extends AbstractModule with AkkaGuiceSupport {
   def configure() {
-    bindActor[WordCountActor]("wordCountActor")
+    bindActor[HashtagCounter]("hashtagCounter")
     bindActor[PipelineSupervisor]("pipelineSupervisor")
     bindActor[WebSocketSupervisor]("webSocketSupervisor")
     bindActor[TweetStreamActor]("tweetStreamActor")

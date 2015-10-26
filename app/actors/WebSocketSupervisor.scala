@@ -1,6 +1,6 @@
 package actors
 
-import actors.PipelineSupervisor.WordCountUpdate
+import actors.PipelineSupervisor.HashtagCountUpdate
 import akka.actor.Actor
 import com.google.inject.Singleton
 import play.api.libs.iteratee.{Concurrent, Enumerator, Iteratee}
@@ -72,11 +72,10 @@ class WebSocketSupervisor extends Actor {
            */
       }
       println("Channels has length " + channels.size)
-    case WordCountUpdate(results) =>
+    case HashtagCountUpdate(results) =>
       // Convert the results to JSON and push
       // it through the broadcast channel
       val json = Json.toJson(results)
-      println(json)
       // In the case of a word count update,
       // forward the result through the 'test'
       // channel in the HashMap

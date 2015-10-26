@@ -1,6 +1,6 @@
 package actors
 
-import actors.WordCountActor.{WordCount, ActiveTwitterStream}
+import actors.HashtagCounter.{HashtagCount, ActiveTwitterStream}
 import akka.actor.{ActorRef, Actor}
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
@@ -14,12 +14,12 @@ import com.google.inject.{Inject, Singleton}
 
 
 object PipelineSupervisor {
-  case class WordCountUpdate(results: List[WordCount])
+  case class HashtagCountUpdate(results: List[HashtagCount])
 }
 
 @Singleton
 class PipelineSupervisor @Inject()
-  (@Named("wordCountActor") wordCountActor: ActorRef,
+  (@Named("hashtagCounter") hashtagCounter: ActorRef,
    @Named("webSocketSupervisor") webSocketSupervisor: ActorRef,
    @Named("tweetStreamActor") tweetStreamActor: ActorRef) extends Actor {
 
@@ -29,9 +29,9 @@ class PipelineSupervisor @Inject()
   override def receive = {
     // Send the ActiveTwitterStream to anywhere that needs it.
     case stream @ ActiveTwitterStream(handle) =>
-      wordCountActor forward stream
+      hashtagCounter forward stream
 
-    case update @ WordCountUpdate(results) =>
+    case update @ HashtagCountUpdate(results) =>
       webSocketSupervisor forward update
   }
 

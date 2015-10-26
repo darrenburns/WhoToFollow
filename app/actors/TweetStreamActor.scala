@@ -1,6 +1,6 @@
 package actors
 
-import actors.WordCountActor.ActiveTwitterStream
+import actors.HashtagCounter.ActiveTwitterStream
 import akka.actor.{Actor, ActorRef}
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
@@ -18,7 +18,7 @@ object TweetStreamActor {
 @Singleton
 class TweetStreamActor @Inject()
   (@Named("webSocketSupervisor") webSocketSupervisor: ActorRef,
-   @Named("wordCountActor") wordCountActor: ActorRef)
+   @Named("hashtagCounter") hashtagCounter: ActorRef)
   extends Actor with TwitterAuth {
 
   import TweetStreamActor._
@@ -26,7 +26,7 @@ class TweetStreamActor @Inject()
   println("Initialising TweetStreamActor")
   checkTwitterKeys()
   val streamHandle = TwitterUtils.createStream(SparkInit.ssc, None)
-  wordCountActor ! ActiveTwitterStream(streamHandle)
+  hashtagCounter ! ActiveTwitterStream(streamHandle)
   sendTweetBatches()
 
   override def receive: Actor.Receive = ???

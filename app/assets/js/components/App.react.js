@@ -33,7 +33,7 @@ class App extends React.Component {
         });
         let htCounts = this.state.hashtagCounts.map((item, idx) => {
             return (
-                <Card key={idx}><strong>{item.word}</strong>: {item.count} occurrences</Card>
+                <Card key={idx}><strong>{item.hashtag}</strong>: {item.count} occurrences</Card>
             )
         });
         return (
