@@ -20,8 +20,9 @@ object UserHashtagCounter {
   // The number of seconds between each report back to supervisor
   val ReportFrequency = Seconds(10)
 
-  implicit val hashtagCountWrites = new Writes[HashtagCount] {
-    def writes(hashtagCount: HashtagCount) = Json.obj(
+  implicit val hashtagCountWrites = new Writes[UserHashtagCount] {
+    def writes(hashtagCount: UserHashtagCount) = Json.obj(
+      "username" -> hashtagCount.username,
       "hashtag" -> hashtagCount.hashtag,
       "count" -> hashtagCount.count
     )

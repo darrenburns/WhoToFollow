@@ -12,13 +12,12 @@ import twitter4j.Status
 case class TweetBatch(tweets: List[Status])
 object TweetStreamActor {
   val DefaultBatchSize = 20
-
 }
 
 @Singleton
 class TweetStreamActor @Inject()
   (@Named("webSocketSupervisor") webSocketSupervisor: ActorRef,
-   @Named("hashtagCounter") hashtagCounter: ActorRef)
+   @Named("userHashtagCounter") userHashtagCounter: ActorRef)
   extends Actor with TwitterAuth {
 
   import TweetStreamActor._
@@ -26,7 +25,8 @@ class TweetStreamActor @Inject()
   println("Initialising TweetStreamActor")
   checkTwitterKeys()
   val streamHandle = TwitterUtils.createStream(SparkInit.ssc, None)
-  hashtagCounter ! ActiveTwitterStream(streamHandle)
+  userHashtagCounter ! ActiveTwitterStream(streamHandle)
+
   sendTweetBatches()
 
   override def receive: Actor.Receive = ???
