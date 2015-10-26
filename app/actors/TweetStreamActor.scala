@@ -1,6 +1,6 @@
 package actors
 
-import actors.HashtagCounter.ActiveTwitterStream
+import actors.UserHashtagCounter.ActiveTwitterStream
 import akka.actor.{Actor, ActorRef}
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
@@ -8,8 +8,8 @@ import init.{SparkInit, TwitterAuth}
 import org.apache.spark.streaming.twitter.TwitterUtils
 import twitter4j.Status
 
-case class TweetBatch(tweets: List[Status])
 
+case class TweetBatch(tweets: List[Status])
 object TweetStreamActor {
   val DefaultBatchSize = 20
 

@@ -1,6 +1,6 @@
 package actors
 
-import actors.PipelineSupervisor.HashtagCountUpdate
+import actors.RedisDispatcher.HashtagCountUpdate
 import akka.actor.Actor
 import com.google.inject.Singleton
 import play.api.libs.iteratee.{Concurrent, Enumerator, Iteratee}
@@ -45,7 +45,6 @@ class WebSocketSupervisor extends Actor {
       primaryChannelTriple match {
         case Some(chTriple) =>
           val json = Json.toJson(tweets)
-          println("Sending tweets to client")
           chTriple.channel push json
         case None =>
           println("Channel 'default:primary' doesn't exist.")

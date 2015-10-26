@@ -6,8 +6,8 @@ import play.api.libs.concurrent.AkkaGuiceSupport
 
 class ActorModule extends AbstractModule with AkkaGuiceSupport {
   def configure() {
-    bindActor[HashtagCounter]("hashtagCounter")
-    bindActor[PipelineSupervisor]("pipelineSupervisor")
+    bindActor[UserHashtagCounter]("userHashtagCounter")
+    bindActor[RedisDispatcher]("redisDispatcher")
     bindActor[WebSocketSupervisor]("webSocketSupervisor")
     bindActor[TweetStreamActor]("tweetStreamActor")
   }

@@ -1,9 +1,7 @@
 package init
 
 import javax.inject.{Inject, Singleton}
-
 import play.api.inject.ApplicationLifecycle
-
 import scala.concurrent.Future
 
 @Singleton
