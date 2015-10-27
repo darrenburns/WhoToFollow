@@ -17,7 +17,7 @@ class UserRecommendation extends React.Component {
         return(
             <ListItem key={this.props.key}
                       leftAvatar={<Avatar src={`http://avatars.io/twitter/${this.props.username}`} />}
-                      onTouchTap={this.openUserTwitterProfile.bind(this.props.username)}
+                      onTouchStart={this.openUserTwitterProfile.bind(this.props.username)}
                       primaryText={`@${this.props.username}`}
                       secondaryText={
                           <p>

@@ -34,10 +34,10 @@ class QueryHandler @Inject()
   import QueryHandler._
   import context.dispatcher
 
-  implicit val timeout = Timeout(5 seconds)
+  implicit val timeout = Timeout(20 seconds)
 
-  // Fetch the latest leaderboard for this query every 2 seconds
-  val tick = context.system.scheduler.schedule(Duration.Zero, 500.millis, self, FetchLatestQueryExperts(query))
+  // Fetch the latest leaderboard for this query every 3 seconds
+  val tick = context.system.scheduler.schedule(Duration.Zero, 3.seconds, self, FetchLatestQueryExperts(query))
 
   println(s"QueryHandler for '$query' created")
 
@@ -48,6 +48,10 @@ class QueryHandler @Inject()
       // Right now, we don't do any further processing, just send to client
       println(s"QueryHandler for '$q' sending results to WSS")
       webSocketSupervisor ! leaderboard
+  }
+
+  override def postStop() = {
+    tick.cancel()
   }
 
 }

@@ -5,6 +5,8 @@ import Tweet from './Tweet.react';
 import UserRecommendation from './UserRecommendation.react';
 import SearchBar from './SearchBar.react';
 import {List, ListDivider, Paper, Card, CardText} from 'material-ui';
+import config from '../util/config';
+import constants from '../util/constants';
 
 class App extends React.Component {
 
@@ -24,6 +26,14 @@ class App extends React.Component {
         tweets.onmessage = event => {
             this.setState({tweets: JSON.parse(event.data)})
         };
+        setInterval(() => {
+            if (this.state.activeQuery !== '' && this.state.querySocket) {
+                this.state.querySocket.send(JSON.stringify({
+                    "channel": this.state.activeQuery,
+                    "request": constants.requests.KEEP_ALIVE
+                }))
+            }
+        }, config.keepAliveFrequency)
     }
 
     handleChange = (e) => {
