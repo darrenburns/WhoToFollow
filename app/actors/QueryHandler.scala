@@ -3,6 +3,7 @@ package actors
 import actors.RedisReader.QueryLeaderboard
 import akka.actor.{ActorRef, Props, Actor}
 import akka.util.Timeout
+import play.api.Logger
 import play.api.libs.concurrent.InjectedActorSupport
 import com.google.inject.Inject
 import com.google.inject.assistedinject.Assisted
@@ -39,14 +40,14 @@ class QueryHandler @Inject()
   // Fetch the latest leaderboard for this query every 3 seconds
   val tick = context.system.scheduler.schedule(Duration.Zero, 3.seconds, self, FetchLatestQueryExperts(query))
 
-  println(s"QueryHandler for '$query' created")
+  Logger.info(s"QueryHandler for channel '$query' created")
 
   override def receive = {
     case req @ FetchLatestQueryExperts(q) =>
       val future = redisReader ? req
       val leaderboard = Await.result(future, timeout.duration).asInstanceOf[QueryLeaderboard]
       // Right now, we don't do any further processing, just send to client
-      println(s"QueryHandler for '$q' sending results to WSS")
+      Logger.info(s"QueryHandler for channel '$q' sending results to WebSocketSupervisor")
       webSocketSupervisor ! leaderboard
   }
 

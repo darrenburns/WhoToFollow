@@ -6,6 +6,7 @@ import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
 import init.{SparkInit, TwitterAuth}
 import org.apache.spark.streaming.twitter.TwitterUtils
+import play.api.Logger
 import twitter4j.Status
 
 
@@ -22,7 +23,7 @@ class TweetStreamActor @Inject()
 
   import TweetStreamActor._
 
-  println("Initialising TweetStreamActor")
+  Logger.info("Initialising TweetStreamActor")
   checkTwitterKeys()
   val streamHandle = TwitterUtils.createStream(SparkInit.ssc, None)
   userHashtagCounter ! ActiveTwitterStream(streamHandle)
@@ -30,7 +31,7 @@ class TweetStreamActor @Inject()
   sendTweetBatches()
 
   override def receive: Actor.Receive = {
-    case _ => println("No message receipt actions defined for TweetStreamActor")
+    case _ => Logger.error("No message receipt actions defined for TweetStreamActor")
   }
 
   def sendTweetBatches(): Unit = {
