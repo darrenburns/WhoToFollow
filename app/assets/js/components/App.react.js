@@ -10,19 +10,43 @@ class App extends React.Component {
         super(props);
         this.state = {
             tweets: [],
-            hashtagCounts: []
+            queryResults: [],
+            currentQuery: '',
+            activeQuery: '',
+            querySocket: null
         }
     }
 
     componentWillMount() {
         let tweets = new WebSocket('ws://localhost:9000/ws/default:primary');
-        let hashtagCounts = new WebSocket('ws://localhost:9000/ws/test');
         tweets.onmessage = event => {
             this.setState({tweets: JSON.parse(event.data)})
         };
-        hashtagCounts.onmessage = event => {
-            this.setState({hashtagCounts: JSON.parse(event.data)})
-        };
+    }
+
+    handleChange = (e) => {
+        let raw = e.target.value;
+        console.log(e);
+        this.setState({currentQuery: raw})
+    }
+
+    handleEnter = (e) => {
+        if (e.key === 'Enter') {
+            let raw = this.state.currentQuery;
+
+            // Get the query text without the hashtag
+            let query = raw.startsWith('#') ? raw.substring(1) : raw;
+
+            // Create the WebSocket
+            let querySocket = new WebSocket(`ws://localhost:9000/ws/${query}`);
+            querySocket.onmessage = event => {
+                this.setState({queryResults: JSON.parse(event.data)})
+            };
+            if (this.state.querySocket) {
+                this.state.querySocket.close();
+            }
+            this.setState({ querySocket: querySocket, activeQuery: this.state.currentQuery, currentQuery: '' })
+        }
     }
 
     render() {
@@ -31,9 +55,9 @@ class App extends React.Component {
                 <Tweet key={idx} tweet={tweet}/>
             )
         });
-        let htCounts = this.state.hashtagCounts.map((item, idx) => {
+        let queryResults = this.state.queryResults.map((result, idx) => {
             return (
-                <Card key={idx}><strong>{item.hashtag}</strong>: {item.count} occurrences</Card>
+                <Card key={idx}><strong>@{result.username}</strong> - {result.rating}</Card>
             )
         });
         return (
@@ -46,7 +70,7 @@ class App extends React.Component {
                 <Row>
                     <Col sm="100%">
                         <SearchBar placeholder="Type a #hashtag to get recommendations..."
-                            buttonText="Go!" />
+                            buttonText="Go!" handleChange={this.handleChange} handleEnter={this.handleEnter} currentQuery={this.state.currentQuery} />
                     </Col>
                 </Row>
                 <Row>
@@ -56,9 +80,9 @@ class App extends React.Component {
                         {tweetList}
                     </Col>
                     <Col sm="50%">
-                        <h3>Hashtag counts</h3>
-                        <p>Over a 10 minutes window. Updates every 2 seconds.</p>
-                        {htCounts}
+                        <h3>Recommendations {this.state.activeQuery != '' ? 'for #' + this.state.activeQuery : ''}</h3>
+                        <p>Currently based solely on hashtag counts</p>
+                        {queryResults}
                     </Col>
                 </Row>
             </Container>

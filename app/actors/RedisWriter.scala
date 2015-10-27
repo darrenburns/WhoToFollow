@@ -1,6 +1,6 @@
 package actors
 
-import actors.UserHashtagCounter.{UserHashtagReport, UserHashtagCount, HashtagCount}
+import actors.UserHashtagCounter.{UserHashtagReport, UserHashtagCount}
 import akka.actor.Actor
 import com.google.inject.{Inject, Singleton}
 import init.RedisInit
@@ -9,14 +9,12 @@ import init.RedisInit
 /*
  Reports can be sent here for storage in Redis.
  */
-object RedisDispatcher {
+object RedisWriter {
   case class HashtagCountUpdate(results: List[UserHashtagCount])
 }
 
 @Singleton
-class RedisDispatcher @Inject() extends Actor {
-
-  import RedisDispatcher._
+class RedisWriter @Inject() extends Actor {
 
   private val r = RedisInit.redis
 
@@ -26,7 +24,6 @@ class RedisDispatcher @Inject() extends Actor {
   }
 
   def applyHashtagCounts(hashtagCounts: Seq[UserHashtagCount]): Unit = {
-    // TODO: Store results in Redis HashMap (adding to previous values).
     hashtagCounts.foreach(userTagCount => {
       r.zincrby(s"hashtags:${userTagCount.hashtag}", userTagCount.count, userTagCount.username)
     })

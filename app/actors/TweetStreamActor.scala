@@ -29,7 +29,9 @@ class TweetStreamActor @Inject()
 
   sendTweetBatches()
 
-  override def receive: Actor.Receive = ???
+  override def receive: Actor.Receive = {
+    case _ => println("No message receipt actions defined for TweetStreamActor")
+  }
 
   def sendTweetBatches(): Unit = {
     streamHandle.foreachRDD(rdd => {

@@ -7,7 +7,9 @@ var watchify = require('watchify');
 var babel = require('babelify');
 
 function compile(watch) {
-    var bundler = watchify(browserify('./components/App.react.js', { debug: true }).transform(babel));
+    var bundler = watchify(browserify('./components/App.react.js', { debug: true }).transform(babel.configure({
+        stage: 0
+    })));
 
     function rebundle() {
         bundler.bundle()

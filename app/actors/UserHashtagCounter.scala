@@ -42,7 +42,7 @@ object UserHashtagCounter {
 
 @Singleton
 class UserHashtagCounter @Inject()
-  (@Named("redisDispatcher") redisDispatcher: ActorRef) extends Actor {
+  (@Named("redisWriter") redisWriter: ActorRef) extends Actor {
 
   import actors.UserHashtagCounter._
 
@@ -69,13 +69,10 @@ class UserHashtagCounter @Inject()
       .transform(_.sortByKey(ascending = false))
       .map{case (count, (user, hashtag)) => UserHashtagCount(user, hashtag, count)}
 
-    // Send reports to Dispatcher
+    // Send reports to Redis
     hashtagCountInWindow.foreachRDD(rdd => {
       val userHashtagCounts = rdd.collect()
-      redisDispatcher ! UserHashtagReport(userHashtagCounts)
-      userHashtagCounts.foreach(uhc => {
-        println("User: " + uhc.username + ", hashtag: " + uhc.hashtag + ", count: " + uhc.count)
-      })
+      redisWriter ! UserHashtagReport(userHashtagCounts)
     })
 
     // TODO: Need to move this in the future.
