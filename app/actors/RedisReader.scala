@@ -3,7 +3,7 @@ package actors
 import actors.QueryHandler.FetchLatestQueryExperts
 import akka.actor.Actor
 import com.redis.RedisClient.DESC
-import init.RedisInit
+import init.RedisConnectionPool
 
 object RedisReader {
 
@@ -17,13 +17,15 @@ class RedisReader extends Actor {
 
   import RedisReader._
 
-  private val r = RedisInit.redis
+  private val clients = RedisConnectionPool.pool
 
   override def receive = {
     case FetchLatestQueryExperts(query) =>
       // i.e. ZRANGE hashtags:#query 0 20 WITHSCORES
       val cleanQuery = if (!query.startsWith("#")) s"#$query" else query
-      val queryResult = r.zrangeWithScore(s"hashtags:$cleanQuery", 0, 20, DESC)
+      val queryResult = clients.withClient{client =>
+        client.zrangeWithScore(s"hashtags:$cleanQuery", 0, 20, DESC)
+      }
       queryResult match {
         case Some(leaderboard) =>
           sender ! QueryLeaderboard(query, leaderboard.map {

@@ -3,7 +3,7 @@ package init
 import akka.actor.{ActorRef, ActorSystem}
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
-import com.redis.RedisClient
+import com.redis.{RedisClientPool, RedisClient}
 import org.apache.spark.SparkConf
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 
@@ -13,8 +13,8 @@ object SparkInit {
   lazy val ssc = new StreamingContext(conf, Seconds(1))
 }
 
-object RedisInit {
-  lazy val redis = new RedisClient("localhost", 6379)
+object RedisConnectionPool {
+  lazy val pool = new RedisClientPool("localhost", 6379)
 }
 
 @Singleton

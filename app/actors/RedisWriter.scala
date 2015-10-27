@@ -3,7 +3,7 @@ package actors
 import actors.UserHashtagCounter.{UserHashtagReport, UserHashtagCount}
 import akka.actor.Actor
 import com.google.inject.{Inject, Singleton}
-import init.RedisInit
+import init.RedisConnectionPool
 
 
 /*
@@ -16,7 +16,7 @@ object RedisWriter {
 @Singleton
 class RedisWriter @Inject() extends Actor {
 
-  private val r = RedisInit.redis
+  private val clients = RedisConnectionPool.pool
 
   override def receive = {
     case UserHashtagReport(results) =>
@@ -24,9 +24,11 @@ class RedisWriter @Inject() extends Actor {
   }
 
   def applyHashtagCounts(hashtagCounts: Seq[UserHashtagCount]): Unit = {
-    hashtagCounts.foreach(userTagCount => {
-      r.zincrby(s"hashtags:${userTagCount.hashtag}", userTagCount.count, userTagCount.username)
-    })
+    clients.withClient{client =>
+      hashtagCounts.foreach(userTagCount => {
+        client.zincrby(s"hashtags:${userTagCount.hashtag}", userTagCount.count, userTagCount.username)
+      })
+    }
   }
 
 }
