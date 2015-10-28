@@ -26,9 +26,8 @@ class TweetStreamActor @Inject()
   Logger.info("Initialising TweetStreamActor")
   checkTwitterKeys()
   val streamHandle = TwitterUtils.createStream(SparkInit.ssc, None)
-  userHashtagCounter ! ActiveTwitterStream(streamHandle)
-
   sendTweetBatches()
+  userHashtagCounter ! ActiveTwitterStream(streamHandle)
 
   override def receive: Actor.Receive = {
     case _ => Logger.error("No message receipt actions defined for TweetStreamActor")
