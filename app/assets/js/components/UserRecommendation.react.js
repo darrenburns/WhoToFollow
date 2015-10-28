@@ -1,23 +1,26 @@
 import React from 'react';
-import {Styles, Avatar, ListItem, ListDivider} from 'material-ui';
+import {Styles, Avatar, ListItem, ListDivider, IconButton, MoreVertIcon} from 'material-ui';
+import injectTapEventPlugin from 'react-tap-event-plugin';
 
+injectTapEventPlugin();
 let {Colors} = Styles;
 
 class UserRecommendation extends React.Component {
 
     constructor(props) {
         super(props);
+        this.openUserTwitterProfile = this.openUserTwitterProfile.bind(this);
     }
 
-    openUserTwitterProfile = (username) => {
-        window.open(`https://twitter.com/${username}`)
+    openUserTwitterProfile() {
+        window.open(`https://twitter.com/${this.props.username}`);
     }
 
     render() {
         return(
             <ListItem key={this.props.key}
                       leftAvatar={<Avatar src={`http://avatars.io/twitter/${this.props.username}`} />}
-                      onTouchStart={this.openUserTwitterProfile.bind(this.props.username)}
+                      onTouchTap={this.openUserTwitterProfile}
                       primaryText={`@${this.props.username}`}
                       secondaryText={
                           <p>

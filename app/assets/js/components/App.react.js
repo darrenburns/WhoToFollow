@@ -74,7 +74,7 @@ class App extends React.Component {
             if (idx !== this.state.queryResults.length -1) {
                 queryResults.push(<ListDivider key={`divider:${idx}`}/>)
             }
-        });
+        }, this);
         return (
             <Container maxWidth={800}>
                 <Row>
