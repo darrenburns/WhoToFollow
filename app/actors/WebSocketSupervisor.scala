@@ -4,6 +4,7 @@ import java.nio.channels.ClosedChannelException
 import java.util.concurrent.TimeUnit
 
 import actors.RedisReader.{ExpertRating, QueryLeaderboard}
+import actors.TweetStreamActor.TweetBatch
 import akka.actor.{ActorRef, Actor}
 import akka.util.Timeout
 import com.google.inject.{Inject, Singleton}

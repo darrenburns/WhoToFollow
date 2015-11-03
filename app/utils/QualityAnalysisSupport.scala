@@ -6,7 +6,7 @@ import play.api.Logger
 /**
   * Defines a set of functions for analysing the quality of text.
   */
-trait QualityAnalysisSupport {
+object QualityAnalysisSupport extends Serializable {
 
   /** Count the numbers of punctuation characters in a string.
    *
@@ -21,7 +21,7 @@ trait QualityAnalysisSupport {
       if (StringUtilities.BasicPunctuation.contains(c)) {
         counts.get(c) match {
           case Some(count) => counts += (c -> (count + 1))
-          case None => Logger.error("Error updating punctuation counts.")
+          case None => counts += (c -> 0)
         }
       }
     })

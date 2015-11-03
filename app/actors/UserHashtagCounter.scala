@@ -1,5 +1,6 @@
 package actors
 
+import actors.TweetStreamActor.Ready
 import akka.actor.{Actor, ActorRef}
 import com.fasterxml.jackson.databind.JsonNode
 import com.google.inject.name.Named
@@ -7,7 +8,7 @@ import com.google.inject.{Inject, Singleton}
 import org.apache.spark.streaming._
 import org.apache.spark.streaming.dstream.ReceiverInputDStream
 import org.slf4j.LoggerFactory
-import play.api.Configuration
+import play.api.{Logger, Configuration}
 import play.api.libs.json.{Json, Writes}
 import play.mvc.WebSocket
 import twitter4j.Status
@@ -52,6 +53,7 @@ class UserHashtagCounter @Inject()
   override def receive = {
     case ActiveTwitterStream(stream) =>
       processStream(stream)  // Initialise the counting of hashtags
+      sender ! Ready()
     case _ =>
       logger.warn(s"${getClass.getName} received an unrecognised request.")
   }
@@ -82,9 +84,6 @@ class UserHashtagCounter @Inject()
       redisWriter ! UserHashtagReport(userHashtagCounts)
     })
 
-    // TODO: Need to move this in the future, to ensure start is called after all Spark jobs are defined.
-    stream.context.start()
-    stream.context.awaitTermination()
   }
 
 }
