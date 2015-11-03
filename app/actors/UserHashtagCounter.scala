@@ -7,6 +7,7 @@ import com.google.inject.{Inject, Singleton}
 import org.apache.spark.streaming._
 import org.apache.spark.streaming.dstream.ReceiverInputDStream
 import org.slf4j.LoggerFactory
+import play.api.Configuration
 import play.api.libs.json.{Json, Writes}
 import play.mvc.WebSocket
 import twitter4j.Status
@@ -17,8 +18,9 @@ import scala.language.postfixOps
 object UserHashtagCounter {
   val logger = LoggerFactory.getLogger(getClass)
 
-  // The number of seconds between each report back to supervisor
-  val ReportFrequency = Seconds(10)
+  object Defaults {
+    val HashtagCountWindowSize = 10  // The number of seconds between each report back to supervisor
+  }
 
   implicit val hashtagCountWrites = new Writes[UserHashtagCount] {
     def writes(hashtagCount: UserHashtagCount) = Json.obj(
@@ -35,14 +37,15 @@ object UserHashtagCounter {
   case class UserHashtagReport(counts: Seq[UserHashtagCount])
 }
 
-/*
- Counts hashtags on a per-user basis within a window.
- Reports back to dispatcher every `ReportFrequency` seconds.
+/**
+  * Counts hashtags on a per-user basis within a window.
+  * Reports back to dispatcher every `Defaults.HashtagCountWindowSize` seconds.
  */
 
 @Singleton
 class UserHashtagCounter @Inject()
-  (@Named("redisWriter") redisWriter: ActorRef) extends Actor {
+  (@Named("redisWriter") redisWriter: ActorRef,
+    configuration: Configuration) extends Actor {
 
   import actors.UserHashtagCounter._
 
@@ -50,10 +53,14 @@ class UserHashtagCounter @Inject()
     case ActiveTwitterStream(stream) =>
       processStream(stream)  // Initialise the counting of hashtags
     case _ =>
-      logger.debug("WordCountActor received an unrecognised request.")
+      logger.warn(s"${getClass.getName} received an unrecognised request.")
   }
 
   def processStream(stream: ReceiverInputDStream[Status]): Unit = {
+
+    // Get the report frequency configuration or use the default value
+    val reportFrequency = configuration.getInt("analysis.hashtagCount.windowSize")
+      .getOrElse(Defaults.HashtagCountWindowSize)
 
     // Status -> several tuples of form ((user, hashtag), 1)
     val userHashtags = stream.flatMap(status => {
@@ -64,7 +71,7 @@ class UserHashtagCounter @Inject()
 
     // Counting aggregation of (user, hashtag) pairs
     val hashtagCountInWindow = userHashtags
-      .reduceByKeyAndWindow((p:Int, q:Int) => p+q, ReportFrequency, ReportFrequency)
+      .reduceByKeyAndWindow((p:Int, q:Int) => p+q, Seconds(reportFrequency), Seconds(reportFrequency))
       .map{case ((user, hashtag), count) => (count, (user, hashtag))}
       .transform(_.sortByKey(ascending = false))
       .map{case (count, (user, hashtag)) => UserHashtagCount(user, hashtag, count)}
@@ -75,7 +82,7 @@ class UserHashtagCounter @Inject()
       redisWriter ! UserHashtagReport(userHashtagCounts)
     })
 
-    // TODO: Need to move this in the future.
+    // TODO: Need to move this in the future, to ensure start is called after all Spark jobs are defined.
     stream.context.start()
     stream.context.awaitTermination()
   }
