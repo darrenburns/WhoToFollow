@@ -1,7 +1,7 @@
 package actors
 
 import actors.RedisWriter.TweetQualityReportBatch
-import actors.TweetQualityAnalyser.{TweetQualityReport, CheckQuality}
+import actors.FeatureExtraction.{TweetQualityReport, CheckQuality}
 import actors.UserHashtagCounter.ActiveTwitterStream
 import akka.actor.{ActorRef, Actor}
 import com.google.inject.name.Named
@@ -13,7 +13,7 @@ import twitter4j.Status
 import utils.QualityAnalysisSupport
 
 
-object TweetQualityAnalyser {
+object FeatureExtraction {
 
   object Defaults {
     val WindowSize = 10
@@ -29,11 +29,11 @@ object TweetQualityAnalyser {
   * tweet quality ratings to the associated users.
   */
 @Singleton
-class TweetQualityAnalyser @Inject()
+class FeatureExtraction @Inject()
   (@Named("redisWriter") redisWriter: ActorRef, configuration: Configuration)
   extends Actor with QualityAnalysisSupport {
 
-  import TweetQualityAnalyser._
+  import FeatureExtraction._
 
   val windowSize = configuration.getInt("analysis.featureExtraction.windowSize").getOrElse(Defaults.WindowSize)
 

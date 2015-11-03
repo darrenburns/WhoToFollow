@@ -22,7 +22,9 @@ dependencyOverrides ++= Set(
   "com.fasterxml.jackson.core" % "jackson-core" % "2.4.4",
   "com.fasterxml.jackson.core" % "jackson-annotations" % "2.4.4",
   "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % "2.4.4",
-  "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.4.4"
+  "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.4.4",
+  "org.twitter4j" % "twitter4j-core" % "3.0.4",
+  "org.twitter4j" % "twitter4j-stream" % "3.0.4"
 )
 
 resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
