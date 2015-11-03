@@ -21,7 +21,7 @@ object QualityAnalysisSupport extends Serializable {
       if (StringUtilities.BasicPunctuation.contains(c)) {
         counts.get(c) match {
           case Some(count) => counts += (c -> (count + 1))
-          case None => counts += (c -> 0)
+          case None => counts += (c -> 1)
         }
       }
     })
