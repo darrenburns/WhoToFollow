@@ -51,11 +51,10 @@ class RedisWriter extends Actor with Serializable {
 
       case class TweetQualityReport(username: String, followerCount: Int, punctuationCounts: Map[Char, Int],
                                 wordCount: Int, capWordCount: Int, hashtagCount: Int, retweetCount: Long,
-                                mentionCount: Int, likeCount: Int)
+                                mentionCount: Int, likeCount: Int, dictionaryHits: Int, linkCount: Int)
 
      */
     reports.foreach(report => {
-      // Extract the username - this is where we'll be storing the data
       val user = report.username
       clients.withClient{client =>
         // Increment the value at <username>:stats:tweetCount by 1

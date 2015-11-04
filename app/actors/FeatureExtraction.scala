@@ -19,17 +19,17 @@ object FeatureExtraction {
     val WindowSize = 10
   }
 
-  case class TweetFeatures(username: String,
-                           followerCount: Int,
-                           punctuationCounts: Map[Char, Int],
-                           wordCount: Int,
-                           capWordCount: Int,
-                           hashtagCount: Int,
-                           retweetCount: Int,
-                           mentionCount: Int,
-                           likeCount: Int,
-                           dictionaryHits: Int,
-                           linkCount: Int
+  case class TweetFeatures(username: String,  // The user's username (not including the '@')
+                           followerCount: Int,  // The number of followers the user has
+                           punctuationCounts: Map[Char, Int],  // Totals for each punctuation character in the tweet
+                           wordCount: Int,  // The number of words in the tweet
+                           capWordCount: Int,  // The number of capitalised words in the tweet
+                           hashtagCount: Int,  // The number of hashtags used in the tweet
+                           retweetCount: Int,  // The number of retweets the tweet has received
+                           mentionCount: Int,  // The number of different users mentioned in the tweet
+                           likeCount: Int,  // The number of likes the tweet has received
+                           dictionaryHits: Int,  // The number of words that are spelled correctly (found in dictionary)
+                           linkCount: Int  // The number of links contained within the tweet
                           )
   case class CheckQuality(status: Status)
 }
