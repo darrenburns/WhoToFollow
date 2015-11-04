@@ -62,9 +62,9 @@ class RedisWriter extends Actor with Serializable {
         client.hincrby(s"user:$user:stats", "tweetCount", 1)
         // Set the value at <username>:stats:followerCount to report.followerCount
         client.hset(s"user:$user:stats", "followerCount", report.followerCount)
-        // Increment the values at <username>:stats:punctuation:<char> by report.punctuationCounts
+        // Increment the values at <username>:stats:<char> by report.punctuationCounts
         report.punctuationCounts.foreach(count => {
-          client.hincrby(s"user:$user:stats:punctuation", s"${count._1}", count._2)
+          client.hincrby(s"user:$user:stats", s"${count._1}", count._2)
         })
         // Increment the value at <username>:stats:wordCount by report.wordCount
         client.hincrby(s"user:$user:stats", "wordCount", report.wordCount)
@@ -74,6 +74,8 @@ class RedisWriter extends Actor with Serializable {
         client.hincrby(s"user:$user:stats", "retweetCount", report.retweetCount)
         // Increment the value at <username>:stats:likeCount by report.likeCount
         client.hincrby(s"user:$user:stats", "likeCount", report.likeCount)
+        // Increment the value at <username>:stats:dictionaryHits
+        client.hincrby(s"user:$user:stats", "dictionaryHits", report.dictionaryHits)
       }
     })
   }

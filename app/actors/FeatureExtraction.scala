@@ -10,7 +10,7 @@ import org.apache.spark.streaming.Seconds
 import org.apache.spark.streaming.dstream.ReceiverInputDStream
 import play.api.{Configuration, Logger}
 import twitter4j.Status
-import utils.QualityAnalysisSupport._
+import utils.QualityAnalyser
 
 
 object FeatureExtraction {
@@ -27,7 +27,9 @@ object FeatureExtraction {
                            hashtagCount: Int,
                            retweetCount: Int,
                            mentionCount: Int,
-                           likeCount: Int)
+                           likeCount: Int,
+                           dictionaryHits: Int
+                          )
   case class CheckQuality(status: Status)
 }
 
@@ -55,18 +57,20 @@ class FeatureExtraction @Inject()
 
   def findStreamFeatures(stream: ReceiverInputDStream[Status]): Unit = {
     val tweetQualityReports = stream.map(status => {
-      val tqr = TweetFeatures(
+      val qa = new QualityAnalyser(status.getText)
+      val features = TweetFeatures(
         username = status.getUser.getScreenName,
         followerCount = status.getUser.getFollowersCount,
-        punctuationCounts = getPunctuationCounts(status.getText),
-        wordCount = countWords(status.getText),
-        capWordCount = countCapitalisedWords(status.getText),
+        punctuationCounts = qa.findPunctuationCounts(),
+        wordCount = qa.countWords(),
+        capWordCount = qa.countCapitalisedWords(),
         hashtagCount = status.getHashtagEntities.length,
         retweetCount = status.getRetweetCount,
         mentionCount = status.getUserMentionEntities.length,
-        likeCount = status.getFavoriteCount
+        likeCount = status.getFavoriteCount,
+        dictionaryHits = qa.countDictionaryHits()
       )
-      tqr
+      features
     })
     tweetQualityReports.window(Seconds(windowSize), Seconds(windowSize)).foreachRDD(report => {
       Logger.debug("Sending tweet quality report batch to redisWriter")
