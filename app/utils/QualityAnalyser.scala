@@ -16,6 +16,7 @@ class QualityAnalyser(text: String) extends Serializable {
 
   import QualityAnalyser._
   private val splitText = text.split(" ")
+  private val words = splitText.map(_.filter(!StringUtilities.BasicPunctuation.contains(_)))
 
   /** Count the numbers of punctuation characters in a string.
    *
@@ -44,8 +45,8 @@ class QualityAnalyser(text: String) extends Serializable {
    */
   def countCapitalisedWords(): Int = {
     var count = 0
-    splitText.foreach(word => {
-      val uppers = word.filter(c => c.isUpper && word != "I" && !StringUtilities.BasicPunctuation.contains(c))
+    words.foreach(word => {
+      val uppers = word.filter(c => c.isUpper)
       if (uppers.length == word.length) {
         count += 1
       }
@@ -60,8 +61,7 @@ class QualityAnalyser(text: String) extends Serializable {
     */
   def countDictionaryHits(): Int = {
     var hits = 0
-    splitText.foreach(split => {
-      val word = split.filter(!StringUtilities.BasicPunctuation.contains(_))
+    words.foreach(word => {
       if (!word.isEmpty && dictionary.contains(word)) {
         hits += 1
       }
