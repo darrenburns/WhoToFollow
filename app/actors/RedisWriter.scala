@@ -68,6 +68,8 @@ class RedisWriter extends Actor with Serializable {
         })
         // Increment the value at <username>:stats:wordCount by report.wordCount
         client.hincrby(s"user:$user:stats", "wordCount", report.wordCount)
+        // Increment the value at <username>:stats:capWordCount by report.capWordCount
+        client.hincrby(s"user:$user:stats", "capWordCount", report.capWordCount)
         // Increment the value at <username>:stats:hashtagCount by report.hashtagCount
         client.hincrby(s"user:$user:stats", "hashtagCount", report.hashtagCount)
         // Increment the value at <username>:stats:retweetCount by report.retweetCount
@@ -76,6 +78,8 @@ class RedisWriter extends Actor with Serializable {
         client.hincrby(s"user:$user:stats", "likeCount", report.likeCount)
         // Increment the value at <username>:stats:dictionaryHits
         client.hincrby(s"user:$user:stats", "dictionaryHits", report.dictionaryHits)
+        // Increment the link count
+        client.hincrby(s"user:$user:stats", "linkCount", report.linkCount)
       }
     })
   }

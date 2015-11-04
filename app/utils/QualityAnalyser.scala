@@ -36,9 +36,7 @@ class QualityAnalyser(text: String) extends Serializable {
     counts
   }
 
-  def countWords(): Int = {
-    splitText.length
-  }
+  def countWords(): Int = splitText.length
 
   /** Count the number of capitalised words in a string.
    *

@@ -28,7 +28,8 @@ object FeatureExtraction {
                            retweetCount: Int,
                            mentionCount: Int,
                            likeCount: Int,
-                           dictionaryHits: Int
+                           dictionaryHits: Int,
+                           linkCount: Int
                           )
   case class CheckQuality(status: Status)
 }
@@ -58,17 +59,21 @@ class FeatureExtraction @Inject()
   def findStreamFeatures(stream: ReceiverInputDStream[Status]): Unit = {
     val tweetQualityReports = stream.map(status => {
       val qa = new QualityAnalyser(status.getText)
+      val htCount = status.getHashtagEntities.length
+      val mentionCount = status.getUserMentionEntities.length
+      val linkCount = status.getURLEntities.length
       val features = TweetFeatures(
         username = status.getUser.getScreenName,
         followerCount = status.getUser.getFollowersCount,
         punctuationCounts = qa.findPunctuationCounts(),
-        wordCount = qa.countWords(),
+        wordCount = qa.countWords() - htCount - mentionCount - linkCount,
         capWordCount = qa.countCapitalisedWords(),
-        hashtagCount = status.getHashtagEntities.length,
+        hashtagCount = htCount,
         retweetCount = status.getRetweetCount,
-        mentionCount = status.getUserMentionEntities.length,
+        mentionCount = mentionCount,
         likeCount = status.getFavoriteCount,
-        dictionaryHits = qa.countDictionaryHits()
+        dictionaryHits = qa.countDictionaryHits(),
+        linkCount = linkCount
       )
       features
     })
