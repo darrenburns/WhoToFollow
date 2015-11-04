@@ -48,7 +48,7 @@ class FeatureExtraction @Inject()
 
   override def receive = {
     /*
-    Initial basic feature extraction. TODO: Extract features for spelling accuracy (using system dictionary)
+    Initial basic feature extraction.
      */
     case ActiveTwitterStream(stream) =>
       findStreamFeatures(stream)
