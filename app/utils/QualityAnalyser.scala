@@ -24,7 +24,7 @@ class QualityAnalyser(text: String) extends Serializable {
    *         within the text.
    */
   def findPunctuationCounts(): Map[Char, Int] = {
-    var counts = Map[Char, Int]().withDefaultValue(0)
+    var counts = Map[Char, Int]().empty
     text.foreach(c => {
       if (StringUtilities.BasicPunctuation.contains(c)) {
         counts.get(c) match {
@@ -45,7 +45,7 @@ class QualityAnalyser(text: String) extends Serializable {
   def countCapitalisedWords(): Int = {
     var count = 0
     splitText.foreach(word => {
-      val uppers = word.filter(_.isUpper)
+      val uppers = word.filter(c => c.isUpper && word != "I" && !StringUtilities.BasicPunctuation.contains(c))
       if (uppers.length == word.length) {
         count += 1
       }
@@ -60,11 +60,12 @@ class QualityAnalyser(text: String) extends Serializable {
     */
   def countDictionaryHits(): Int = {
     var hits = 0
-    splitText.foreach(word =>
-      if (dictionary.contains(word)) {
+    splitText.foreach(split => {
+      val word = split.filter(!StringUtilities.BasicPunctuation.contains(_))
+      if (!word.isEmpty && dictionary.contains(word)) {
         hits += 1
       }
-    )
+    })
     hits
   }
 
