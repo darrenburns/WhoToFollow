@@ -3,6 +3,7 @@ package init
 import akka.actor.{ActorRef, ActorSystem}
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
+import com.mongodb.casbah.MongoClient
 import com.redis.{RedisClientPool, RedisClient}
 import org.apache.spark.SparkConf
 import org.apache.spark.streaming.{Seconds, StreamingContext}
@@ -15,6 +16,10 @@ object SparkInit {
 
 object RedisConnectionPool {
   lazy val pool = new RedisClientPool("localhost", 6379)
+}
+
+object Mongo {
+  lazy val db = MongoClient()("wtfc")  // Defaulting to localhost, 27017
 }
 
 @Singleton

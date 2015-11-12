@@ -50,6 +50,10 @@ class UserHashtagCounter @Inject()
 
   import actors.UserHashtagCounter._
 
+  // Get the report frequency configuration or use the default value
+  val reportFrequency = configuration.getInt("analysis.counts.windowSize")
+    .getOrElse(Defaults.HashtagCountWindowSize)
+
   override def receive = {
     case ActiveTwitterStream(stream) =>
       processStream(stream)  // Initialise the counting of hashtags
@@ -59,10 +63,6 @@ class UserHashtagCounter @Inject()
   }
 
   def processStream(stream: ReceiverInputDStream[Status]): Unit = {
-
-    // Get the report frequency configuration or use the default value
-    val reportFrequency = configuration.getInt("analysis.hashtagCount.windowSize")
-      .getOrElse(Defaults.HashtagCountWindowSize)
 
     // Status -> several tuples of form ((user, hashtag), 1)
     val userHashtags = stream.flatMap(status => {

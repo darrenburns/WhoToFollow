@@ -1,6 +1,8 @@
 package actors
 
 import actors.UserHashtagCounter.ActiveTwitterStream
+
+import actors.UserHashtagCounter.ActiveTwitterStream
 import akka.actor.{Actor, ActorRef}
 import akka.pattern.ask
 import akka.util.Timeout
@@ -26,7 +28,8 @@ object TweetStreamActor {
 class TweetStreamActor @Inject()
   (@Named("webSocketSupervisor") webSocketSupervisor: ActorRef,
    @Named("userHashtagCounter") userHashtagCounter: ActorRef,
-    @Named("featureExtraction") featureExtraction: ActorRef)
+   @Named("featureExtraction") featureExtraction: ActorRef,
+   @Named("userLanguageModelling") userLanguageModelling: ActorRef)
   extends Actor with TwitterAuth {
 
   import TweetStreamActor._
@@ -41,6 +44,7 @@ class TweetStreamActor @Inject()
   val responses = for {
     hashtagCounterReady <- userHashtagCounter ? ActiveTwitterStream(streamHandle)
     featureExtractionReady <- featureExtraction ? ActiveTwitterStream(streamHandle)
+    userLanguageModellingReady <- userLanguageModelling ? ActiveTwitterStream(streamHandle)
   } yield (hashtagCounterReady, featureExtractionReady)
   val (hashtagCounterReady, featureExtractionReady) = Await.result(responses, 20 seconds)
 
