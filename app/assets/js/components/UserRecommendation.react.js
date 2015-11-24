@@ -5,7 +5,7 @@ import injectTapEventPlugin from 'react-tap-event-plugin';
 injectTapEventPlugin();
 let {Colors} = Styles;
 
-class UserRecommendation extends React.Component {
+export default class UserRecommendation extends React.Component {
 
     constructor(props) {
         super(props);
@@ -17,6 +17,9 @@ class UserRecommendation extends React.Component {
     }
 
     render() {
+        /**
+         * TODO : Change to GridList with User avatar backgrounds
+         */
         return(
             <ListItem key={this.props.key}
                       leftAvatar={<Avatar src={`http://avatars.io/twitter/${this.props.username}`} />}
@@ -34,5 +37,3 @@ class UserRecommendation extends React.Component {
     }
 
 }
-
-module.exports = UserRecommendation;
