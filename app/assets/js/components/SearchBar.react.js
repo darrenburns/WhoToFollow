@@ -11,6 +11,7 @@ export default class SearchBar extends React.Component {
     render() {
         return (
             <TextField
+                className="home-search-bar"
                 hintText={this.props.placeholder}
                 value={this.props.currentQuery}
                 //underlineStyle={{borderColor:Colors.green500}}

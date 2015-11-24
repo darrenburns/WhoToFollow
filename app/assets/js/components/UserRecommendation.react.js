@@ -1,5 +1,5 @@
 import React from 'react';
-import {Styles, Avatar, ListItem, ListDivider, IconButton, MoreVertIcon} from 'material-ui';
+import {Badge, Styles, Avatar, GridTile} from 'material-ui';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 
 injectTapEventPlugin();
@@ -20,20 +20,12 @@ export default class UserRecommendation extends React.Component {
         /**
          * TODO : Change to GridList with User avatar backgrounds
          */
-        return(
-            <ListItem key={this.props.key}
-                      leftAvatar={<Avatar src={`http://avatars.io/twitter/${this.props.username}`} />}
-                      onTouchTap={this.openUserTwitterProfile}
-                      primaryText={`@${this.props.username}`}
-                      secondaryText={
-                          <p>
-                            Mentioned
-                            <span style={{color: Colors.darkBlack}}> #{this.props.query} </span>
-                            on <span style={{color: Colors.darkBlack}}>{this.props.rating}</span> occassions.
-                          </p>
-                        }
-                />
+        return (
+            <GridTile key={this.props.key}
+                      title={`@${this.props.username}`}
+            >
+                <img src={`http://avatars.io/twitter/${this.props.username}`} alt={this.props.username}/>
+            </GridTile>
         )
     }
-
 }

@@ -4,7 +4,7 @@ import UserRecommendation from './UserRecommendation.react';
 import Hashtag from './Hashtag.react';
 import FAIcon from './FAIcon.react';
 import {Row, Col} from 'elemental';
-import {IconButton, ListDivider, CircularProgress, Paper, FlatButton} from 'material-ui';
+import {GridList, IconButton, CircularProgress, Paper, FlatButton} from 'material-ui';
 
 const QueryResults = React.createClass({
 
@@ -53,12 +53,9 @@ const QueryResults = React.createClass({
                                     rating={result.rating}
                                     query={result.query} />
             );
-            if (idx !== this.state.queryResults.length -1) {
-                queryResults.push(<ListDivider key={`divider:${idx}`}/>)
-            }
         }, this);
         let spinner = <CircularProgress mode="indeterminate" />;
-        let noResultsMessage = <Paper zDepth={1}>Your query returned no results.</Paper>;
+        let noResultsMessage = <Paper zDepth={1}><p>Your query returned no results.</p></Paper>;
         return (
             <Row>
                 <Col sm="20%">
@@ -70,7 +67,13 @@ const QueryResults = React.createClass({
                 </Col>
                 <Col sm="100%">
                     {queryResults.length > 0 ?
-                        queryResults :
+                            <GridList
+                                cols={4}
+                                cellHeight={200}
+                                padding={1}>
+                                {queryResults}
+                            </GridList>
+                        :
                         (this.state.queryComplete ?
                             noResultsMessage :
                             spinner)}
@@ -81,4 +84,5 @@ const QueryResults = React.createClass({
     }
 
 });
+
 module.exports = QueryResults;
