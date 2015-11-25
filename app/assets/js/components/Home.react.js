@@ -14,9 +14,30 @@ const Home = React.createClass({
 
     mixins: [History],
 
-    getInitialState(props) {
+    getInitialState() {
         return {
-            currentQuery: ''
+            currentQuery: '',
+            recentQueries: [],
+            recentQueriesSocket: null
+        }
+    },
+
+    componentWillMount() {
+        let ws = new WebSocket(`ws://localhost:9000/ws/default:recent-queries`);
+        ws.onmessage = event => {
+            this.setState({recentQueries: JSON.parse(event.data).recentQueries});
+        };
+        if (this.state.recentQueriesSocket != null) {
+            this.state.recentQueriesSocket.close();
+        }
+        this.setState({
+            recentQueriesSocket: ws
+        });
+    },
+
+    componentWillUnmount() {
+        if (this.state.recentQueriesSocket != null) {
+            this.state.recentQueriesSocket.close();
         }
     },
 
@@ -38,6 +59,12 @@ const Home = React.createClass({
     },
 
     render: function() {
+        console.log("Original this.state.recentQueries", this.state.recentQueries);
+        let recentHashtags = this.state.recentQueries.map((queryString, idx) => {
+            console.log("Returning hashtag");
+            return <Hashtag key={idx} hashtag={queryString}/>
+        });
+        console.log("Mapped", recentHashtags);
         return (
             <Container maxWidth={800}>
                 <Row>
@@ -54,17 +81,12 @@ const Home = React.createClass({
                     </Col>
                 </Row>
                 <Row>
-                    <Col sm="100%">
-                        <h3>Recent searches</h3>
+                    <Col sm="50%">
+                        <h3 className="padded-top-h">Recent searches</h3>
+                        <ul>
+                            {recentHashtags.map(ht => <li>{ht}</li>)}
+                        </ul>
                     </Col>
-                </Row>
-                <Row>
-                    <Col sm="1/3"><Hashtag hashtag="Hello"/></Col>
-                    <Col sm="1/3"><Hashtag hashtag="Hello"/></Col>
-                    <Col sm="1/3"><Hashtag hashtag="Hello"/></Col>
-                    <Col sm="1/3"><Hashtag hashtag="Hello"/></Col>
-                    <Col sm="1/3"><Hashtag hashtag="Hello"/></Col>
-                    <Col sm="1/3"><Hashtag hashtag="Hello"/></Col>
                 </Row>
             </Container>
         )

@@ -14,14 +14,15 @@ const QueryResults = React.createClass({
         return {
             querySocket: null,
             queryResults: [],
-            queryComplete: false
+            queryComplete: false,
+            queryUserHistories: {}
         }
     },
 
     componentWillMount: function() {
         // Create the WebSocket
         console.log('Mounting QueryResults');
-        let querySocket = new WebSocket(`ws://localhost:9000/ws/${this.props.params.query}`)
+        let querySocket = new WebSocket(`ws://localhost:9000/ws/${this.props.params.query}`);
         querySocket.onmessage = event => {
             this.setState({queryComplete: true, queryResults: JSON.parse(event.data)})
         };
@@ -58,26 +59,32 @@ const QueryResults = React.createClass({
         let noResultsMessage = <Paper zDepth={1}><p>Your query returned no results.</p></Paper>;
         return (
             <Row>
-                <Col sm="20%">
-                    <IconButton iconClassName="material-icons" tooltipPosition="bottom-center"
-                                tooltip="Search again" onClick={this.onClickBackButton}>arrow_back</IconButton>
-                </Col>
-                <Col sm="80%">
-                    <h1>Recommendations for <Hashtag hashtag={this.props.params.query}/></h1>
-                </Col>
                 <Col sm="100%">
-                    {queryResults.length > 0 ?
-                            <GridList
-                                cols={4}
-                                cellHeight={200}
-                                padding={1}>
-                                {queryResults}
-                            </GridList>
-                        :
-                        (this.state.queryComplete ?
-                            noResultsMessage :
-                            spinner)}
+                    <Row>
+                        <Col sm="20%">
+                            <IconButton iconClassName="material-icons" tooltipPosition="bottom-center"
+                                        tooltip="Search again" onClick={this.onClickBackButton}>arrow_back</IconButton>
+                        </Col>
+                        <Col sm="80%">
+                            <h1>Results for <Hashtag hashtag={this.props.params.query}/></h1>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col sm="100%">
+                            {queryResults.length > 0 ?
+                                    <GridList
+                                        cols={4}
+                                        padding={3}
+                                        cellHeight={200}>
+                                        {queryResults}
+                                    </GridList>
+                                :
+                                (this.state.queryComplete ?
+                                    noResultsMessage :
+                                    spinner)}
 
+                        </Col>
+                    </Row>
                 </Col>
             </Row>
         )

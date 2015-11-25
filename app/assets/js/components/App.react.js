@@ -19,7 +19,7 @@ const App = React.createClass({
 
 ReactDOM.render((
     <Router>
-        <Route path="/" component={App}>
+        <Route component={App}>
             <Route path="home" component={Home} />
             <Route path="query/:query" component={QueryResults} />
         </Route>
