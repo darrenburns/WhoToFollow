@@ -1,6 +1,8 @@
 package actors
 
+import actors.TweetStreamActor.Ready
 import actors.UserHashtagCounter.ActiveTwitterStream
+import akka.actor.Status.Success
 import akka.actor.{Actor, ActorRef}
 import akka.pattern.ask
 import akka.util.Timeout
@@ -14,6 +16,7 @@ import twitter4j.Status
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.concurrent.Await
+import scala.util.Failure
 
 
 object TweetStreamActor {
@@ -24,41 +27,42 @@ object TweetStreamActor {
 
 @Singleton
 class TweetStreamActor @Inject()
-  (@Named("webSocketSupervisor") webSocketSupervisor: ActorRef,
+(
    @Named("userHashtagCounter") userHashtagCounter: ActorRef,
    @Named("featureExtraction") featureExtraction: ActorRef,
    @Named("userIndexing") userIndexing: ActorRef
 )
   extends Actor with TwitterAuth {
 
-  import TweetStreamActor._
-
   implicit val timeout = Timeout(20 seconds)
 
   Logger.info("Initialising TweetStreamActor")
   checkTwitterKeys()
   val streamHandle = TwitterUtils.createStream(SparkInit.ssc, None)
-  sendTweetBatches()
 
+  // Asynchronously send status stream handle to interested actors
   val responses = for {
-    hashtagCounterReady <- userHashtagCounter ? ActiveTwitterStream(streamHandle)
-    featureExtractionReady <- featureExtraction ? ActiveTwitterStream(streamHandle)
-    userIndexingReady <- userIndexing ? ActiveTwitterStream(streamHandle)
-  } yield (hashtagCounterReady, featureExtractionReady, userIndexingReady)
+    f1 <- userHashtagCounter ? ActiveTwitterStream(streamHandle)
+    f2 <- featureExtraction ? ActiveTwitterStream(streamHandle)
+    f3 <- userIndexing ? ActiveTwitterStream(streamHandle)
+  } yield (f1, f2, f3)
 
-  val (hashtagCounterReady, featureExtractionReady, userIndexingReady) = Await.result(responses, 20 seconds)
+  Logger.info("Stream handle sent to interested actors.")
 
-  streamHandle.context.start()
-  streamHandle.context.awaitTermination()
+  // We have to block here because we must ensure that the Spark context
+  // is not started until the actors above have registered their Spark actions
+  responses onSuccess {
+    case (f1: Ready, f2: Ready, f3: Ready) =>
+    Logger.info("Spark actions registered. Starting Spark context.")
+
+    // Actors have registered Spark actions, so we can initialise the Spark context
+    streamHandle.context.start()
+    streamHandle.context.awaitTermination()
+  }
+
 
   override def receive: Actor.Receive = {
     case _ => Logger.error("No message receipt actions defined for TweetStreamActor")
-  }
-
-  def sendTweetBatches(): Unit = {
-    streamHandle.foreachRDD(rdd => {
-      webSocketSupervisor ! TweetBatch(rdd.take(DefaultBatchSize).toList)
-    })
   }
 
 }
