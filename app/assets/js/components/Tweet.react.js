@@ -17,10 +17,4 @@ const Tweet = (props) => {
     )
 };
 
-            //<Row>
-            //    <Col sm="16%"><img src={tweet.avatar} alt={tweet.username + "s avatar"} width="50" height="50"/></Col>
-            //    <Col sm="84%">
-            //        <strong>@{tweet.screenname}</strong> <em>{tweet.username}</em> <br/>{tweet.text}
-            //    </Col>
-            //</Row>
-module.exports = Tweet;
+export default Tweet;

@@ -28,6 +28,7 @@ object QueryHandler {
  */
 class QueryHandler @Inject()
   (@Named("redisReader") redisReader: ActorRef,
+   @Named("redisWriter") redisWriter: ActorRef,
    @Named("webSocketSupervisor") webSocketSupervisor: ActorRef,
    @Assisted query: String)
    extends Actor {

@@ -26,8 +26,8 @@ object TweetStreamActor {
 class TweetStreamActor @Inject()
   (@Named("webSocketSupervisor") webSocketSupervisor: ActorRef,
    @Named("userHashtagCounter") userHashtagCounter: ActorRef,
-   @Named("featureExtraction") featureExtraction: ActorRef
-//   @Named("userIndexing") userIndexing: ActorRef
+   @Named("featureExtraction") featureExtraction: ActorRef,
+   @Named("userIndexing") userIndexing: ActorRef
 )
   extends Actor with TwitterAuth {
 
@@ -43,10 +43,10 @@ class TweetStreamActor @Inject()
   val responses = for {
     hashtagCounterReady <- userHashtagCounter ? ActiveTwitterStream(streamHandle)
     featureExtractionReady <- featureExtraction ? ActiveTwitterStream(streamHandle)
-//    userIndexingReady <- userIndexing ? ActiveTwitterStream(streamHandle)
-  } yield (hashtagCounterReady, featureExtractionReady)
+    userIndexingReady <- userIndexing ? ActiveTwitterStream(streamHandle)
+  } yield (hashtagCounterReady, featureExtractionReady, userIndexingReady)
 
-  val (hashtagCounterReady, featureExtractionReady) = Await.result(responses, 20 seconds)
+  val (hashtagCounterReady, featureExtractionReady, userIndexingReady) = Await.result(responses, 20 seconds)
 
   streamHandle.context.start()
   streamHandle.context.awaitTermination()

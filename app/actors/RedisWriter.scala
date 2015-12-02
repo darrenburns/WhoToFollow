@@ -1,7 +1,8 @@
 package actors
 
 import actors.FeatureExtraction.TweetFeatures
-import actors.RedisWriter.TweetQualityReportBatch
+import actors.QueryHandler.FetchLatestQueryExperts
+import actors.RedisWriter.{NewQuery, TweetQualityReportBatch}
 import actors.UserHashtagCounter.{UserHashtagCount, UserHashtagReport}
 import akka.actor.Actor
 import com.google.inject.Singleton
@@ -13,6 +14,7 @@ import play.api.Logger
  Reports can be sent here for storage in Redis.
  */
 object RedisWriter {
+  case class NewQuery(query: String)
   case class HashtagCountUpdate(results: Seq[UserHashtagCount])
   case class TweetQualityReportBatch(reports: Seq[TweetFeatures])
 }
@@ -23,10 +25,24 @@ class RedisWriter extends Actor with Serializable {
   private val clients = RedisConnectionPool.pool
 
   override def receive = {
-    case UserHashtagReport(results) => applyHashtagCounts(results)
+    case UserHashtagReport(results) =>
+      applyHashtagCounts(results)
     case TweetQualityReportBatch(reports) =>
       Logger.debug("RedisWriter - received TweetQualityReportBatch")
       updateExtractedFeatures(reports)
+    case NewQuery(q) =>
+      addQuery(q)
+
+
+  }
+
+  /**
+    * Adds the query to the list of recent queries
+    */
+  def addQuery(query: String) = {
+    clients.withClient{client =>
+      client.lpush("recentQueries", query)
+    }
   }
 
   /** Increments the hashtag counts stored in Redis to the latest correct value.

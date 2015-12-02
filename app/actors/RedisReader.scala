@@ -1,9 +1,12 @@
 package actors
 
+import actors.MetricsReporting.{RecentQueries, GetRecentQueryList}
 import actors.QueryHandler.FetchLatestQueryExperts
 import akka.actor.Actor
 import com.redis.RedisClient.DESC
 import init.RedisConnectionPool
+
+import scala.collection.mutable.ListBuffer
 
 object RedisReader {
 
@@ -32,6 +35,19 @@ class RedisReader extends Actor {
             case (username, rating) => ExpertRating(query, username, rating)
           })
       }
+    case GetRecentQueryList() =>
+      val recentQueryResult = clients.withClient{client =>
+        client.lrange("recentQueries", 0, 6)
+      }
+      var resultBatch = ListBuffer[String]()
+      recentQueryResult match {
+        case Some(queryResults) =>
+          queryResults.foreach {
+            case Some(r) =>
+              resultBatch += r
+          }
+      }
+      sender ! RecentQueries(resultBatch.toSet)
   }
 
 }

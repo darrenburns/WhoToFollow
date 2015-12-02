@@ -53,7 +53,6 @@ class FeatureExtraction @Inject()
     case ActiveTwitterStream(stream) =>
       findStreamFeatures(stream)
       sender ! Ready()
-
   }
 
   def findStreamFeatures(stream: ReceiverInputDStream[Status]): Unit = {

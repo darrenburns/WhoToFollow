@@ -4,14 +4,15 @@ import play.api.Play.current
 
 
 object QualityAnalyser {
-  val dictionaryPath = current.configuration.getString("analysis.featureExtraction.dictionary")
+  lazy val dictionaryPath = current.configuration.getString("analysis.featureExtraction.dictionary")
     .getOrElse("/usr/share/dict/american-english")
-  val dictionary = scala.io.Source.fromFile(dictionaryPath).getLines.toSet
+  lazy val dictionary = scala.io.Source.fromFile(dictionaryPath).getLines.toSet
 }
 
 /**
   * Defines a set of functions for analysing the quality of text.
   */
+
 class QualityAnalyser(text: String) extends Serializable {
 
   import QualityAnalyser._

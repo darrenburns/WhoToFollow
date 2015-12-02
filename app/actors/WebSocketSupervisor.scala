@@ -3,10 +3,12 @@ package actors
 import java.nio.channels.ClosedChannelException
 import java.util.concurrent.TimeUnit
 
+import actors.MetricsReporting.RecentQueries
 import actors.RedisReader.{ExpertRating, QueryLeaderboard}
-import actors.TweetStreamActor.TweetBatch
+import actors.RedisWriter.NewQuery
 import akka.actor.{ActorRef, Actor}
 import akka.util.Timeout
+import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
 import org.joda.time.DateTime
 import com.github.nscala_time.time.Imports._
@@ -23,7 +25,7 @@ import scala.concurrent.duration.{FiniteDuration, Duration}
 object WebSocketSupervisor {
 
   object Defaults {
-    val TweetStreamChannelName = "default:primary"
+    val RecentQueriesChannelName = "default:recent-queries"
     val DeadChannelTimeout = 30
   }
 
@@ -47,6 +49,12 @@ object WebSocketSupervisor {
     )
   }
 
+  implicit val recentQueriesWrites = new Writes[RecentQueries] {
+    def writes(recentQueries: RecentQueries) = Json.obj(
+      "recentQueries" -> recentQueries.recentQueriesList
+    )
+  }
+
   case class OutputChannel(name: String)
   case class CheckForDeadChannels()
   case class ChannelTriple(in: Iteratee[JsObject, Unit], out: Enumerator[JsValue],
@@ -60,7 +68,8 @@ object ClientRequests {
 
 @Singleton
 class WebSocketSupervisor @Inject()
-  (queryHandlerFactory: QueryHandler.Factory)
+  (queryHandlerFactory: QueryHandler.Factory,
+  @Named("redisWriter") redisWriter: ActorRef)
   extends Actor with InjectedActorSupport {
   import WebSocketSupervisor._
 
@@ -69,7 +78,7 @@ class WebSocketSupervisor @Inject()
   protected[this] var keepAlives: HashMap[String, DateTime] = HashMap.empty
 
   // Create the default:primary channel which just sends tweets to the client
-  createChannel(Defaults.TweetStreamChannelName)
+  createChannel(Defaults.RecentQueriesChannelName)
 
   implicit val timeout = Timeout(20, TimeUnit.SECONDS)
 
@@ -80,14 +89,14 @@ class WebSocketSupervisor @Inject()
     /*
      On receiving a batch of tweets from the TweetStreamActor, send them to the client
      */
-    case TweetBatch(tweets) =>
-      val primaryChannelTriple = channels.get(Defaults.TweetStreamChannelName)
-      primaryChannelTriple match {
-        case Some(chTriple) =>
-          val json = Json.toJson(tweets)
-          chTriple.channel push json
-        case None => Logger.error(s"Channel ${Defaults.TweetStreamChannelName} doesn't exist.")
-      }
+//    case TweetBatch(tweets) =>
+//      val primaryChannelTriple = channels.get(Defaults.TweetStreamChannelName)
+//      primaryChannelTriple match {
+//        case Some(chTriple) =>
+//          val json = Json.toJson(tweets)
+//          chTriple.channel push json
+//        case None => Logger.error(s"Channel ${Defaults.TweetStreamChannelName} doesn't exist.")
+//      }
     /*
      Request for an output channel fetch/creation depending on whether it is already
      active or not. Triggered when the client makes a new query and thus requests
@@ -100,6 +109,7 @@ class WebSocketSupervisor @Inject()
           sender ! Right((ch.in, ch.out))
         case None =>
           Logger.info(s"Creating channel for query $query.")
+          redisWriter ! NewQuery(query)
           val ch = createChannel(query)
           sender ! (ch match {
             case chTriple: ChannelTriple => Right((chTriple.in, chTriple.out))
@@ -149,6 +159,17 @@ class WebSocketSupervisor @Inject()
           keepAlives -= channelName
         }
       })
+      /*
+       The list of recent queries to display on the homepage of the UI
+       */
+    case msg @ RecentQueries(queries) =>
+      val primaryChannelTriple = channels.get(Defaults.RecentQueriesChannelName)
+      primaryChannelTriple match {
+        case Some(chTriple) =>
+          val json = Json.toJson(msg)
+          chTriple.channel push json
+        case None => Logger.error(s"Channel ${Defaults.RecentQueriesChannelName} doesn't exist.")
+      }
   }
 
   def createChannel(query: String) = {
@@ -171,7 +192,7 @@ class WebSocketSupervisor @Inject()
     }
     val chTriple = ChannelTriple(in, out, channel)
     channels += (query -> chTriple)
-    if (query != Defaults.TweetStreamChannelName) {
+    if (query != Defaults.RecentQueriesChannelName) {
       queryHandlers += (query -> injectedChild(queryHandlerFactory(query), query))
       keepAlives += (query -> DateTime.now)
     }
