@@ -44,6 +44,7 @@ class QueryHandler @Inject()
   Logger.info(s"QueryHandler for channel '$query' created")
 
   override def receive = {
+    // Will execute every `tick` seconds
     case req @ FetchLatestQueryExperts(q) =>
       val future = redisReader ? req
       val leaderboard = Await.result(future, timeout.duration).asInstanceOf[QueryLeaderboard]
@@ -53,7 +54,7 @@ class QueryHandler @Inject()
   }
 
   override def postStop() = {
-    tick.cancel()
+    tick.cancel()  // Tell the scheduler to stop sending the scheduled message
   }
 
 }

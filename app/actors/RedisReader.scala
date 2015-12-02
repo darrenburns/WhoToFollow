@@ -9,9 +9,6 @@ import init.RedisConnectionPool
 import scala.collection.mutable.ListBuffer
 
 object RedisReader {
-
-
-
   case class QueryLeaderboard(query: String, leaderboard: List[ExpertRating])
   case class ExpertRating(query: String, username: String, rating: Double)
 }

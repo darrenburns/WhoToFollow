@@ -16,26 +16,55 @@ import utils.QualityAnalyser
 object FeatureExtraction {
 
   object Defaults {
+    /**
+      * The width in seconds of the sliding window over the incoming tweets.
+      * The window has WindowSize seconds width and also slides in strides
+      * of WindowSize seconds, to prevent overlap and therefore duplicated processing
+      * of tweets.
+      */
     val WindowSize = 10
   }
 
-  case class TweetFeatures(username: String,  // The user's username (not including the '@')
-                           followerCount: Int,  // The number of followers the user has
-                           punctuationCounts: Map[Char, Int],  // Totals for each punctuation character in the tweet
-                           wordCount: Int,  // The number of words in the tweet
-                           capWordCount: Int,  // The number of capitalised words in the tweet
-                           hashtagCount: Int,  // The number of hashtags used in the tweet
-                           retweetCount: Int,  // The number of retweets the tweet has received
-                           mentionCount: Int,  // The number of different users mentioned in the tweet
-                           likeCount: Int,  // The number of likes the tweet has received
-                           dictionaryHits: Int,  // The number of words that are spelled correctly (found in dictionary)
-                           linkCount: Int  // The number of links contained within the tweet
+  /**
+    * Representation of features which can be extracted from a tweet.
+    *
+    * @param username The user's username (not including the '@')
+    * @param followerCount The number of followers the user has
+    * @param punctuationCounts Totals for each punctuation character in the tweet
+    * @param wordCount The number of words in the tweet
+    * @param capWordCount The number of capitalised words in the tweet
+    * @param hashtagCount The number of hashtags used in the tweet
+    * @param retweetCount The number of retweets the tweet has received
+    * @param mentionCount The number of different users mentioned in the tweet
+    * @param likeCount The number of likes the tweet has received
+    * @param dictionaryHits The number of words that are spelled correctly (found in dictionary)
+    * @param linkCount The number of links contained within the tweet
+    */
+  case class TweetFeatures(username: String,
+                           followerCount: Int,
+                           punctuationCounts: Map[Char, Int],
+                           wordCount: Int,
+                           capWordCount: Int,
+                           hashtagCount: Int,
+                           retweetCount: Int,
+                           mentionCount: Int,
+                           likeCount: Int,
+                           dictionaryHits: Int,
+                           linkCount: Int
                           )
   case class CheckQuality(status: Status)
 }
 
-/** Receives a stream handle from TweetStreamActor and assigns initial
+/**
+  * Receives a stream handle from TweetStreamActor and assigns initial
   * tweet quality ratings to the associated users.
+  *
+  * This class must be a Singleton because it contains a Spark Streaming
+  * actions. After the Spark context is initialised, we cannot add any
+  * further actions. A non-singleton actor would result in attempts
+  * to add new Spark actions every time it is injected. Marking an
+  * actor as a Singleton ensures Guice will only inject it once, therefore
+  * removing the possibility of attempts at adding new actions.
   */
 @Singleton
 class FeatureExtraction @Inject()
@@ -51,8 +80,8 @@ class FeatureExtraction @Inject()
     Initial basic feature extraction.
      */
     case ActiveTwitterStream(stream) =>
+      Logger.info("FeatureExtraction starting.")
       findStreamFeatures(stream)
-      sender ! Ready()
   }
 
   def findStreamFeatures(stream: ReceiverInputDStream[Status]): Unit = {
@@ -76,10 +105,16 @@ class FeatureExtraction @Inject()
       )
       features
     })
+
+    // Send report batches for writing in Redis
     tweetQualityReports.window(Seconds(windowSize), Seconds(windowSize)).foreachRDD(report => {
-      Logger.debug("Sending tweet quality report batch to redisWriter")
       redisWriter ! TweetQualityReportBatch(report.collect())
     })
+
+    // Indicate readiness to recipient actor TweetStreamActor
+    Logger.info("FeatureExtraction ready.")
+    sender ! Ready()
+
   }
 
 }

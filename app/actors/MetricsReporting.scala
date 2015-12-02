@@ -32,8 +32,7 @@ class MetricsReporting @Inject()
   override def receive = {
     case msg @ GetRecentQueryList() =>
       val recentQueriesFuture = redisReader ? msg
-      val recentQueries = Await.result(recentQueriesFuture, timeout.duration).asInstanceOf[RecentQueries]
-      println(recentQueries)
+      val recentQueries = Await.result(recentQueriesFuture, timeout.duration).asInstanceOf[RecentQueries]  // TODO Fix blocking
       webSocketSupervisor ! recentQueries
   }
 

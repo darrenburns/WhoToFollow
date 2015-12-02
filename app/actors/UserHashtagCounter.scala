@@ -52,8 +52,8 @@ class UserHashtagCounter @Inject()
 
   override def receive = {
     case ActiveTwitterStream(stream) =>
+      Logger.info("UserHashtagCounter starting.")
       processStream(stream)  // Initialise the counting of hashtags
-      sender ! Ready()
     case _ =>
       logger.warn(s"${getClass.getName} received an unrecognised request.")
   }
@@ -83,6 +83,9 @@ class UserHashtagCounter @Inject()
       val userHashtagCounts = rdd.collect()
       redisWriter ! UserHashtagReport(userHashtagCounts)
     })
+
+    Logger.debug("UserHashtagCounter ready.")
+    sender ! Ready()
 
   }
 

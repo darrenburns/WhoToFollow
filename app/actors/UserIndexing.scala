@@ -10,9 +10,11 @@ import org.apache.commons.io.IOUtils
 import org.terrier.indexing.TaggedDocument
 import org.terrier.indexing.tokenisation.Tokeniser
 import org.terrier.realtime.memory.MemoryIndex
+import play.api.Logger
 
-
-
+/*
+  Handles Terrier indexing of streaming tweets in real-time
+ */
 @Singleton
 class UserIndexing extends Actor {
 
@@ -20,9 +22,8 @@ class UserIndexing extends Actor {
   val tokeniser = Tokeniser.getTokeniser
 
   override def receive = {
-    case ActiveTwitterStream(stream) => {
-      println("Inside userIndexing")
-      sender ! Ready()
+    case ActiveTwitterStream(stream) =>
+      Logger.info("UserIndexing starting")
       stream.foreachRDD(statusBatch => {
         statusBatch.foreach(status => {
           val userId = status.getUser.getId.toInt // The key for a user document is that user's Twitter ID
@@ -40,7 +41,8 @@ class UserIndexing extends Actor {
 
         })
       })
+      Logger.info("UserIndexing sending Ready")
+      sender ! Ready()  // Recipient: TweetStreamActor
     }
-  }
 
 }
