@@ -15,7 +15,8 @@ libraryDependencies ++= Seq(
   "org.apache.spark" % "spark-streaming_2.10" % "1.5.1",
   "org.apache.spark" % "spark-streaming-twitter_2.10" % "1.5.1",
   "net.debasishg" %% "redisclient" % "3.0",
-  "com.github.nscala-time" %% "nscala-time" % "2.4.0"
+  "com.github.nscala-time" %% "nscala-time" % "2.4.0",
+  "org.mongodb" %% "casbah" % "3.0.0"
 )
 
 dependencyOverrides ++= Set(

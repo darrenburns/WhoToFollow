@@ -26,8 +26,10 @@
     "gulp-less": "^3.0.5",
     "gulp-sourcemaps": "^1.6.0",
     "path": "^0.12.7",
+    "tsify": "^0.13.1",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
+    "walk-sync": "^0.2.6",
     "watchify": "^3.4.0"
   },
   "dependencies": {

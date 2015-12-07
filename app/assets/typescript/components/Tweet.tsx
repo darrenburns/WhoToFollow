@@ -1,6 +1,6 @@
 import {Row, Col} from 'elemental';
 import {ListItem, Avatar} from 'material-ui';
-import React from 'react';
+import * as React from 'react';
 
 const Tweet = (props) => {
     let tweet = props.tweet;

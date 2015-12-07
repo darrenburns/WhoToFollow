@@ -1,9 +1,10 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import {Container, Row, Col} from 'elemental';
 import {Route, Router, Link} from 'react-router';
-import Home from './Home.react';
-import QueryResults from './QueryResults.react';
+import Home from './Home.tsx';
+import QueryResults from './QueryResults.tsx';
+import UserInfo from './UserInfo.tsx';
 
 const App = React.createClass({
 
@@ -22,6 +23,7 @@ ReactDOM.render((
         <Route component={App}>
             <Route path="home" component={Home} />
             <Route path="query/:query" component={QueryResults} />
+            <Route path="user/:screenName/query/:query" component={UserInfo} />
         </Route>
     </Router>
 ), document.getElementById("wtfc-app-mount"));

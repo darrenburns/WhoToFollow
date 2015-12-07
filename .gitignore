@@ -7,7 +7,7 @@ target
 .settings
 /RUNNING_PID
 
-app/assets/js/node_modules
+app/assets/typescript/node_modules
 public/javascripts
 public/stylesheets
 project/target

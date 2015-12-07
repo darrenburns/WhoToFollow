@@ -7,11 +7,13 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
+import play.api.Logger
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.concurrent.duration.Duration
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.{Failure, Success}
 
 
 object MetricsReporting {
@@ -31,9 +33,10 @@ class MetricsReporting @Inject()
 
   override def receive = {
     case msg @ GetRecentQueryList() =>
-      val recentQueriesFuture = redisReader ? msg
-      val recentQueries = Await.result(recentQueriesFuture, timeout.duration).asInstanceOf[RecentQueries]  // TODO Fix blocking
-      webSocketSupervisor ! recentQueries
+      (redisReader ? msg) onComplete {
+        case Success(recentQueries) => webSocketSupervisor ! recentQueries
+        case Failure(t) => Logger.debug("Error: " + t)
+      }
   }
 
 }

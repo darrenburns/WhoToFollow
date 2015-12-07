@@ -89,6 +89,9 @@ class WebSocketSupervisor @Inject()
     /*
      On receiving a batch of tweets from the TweetStreamActor, send them to the client
      */
+
+    // Note: This is currently not required since the front-end is not displaying a live
+    // tweet stream at all.
 //    case TweetBatch(tweets) =>
 //      val primaryChannelTriple = channels.get(Defaults.TweetStreamChannelName)
 //      primaryChannelTriple match {

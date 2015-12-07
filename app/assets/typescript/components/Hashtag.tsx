@@ -1,7 +1,12 @@
-import React from 'react';
+import * as React from 'react';
 import {Link} from 'react-router';
 
-const Hashtag = React.createClass({
+interface HashtagProps {
+    key?: any;
+    hashtag: string;
+}
+
+const Hashtag = React.createClass<HashtagProps, any>({
     render() {
         return (
             <span className="hashtag">

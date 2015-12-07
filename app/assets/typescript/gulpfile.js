@@ -7,16 +7,25 @@ var watchify = require('watchify');
 var babel = require('babelify');
 var less = require('gulp-less');
 var path = require('path');
+var tsify = require('tsify');
+var walker = require('walk-sync');
 
 
 function compile(watch) {
-    var bundler = watchify(browserify('./components/App.react.js', { debug: true }).transform(babel.configure({
-        stage: 0
-    })));
+    var bundler = watchify(
+        browserify('./components/App.tsx', { debug: true }));
+
+    walker('typings').forEach(function(file) {
+        if (file.match(/\.d\.ts$/)) {
+            bundler.add("typings/" + file);
+        }
+    });
+
+    bundler.plugin(tsify, { noImplicitAny: false });
 
     function rebundle() {
         bundler.bundle()
-            .on('error', function(err) { console.error(err); this.emit('end'); })
+            .on('error', function(err) { console.error(err); })
             .pipe(source('build.js'))
             .pipe(buffer())
             .pipe(sourcemaps.init({ loadMaps: true }))
@@ -26,8 +35,9 @@ function compile(watch) {
 
     if (watch) {
         bundler.on('update', function() {
-            console.log('-> bundling...');
+            console.log('-> Compiling TypeScript sources...');
             rebundle();
+            console.log('-> Finished compiling TypeScript sources.')
         });
     }
 

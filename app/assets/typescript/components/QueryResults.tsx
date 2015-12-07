@@ -1,11 +1,12 @@
-import React from 'react';
+///<reference path='../node_modules/immutable/dist/Immutable.d.ts'/>
+
+import * as React from 'react';
 import {History} from 'react-router';
-import UserRecommendation from './UserRecommendation.react';
-import Hashtag from './Hashtag.react';
-import FAIcon from './FAIcon.react';
+import UserRecommendation from './UserRecommendation.tsx';
+import Hashtag from './Hashtag.tsx';
 import {Row, Col} from 'elemental';
 import {GridList, IconButton, CircularProgress, Paper, FlatButton} from 'material-ui';
-import Immutable from 'immutable';
+import * as Immutable from 'immutable';
 import Configuration from '../util/config';
 import Constants from '../util/constants';
 
@@ -53,10 +54,10 @@ const QueryResults = React.createClass({
             if (this.props.params.query !== '' && this.state.querySocket) {
                 this.state.querySocket.send(JSON.stringify({
                     "channel": this.props.params.query,
-                    "request": Constants.requests.KEEP_ALIVE
+                    "request": Constants.KEEP_ALIVE_STRING
                 }))
             }
-        }, Configuration.keepAliveFrequency);
+        }, Configuration.KEEP_ALIVE_FREQUENCY);
     },
 
     componentWillUnmount: function() {
@@ -122,4 +123,4 @@ const QueryResults = React.createClass({
 
 });
 
-module.exports = QueryResults;
+export default QueryResults;

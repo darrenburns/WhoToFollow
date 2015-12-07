@@ -1,14 +1,15 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import {Container, Row, Col} from 'elemental';
-import Tweet from './Tweet.react';
-import UserRecommendation from './UserRecommendation.react';
-import SearchBar from './SearchBar.react';
-import Hashtag from './Hashtag.react';
+import Tweet from './Tweet.tsx';
+import UserRecommendation from './UserRecommendation.tsx';
+import SearchBar from './SearchBar.tsx';
+import Hashtag from './Hashtag.tsx';
 import {List, ListDivider, Paper, Card, CardText} from 'material-ui';
 import {Route, Router, Link, History} from 'react-router';
 import config from '../util/config';
 import constants from '../util/constants';
+
 
 const Home = React.createClass({
 
@@ -93,5 +94,4 @@ const Home = React.createClass({
     }
 
 });
-module.exports = Home;
-
+export default Home;

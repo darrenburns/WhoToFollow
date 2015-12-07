@@ -1,31 +1,37 @@
-import React from 'react';
+import * as React from 'react';
 import {Styles, Avatar, GridTile} from 'material-ui';
-import injectTapEventPlugin from 'react-tap-event-plugin';
 import {Sparklines, SparklinesLine, SparklinesSpots} from 'react-sparklines';
-import Immutable from 'immutable';
+import * as Immutable from 'immutable';
+import ReactElement = __React.ReactElement;
 
-injectTapEventPlugin();
 let {Colors} = Styles;
 
-export default class UserRecommendation extends React.Component {
+interface UserRecommendationProps {
+    key: string,
+    username: string,
+    query: string,
+    userHistory: Immutable.List<number>,
+    rating: number
+}
 
-    constructor(props) {
+export default class UserRecommendation extends React.Component<UserRecommendationProps, any> {
+
+    constructor(props): void {
         super(props);
         this.openUserTwitterProfile = this.openUserTwitterProfile.bind(this);
     }
 
-    componentWillReceiveProps(props) {
+    componentWillReceiveProps(props): void {
 
         console.log("Received props");
     }
 
-    openUserTwitterProfile() {
+    openUserTwitterProfile(): void {
         window.open(`https://twitter.com/${this.props.username}`);
     }
 
-    render = () => {
-        let correctlyOrderedHist = this.props.userHistory.toArray();
-        correctlyOrderedHist.reverse();
+    render() {
+        let correctlyOrderedHist: Array<number> = this.props.userHistory.toArray().reverse();
         return (
                 <GridTile key={this.props.key}
                           title={` @${this.props.username}`}
@@ -39,9 +45,6 @@ export default class UserRecommendation extends React.Component {
                                   </Sparklines>
                               </span>
                           }
-                          style={{width: 320, height: 640, overflowY: 'auto'}}
-                          onTouchTap={this.openUserTwitterProfile}
-                          style={{overflowY: 'auto'}}
                 >
                     <img src={`http://avatars.io/twitter/${this.props.username}`} alt={this.props.username}/>
                 </GridTile>

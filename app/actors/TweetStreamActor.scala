@@ -1,8 +1,7 @@
 package actors
 
-import actors.TweetStreamActor.Ready
+import actors.TweetStreamActor.{Ready, TweetBatch}
 import actors.UserHashtagCounter.ActiveTwitterStream
-import akka.actor.Status.Success
 import akka.actor.{Actor, ActorRef}
 import akka.pattern.ask
 import akka.util.Timeout
@@ -15,13 +14,11 @@ import twitter4j.Status
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
-import scala.concurrent.Await
-import scala.util.Failure
 
 
 object TweetStreamActor {
   val DefaultBatchSize = 20
-  case class TweetBatch(tweets: List[Status])
+  case class TweetBatch(tweets: Seq[Status])
   case class Ready()
 }
 
@@ -30,7 +27,7 @@ class TweetStreamActor @Inject()
 (
    @Named("userHashtagCounter") userHashtagCounter: ActorRef,
    @Named("featureExtraction") featureExtraction: ActorRef,
-   @Named("userIndexing") userIndexing: ActorRef
+   @Named("indexer") indexer: ActorRef
 )
   extends Actor with TwitterAuth {
 
@@ -41,23 +38,26 @@ class TweetStreamActor @Inject()
   val streamHandle = TwitterUtils.createStream(SparkInit.ssc, None)
 
   // Asynchronously send status stream handle to interested actors
-  val responses = for {
+  val readyFuture = for {
     f1 <- userHashtagCounter ? ActiveTwitterStream(streamHandle)
     f2 <- featureExtraction ? ActiveTwitterStream(streamHandle)
-    f3 <- userIndexing ? ActiveTwitterStream(streamHandle)
-  } yield (f1, f2, f3)
+  } yield (f1, f2)
 
   Logger.info("Stream handle sent to interested actors.")
 
-  // We have to block here because we must ensure that the Spark context
-  // is not started until the actors above have registered their Spark actions
-  responses onSuccess {
-    case (f1: Ready, f2: Ready, f3: Ready) =>
-    Logger.info("Spark actions registered. Starting Spark context.")
+  // Register async callback to be fired when all Spark tasks are fully registered by the actors above
+  readyFuture onSuccess {
+    case (f1: Ready, f2: Ready) =>
+      Logger.info("Spark actions registered. Starting Spark context.")
 
-    // Actors have registered Spark actions, so we can initialise the Spark context
-    streamHandle.context.start()
-    streamHandle.context.awaitTermination()
+      // Send batches of tweets to the indexer
+      streamHandle.foreachRDD(batch => {
+        indexer ! TweetBatch(batch.collect())
+      })
+
+      // Actors have registered Spark actions, so we can initialise the Spark context
+      streamHandle.context.start()
+      streamHandle.context.awaitTermination()
   }
 
 

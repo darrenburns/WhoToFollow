@@ -12,7 +12,8 @@ class ActorModule extends AbstractModule with AkkaGuiceSupport {
     bindActor[RedisWriter]("redisWriter")
     bindActor[RedisReader]("redisReader")
     bindActor[FeatureExtraction]("featureExtraction")
-    bindActor[UserIndexing]("userIndexing")
+    bindActor[Indexer]("indexer")
+    bindActor[LabelStore]("labelStore")
     bindActor[MetricsReporting]("metricsReporting")
     bindActorFactory[QueryHandler, QueryHandler.Factory]
   }
