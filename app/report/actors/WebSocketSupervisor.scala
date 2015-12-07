@@ -1,26 +1,26 @@
-package actors
+package report.actors
 
 import java.nio.channels.ClosedChannelException
 import java.util.concurrent.TimeUnit
 
-import actors.MetricsReporting.RecentQueries
-import actors.RedisReader.{ExpertRating, QueryLeaderboard}
-import actors.RedisWriter.NewQuery
-import akka.actor.{ActorRef, Actor}
+import akka.actor.{Actor, ActorRef}
 import akka.util.Timeout
+import com.github.nscala_time.time.Imports._
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
 import org.joda.time.DateTime
-import com.github.nscala_time.time.Imports._
+import persist.RedisReader.{ExpertRating, QueryLeaderboard}
+import persist.RedisWriter.NewQuery
+import play.api.Logger
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.concurrent.InjectedActorSupport
 import play.api.libs.iteratee.{Concurrent, Enumerator, Iteratee}
 import play.api.libs.json.{JsObject, JsValue, Json, Writes}
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import play.api.Logger
+import query.QueryHandler
 import twitter4j.Status
 
 import scala.collection.immutable.HashMap
-import scala.concurrent.duration.{FiniteDuration, Duration}
+import scala.concurrent.duration.{Duration, FiniteDuration}
 
 object WebSocketSupervisor {
 
@@ -68,38 +68,28 @@ object ClientRequests {
 
 @Singleton
 class WebSocketSupervisor @Inject()
-  (queryHandlerFactory: QueryHandler.Factory,
-  @Named("redisWriter") redisWriter: ActorRef)
-  extends Actor with InjectedActorSupport {
+(
+  queryHandlerFactory: QueryHandler.Factory,
+  @Named("redisWriter") redisWriter: ActorRef
+) extends Actor with InjectedActorSupport {
+
   import WebSocketSupervisor._
 
   protected[this] var channels: HashMap[String, ChannelTriple] = HashMap.empty
   protected[this] var queryHandlers: HashMap[String, ActorRef] = HashMap.empty
   protected[this] var keepAlives: HashMap[String, DateTime] = HashMap.empty
 
-  // Create the default:primary channel which just sends tweets to the client
+  // Create the default:recent-queries channel which will handle sending recent queries to client
   createChannel(Defaults.RecentQueriesChannelName)
 
   implicit val timeout = Timeout(20, TimeUnit.SECONDS)
 
-  val expiredChannelTick = context.system.scheduler.schedule(Duration.Zero, FiniteDuration(20, TimeUnit.SECONDS),
-    self, CheckForDeadChannels())
+  private val expiredChannelTick =
+    context.system.scheduler.schedule(Duration.Zero, FiniteDuration(20, TimeUnit.SECONDS), self, CheckForDeadChannels())
+
 
   override def receive = {
-    /*
-     On receiving a batch of tweets from the TweetStreamActor, send them to the client
-     */
 
-    // Note: This is currently not required since the front-end is not displaying a live
-    // tweet stream at all.
-//    case TweetBatch(tweets) =>
-//      val primaryChannelTriple = channels.get(Defaults.TweetStreamChannelName)
-//      primaryChannelTriple match {
-//        case Some(chTriple) =>
-//          val json = Json.toJson(tweets)
-//          chTriple.channel push json
-//        case None => Logger.error(s"Channel ${Defaults.TweetStreamChannelName} doesn't exist.")
-//      }
     /*
      Request for an output channel fetch/creation depending on whether it is already
      active or not. Triggered when the client makes a new query and thus requests
@@ -119,6 +109,7 @@ class WebSocketSupervisor @Inject()
             case _ => Left("Not found")
           })
       }
+
     /*
      The expertise rankings retrieved for a given query. Results in the rankings/leaderboard
      being sent through the channel associated with that query.
@@ -136,6 +127,7 @@ class WebSocketSupervisor @Inject()
           }
         case None => Logger.error("Trying to send leaderboard through non-existent channel.")
       }
+
     /*
      Self-sent message. This actor messages itself repeatedly, requesting that any channels
      which haven't received a Keep-Alive within a set timeout range have their resources freed.
@@ -162,9 +154,10 @@ class WebSocketSupervisor @Inject()
           keepAlives -= channelName
         }
       })
-      /*
-       The list of recent queries to display on the homepage of the UI
-       */
+
+    /*
+     The list of recent queries to display on the homepage of the UI
+     */
     case msg @ RecentQueries(queries) =>
       val primaryChannelTriple = channels.get(Defaults.RecentQueriesChannelName)
       primaryChannelTriple match {
@@ -175,26 +168,27 @@ class WebSocketSupervisor @Inject()
       }
   }
 
-  def createChannel(query: String) = {
+  /**
+    * Creates a new open channel for the given input query. The results for that query will be sent through
+    * the open channel every time MetricsReporting asks for it.
+    * @param query The name of the new channel (corresponds to the query text).
+    * @return
+    */
+  private def createChannel(query: String) = {
     val (out, channel) = Concurrent.broadcast[JsValue]
 
-    /*
-     In order to keep track of which WebSockets are still needed,
-     the client repeatedly sends keep-alive messages directed at
-     the channel they are interested in. The client does this every
-     js/util/config.keepAliveFrequency seconds. Also every Defaults.DeadChannelTimeout
-     seconds, we check the most recent keep-alive time. If a keep-alive hasn't
-     been sent in the past minute for a given channel, then all resources for
-     that channel are closed
-     */
+    // Listen for Keep-Alives
     val in = Iteratee.foreach[JsObject] {q =>
       (q \ "request").as[String] match {
-        case "KEEP-ALIVE" => sendKeepAlive((q \ "channel").as[String])
+        case ClientRequests.KeepAlive => sendKeepAlive((q \ "channel").as[String])
       }
-
     }
+
+    // Construct and keep a reference to the channel components
     val chTriple = ChannelTriple(in, out, channel)
     channels += (query -> chTriple)
+
+    // Ensure that the default channels (for metrics etc.) are not overridden
     if (query != Defaults.RecentQueriesChannelName) {
       queryHandlers += (query -> injectedChild(queryHandlerFactory(query), query))
       keepAlives += (query -> DateTime.now)
@@ -202,7 +196,16 @@ class WebSocketSupervisor @Inject()
     chTriple
   }
 
-  def sendKeepAlive(channelName: String): Unit = {
+  /**
+    In order to keep track of which WebSockets are still needed,
+   the client repeatedly sends keep-alive messages directed at
+   the channel they are interested in. The client does this every
+   js/util/config.keepAliveFrequency seconds. Also every Defaults.DeadChannelTimeout
+   seconds, we check the most recent keep-alive time. If a keep-alive hasn't
+   been sent in the past minute for a given channel, then all resources for
+   that channel are closed
+  */
+  private def sendKeepAlive(channelName: String): Unit = {
     Logger.info(s"Received keep-alive directed to channel $channelName")
     keepAlives += (channelName -> DateTime.now())
   }

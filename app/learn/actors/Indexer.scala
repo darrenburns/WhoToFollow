@@ -1,9 +1,9 @@
-package actors
+package learn.actors
 
 import java.util
 
-import actors.TweetStreamActor.TweetBatch
 import akka.actor.Actor
+import learn.actors.TweetStreamActor.TweetBatch
 import org.apache.commons.io.IOUtils
 import org.terrier.indexing.TaggedDocument
 import org.terrier.indexing.tokenisation.Tokeniser
@@ -17,6 +17,7 @@ object Indexer {
   val tokeniser = Tokeniser.getTokeniser
   var docIds = new HashMap[Int, Int]()
   var intIds = new HashMap[Long, Int]()
+  var userCount = 0
 }
 
 /*
@@ -25,7 +26,6 @@ object Indexer {
 class Indexer extends Actor {
 
   import Indexer._
-  var userCount = 0
 
   override def receive = {
     case TweetBatch(batch) =>
@@ -36,9 +36,10 @@ class Indexer extends Actor {
         val userId = intIds.get(longId) match {
           case Some(intId) =>  intId  // We've seen this user before
           case None =>
-            userCount += 1
+            Logger.debug(s"Mapping longId $longId to int $userCount")
             intIds += (longId -> userCount)
-            userCount
+            userCount += 1
+            userCount - 1
         }
 
         // Build the TREC doc
@@ -51,10 +52,11 @@ class Indexer extends Actor {
             Logger.debug(s"Adding to document. docId: $docId")
             index.addToDocument(docId, doc)
           case None =>
+            Logger.debug(s"Indexing document: $trecStatus")
             index.indexDocument(doc)
-            val docId = index.getMetaIndex.getItem("docno", userId)  // Throwing ArrayIndexOutOfBounds
-            Logger.debug(s"Indexing document. Mapping userId:$userId -> docId:$docId")
-            docIds += (userId -> docId)
+            Logger.debug(s"indexing complete. userId: $userId")
+            val docId = index.getMetaIndex.getItem("DOCNO", userId)  // Throwing ArrayIndexOutOfBounds
+            docIds += (userId -> docId.toInt)
         }
 
       })

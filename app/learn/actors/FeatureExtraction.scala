@@ -1,16 +1,14 @@
-package actors
+package learn.actors
 
-import actors.RedisWriter.TweetQualityReportBatch
-import actors.TweetStreamActor.Ready
-import actors.UserHashtagCounter.ActiveTwitterStream
 import akka.actor.{Actor, ActorRef}
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
-import org.apache.spark.streaming.Seconds
-import org.apache.spark.streaming.dstream.ReceiverInputDStream
+import learn.actors.TweetStreamActor.Ready
+import learn.actors.UserHashtagCounter.ActiveTwitterStream
+import org.apache.spark.streaming.dstream.{DStream, ReceiverInputDStream}
+import persist.RedisWriter.TweetQualityReportBatch
 import play.api.{Configuration, Logger}
 import twitter4j.Status
-import utils.QualityAnalyser
 
 
 object FeatureExtraction {
@@ -68,52 +66,30 @@ object FeatureExtraction {
   */
 @Singleton
 class FeatureExtraction @Inject()
-  (@Named("redisWriter") redisWriter: ActorRef, configuration: Configuration)
-  extends Actor with Serializable {
+(
+  @Named("redisWriter") redisWriter: ActorRef,
+  configuration: Configuration
+) extends Actor with Serializable {
 
   import FeatureExtraction._
 
-  val windowSize = configuration.getInt("analysis.featureExtraction.windowSize").getOrElse(Defaults.WindowSize)
+  val WindowSize = configuration.getInt("analysis.featureExtraction.windowSize").getOrElse(Defaults.WindowSize)
 
   override def receive = {
     /*
     Initial basic feature extraction.
      */
     case ActiveTwitterStream(stream) =>
-      Logger.info("FeatureExtraction starting.")
-      findStreamFeatures(stream)
+      Logger.info("FeatureExtraction starting...")
+      extractFeaturesInWindow(stream).foreachRDD(report => {
+          redisWriter ! TweetQualityReportBatch(report.collect())
+      })
+      sender ! Ready()
+      Logger.info("FeatureExtraction is ready.")
   }
 
-  def findStreamFeatures(stream: ReceiverInputDStream[Status]): Unit = {
-    val tweetQualityReports = stream.map(status => {
-      val qa = new QualityAnalyser(status.getText)
-      val htCount = status.getHashtagEntities.length
-      val mentionCount = status.getUserMentionEntities.length
-      val linkCount = status.getURLEntities.length
-      val features = TweetFeatures(
-        username = status.getUser.getScreenName,
-        followerCount = status.getUser.getFollowersCount,
-        punctuationCounts = qa.findPunctuationCounts(),
-        wordCount = qa.countWords() - htCount - mentionCount - linkCount,
-        capWordCount = qa.countCapitalisedWords(),
-        hashtagCount = htCount,
-        retweetCount = status.getRetweetCount,
-        mentionCount = mentionCount,
-        likeCount = status.getFavoriteCount,
-        dictionaryHits = qa.countDictionaryHits(),
-        linkCount = linkCount
-      )
-      features
-    })
-
-    // Send report batches for writing in Redis
-    tweetQualityReports.window(Seconds(windowSize), Seconds(windowSize)).foreachRDD(report => {
-      redisWriter ! TweetQualityReportBatch(report.collect())
-    })
-
-    // Indicate readiness to recipient actor TweetStreamActor
-    Logger.info("FeatureExtraction ready.")
-    sender ! Ready()
+  private def extractFeaturesInWindow(stream: ReceiverInputDStream[Status]): DStream[TweetFeatures] = {
+    stream.map(status => {
 
   }
 

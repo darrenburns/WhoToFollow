@@ -1,15 +1,15 @@
-package actors
+package learn.actors
 
-import actors.TweetStreamActor.Ready
 import akka.actor.{Actor, ActorRef}
 import com.fasterxml.jackson.databind.JsonNode
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
+import learn.actors.TweetStreamActor.Ready
 import org.apache.spark.streaming._
 import org.apache.spark.streaming.dstream.ReceiverInputDStream
 import org.slf4j.LoggerFactory
-import play.api.{Logger, Configuration}
 import play.api.libs.json.{Json, Writes}
+import play.api.{Configuration, Logger}
 import play.mvc.WebSocket
 import twitter4j.Status
 
@@ -47,8 +47,6 @@ object UserHashtagCounter {
 class UserHashtagCounter @Inject()
   (@Named("redisWriter") redisWriter: ActorRef,
     configuration: Configuration) extends Actor {
-
-  import actors.UserHashtagCounter._
 
   override def receive = {
     case ActiveTwitterStream(stream) =>

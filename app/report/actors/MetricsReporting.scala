@@ -1,18 +1,14 @@
-package actors
+package report.actors
 
-import actors.MetricsReporting.{RecentQueries, GetRecentQueryList}
-import actors.QueryHandler.FetchLatestQueryExperts
-import akka.actor.{ActorRef, Actor}
+import akka.actor.{Actor, ActorRef}
 import akka.pattern.ask
 import akka.util.Timeout
+import com.google.inject.Inject
 import com.google.inject.name.Named
-import com.google.inject.{Inject, Singleton}
 import play.api.Logger
 
-import scala.concurrent.Await
-import scala.concurrent.duration._
-import scala.concurrent.duration.Duration
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration.{Duration, _}
 import scala.util.{Failure, Success}
 
 

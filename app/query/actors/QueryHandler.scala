@@ -1,14 +1,13 @@
-package actors
+package query.actors
 
-import actors.RedisReader.QueryLeaderboard
-import akka.actor.{ActorRef, Props, Actor}
+import akka.actor.{Actor, ActorRef}
+import akka.pattern.ask
 import akka.util.Timeout
-import play.api.Logger
-import play.api.libs.concurrent.InjectedActorSupport
 import com.google.inject.Inject
 import com.google.inject.assistedinject.Assisted
 import com.google.inject.name.Named
-import akka.pattern.ask
+import persist.RedisReader.QueryLeaderboard
+import play.api.Logger
 
 import scala.concurrent.Await
 import scala.concurrent.duration._

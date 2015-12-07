@@ -1,12 +1,10 @@
-package actors
+package persist.actors
 
-import actors.FeatureExtraction.TweetFeatures
-import actors.QueryHandler.FetchLatestQueryExperts
-import actors.RedisWriter.{NewQuery, TweetQualityReportBatch}
-import actors.UserHashtagCounter.{UserHashtagCount, UserHashtagReport}
 import akka.actor.Actor
 import com.google.inject.Singleton
-import init.RedisConnectionPool
+import hooks.RedisConnectionPool
+import learn.actors.FeatureExtraction.TweetFeatures
+import learn.actors.UserHashtagCounter.{UserHashtagCount, UserHashtagReport}
 import play.api.Logger
 
 

@@ -1,16 +1,15 @@
-package actors
+package learn.actors
 
-import actors.TweetStreamActor.{Ready, TweetBatch}
-import actors.UserHashtagCounter.ActiveTwitterStream
 import akka.actor.{Actor, ActorRef}
 import akka.pattern.ask
 import akka.util.Timeout
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
-import init.{SparkInit, TwitterAuth}
+import hooks.SparkInit
 import org.apache.spark.streaming.twitter.TwitterUtils
 import play.api.Logger
 import twitter4j.Status
+import utils.TwitterAuth
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._

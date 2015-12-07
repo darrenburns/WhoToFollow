@@ -1,11 +1,11 @@
-package actors
+package persist.actors
 
-import actors.MetricsReporting.{RecentQueries, GetRecentQueryList}
-import actors.QueryHandler.FetchLatestQueryExperts
 import akka.actor.Actor
 import com.redis.RedisClient.DESC
-import init.RedisConnectionPool
+import hooks.RedisConnectionPool
 import play.api.Logger
+import query.actors.QueryHandler.FetchLatestQueryExperts
+import report.actors.MetricsReporting.{GetRecentQueryList, RecentQueries}
 
 import scala.collection.mutable.ListBuffer
 

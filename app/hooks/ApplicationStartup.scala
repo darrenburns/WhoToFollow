@@ -1,4 +1,4 @@
-package init
+package hooks
 
 import akka.actor.{ActorRef, ActorSystem}
 import com.google.inject.name.Named

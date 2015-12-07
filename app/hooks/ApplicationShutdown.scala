@@ -1,4 +1,4 @@
-package init
+package hooks
 
 import javax.inject.{Inject, Singleton}
 import play.api.inject.ApplicationLifecycle

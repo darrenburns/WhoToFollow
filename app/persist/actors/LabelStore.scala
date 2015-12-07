@@ -1,22 +1,20 @@
-package actors
+package persist.actors
 
-import actors.RedisReader.{UserFeatures, UserFeatureRequest}
-import akka.actor.{ActorRef, Actor}
+import akka.actor.{Actor, ActorRef}
 import akka.pattern.ask
 import akka.util.Timeout
 import com.google.inject.Inject
 import com.google.inject.name.Named
 import com.mongodb.casbah.commons.MongoDBObject
-import init.MongoInit
+import hooks.MongoInit
 import play.api.Logger
+import play.api.libs.functional.syntax._
+import play.api.libs.json.Reads._
 import play.api.libs.json._
-import play.api.libs.json._ // JSON library
-import play.api.libs.json.Reads._ // Custom validation helpers
-import play.api.libs.functional.syntax._ // Combinator syntax
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
-import scala.concurrent.ExecutionContext.Implicits.global
 
 object LabelStore {
 
