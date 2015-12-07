@@ -6,6 +6,8 @@ import akka.util.Timeout
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
 import hooks.SparkInit
+import learn.actors.TweetStreamActor.{TweetBatch, Ready}
+import learn.actors.UserHashtagCounter.ActiveTwitterStream
 import org.apache.spark.streaming.twitter.TwitterUtils
 import play.api.Logger
 import twitter4j.Status

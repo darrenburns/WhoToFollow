@@ -1,7 +1,7 @@
 package modules
 
 import com.google.inject.AbstractModule
-import init.{ApplicationShutdown, ApplicationStartup}
+import hooks.{ApplicationShutdown, ApplicationStartup}
 
 
 class AppModule extends AbstractModule {

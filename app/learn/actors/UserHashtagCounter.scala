@@ -45,15 +45,19 @@ object UserHashtagCounter {
 
 @Singleton
 class UserHashtagCounter @Inject()
-  (@Named("redisWriter") redisWriter: ActorRef,
-    configuration: Configuration) extends Actor {
+(
+  @Named("redisWriter") redisWriter: ActorRef,
+  configuration: Configuration
+) extends Actor {
+
+  import UserHashtagCounter._
 
   override def receive = {
     case ActiveTwitterStream(stream) =>
       Logger.info("UserHashtagCounter starting.")
       processStream(stream)  // Initialise the counting of hashtags
     case _ =>
-      logger.warn(s"${getClass.getName} received an unrecognised request.")
+      Logger.warn(s"${getClass.getName} received an unrecognised request.")
   }
 
   def processStream(stream: ReceiverInputDStream[Status]): Unit = {

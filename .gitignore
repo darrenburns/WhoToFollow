@@ -37,3 +37,5 @@ project/plugins/project/
 
 
 lib/
+app/assets/typescript/components/*.js.map
+app/assets/typescript/components/*.js

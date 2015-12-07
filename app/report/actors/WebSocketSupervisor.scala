@@ -9,14 +9,18 @@ import com.github.nscala_time.time.Imports._
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
 import org.joda.time.DateTime
-import persist.RedisReader.{ExpertRating, QueryLeaderboard}
-import persist.RedisWriter.NewQuery
+import persist.actors.{RedisReader, RedisWriter}
+import RedisReader.{ExpertRating, QueryLeaderboard}
+import persist.actors.RedisWriter
+import RedisWriter.NewQuery
 import play.api.Logger
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.concurrent.InjectedActorSupport
 import play.api.libs.iteratee.{Concurrent, Enumerator, Iteratee}
 import play.api.libs.json.{JsObject, JsValue, Json, Writes}
-import query.QueryHandler
+import query.actors.QueryHandler
+import report.actors.MetricsReporting.RecentQueries
+import report.utility.KeepAlive
 import twitter4j.Status
 
 import scala.collection.immutable.HashMap
@@ -62,9 +66,7 @@ object WebSocketSupervisor {
 }
 
 
-object ClientRequests {
-  val KeepAlive = "KEEP-ALIVE"
-}
+
 
 @Singleton
 class WebSocketSupervisor @Inject()
@@ -180,7 +182,7 @@ class WebSocketSupervisor @Inject()
     // Listen for Keep-Alives
     val in = Iteratee.foreach[JsObject] {q =>
       (q \ "request").as[String] match {
-        case ClientRequests.KeepAlive => sendKeepAlive((q \ "channel").as[String])
+        case KeepAlive.messageType => sendKeepAlive((q \ "channel").as[String])
       }
     }
 

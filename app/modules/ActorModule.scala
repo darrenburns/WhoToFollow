@@ -1,8 +1,11 @@
 package modules
 
-import actors._
+import learn.actors.{UserHashtagCounter, TweetStreamActor, Indexer, FeatureExtraction}
+import persist.actors.{RedisReader, RedisWriter, LabelStore}
+import query.actors.QueryHandler
 import com.google.inject.AbstractModule
 import play.api.libs.concurrent.AkkaGuiceSupport
+import report.actors.{MetricsReporting, WebSocketSupervisor}
 
 class ActorModule extends AbstractModule with AkkaGuiceSupport {
   def configure() {

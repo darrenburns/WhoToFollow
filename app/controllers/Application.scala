@@ -1,8 +1,10 @@
 package controllers
 
-import actors.LabelStore
-import actors.LabelStore.Vote
-import actors.WebSocketSupervisor.OutputChannel
+import persist.actors.LabelStore
+import LabelStore.Vote
+import persist.actors.LabelStore
+import report.actors.WebSocketSupervisor
+import WebSocketSupervisor.OutputChannel
 import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
@@ -12,6 +14,7 @@ import play.api.Logger
 import play.api.libs.iteratee.{Enumerator, Iteratee}
 import play.api.libs.json.{JsSuccess, JsResult, JsValue, Json}
 import play.api.mvc._
+import report.actors.WebSocketSupervisor
 
 import scala.concurrent.duration._
 

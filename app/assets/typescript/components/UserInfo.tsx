@@ -46,7 +46,7 @@ export default class UserInfo extends React.Component<UserInfoProps, any> {
 
                     <Col sm="45%">
                         <h2>Timeline</h2>
-                        List of the user's tweets here
+                        List of the user's tweets here!!
                     </Col>
 
 

@@ -5,11 +5,13 @@ import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
 import learn.actors.TweetStreamActor.Ready
 import learn.actors.UserHashtagCounter.ActiveTwitterStream
+import learn.utility.ExtractionUtils._
+import org.apache.spark.streaming.Seconds
 import org.apache.spark.streaming.dstream.{DStream, ReceiverInputDStream}
-import persist.RedisWriter.TweetQualityReportBatch
+import persist.actors.RedisWriter
+import RedisWriter.TweetQualityReportBatch
 import play.api.{Configuration, Logger}
 import twitter4j.Status
-
 
 object FeatureExtraction {
 
@@ -81,17 +83,16 @@ class FeatureExtraction @Inject()
      */
     case ActiveTwitterStream(stream) =>
       Logger.info("FeatureExtraction starting...")
-      extractFeaturesInWindow(stream).foreachRDD(report => {
-          redisWriter ! TweetQualityReportBatch(report.collect())
+      mapToWindowedFeatureStream(stream, WindowSize).foreachRDD(features => {
+          redisWriter ! TweetQualityReportBatch(features.collect())
       })
       sender ! Ready()
       Logger.info("FeatureExtraction is ready.")
   }
 
-  private def extractFeaturesInWindow(stream: ReceiverInputDStream[Status]): DStream[TweetFeatures] = {
-    stream.map(status => {
 
-  }
+  private def mapToWindowedFeatureStream(stream: ReceiverInputDStream[Status], windowSize: Int): DStream[TweetFeatures]
+    = stream.map(getStatusFeatures).window(Seconds(windowSize), Seconds(windowSize))
 
 }
 

@@ -6,7 +6,8 @@ import akka.util.Timeout
 import com.google.inject.Inject
 import com.google.inject.assistedinject.Assisted
 import com.google.inject.name.Named
-import persist.RedisReader.QueryLeaderboard
+import persist.actors.RedisReader
+import RedisReader.QueryLeaderboard
 import play.api.Logger
 
 import scala.concurrent.Await
@@ -46,6 +47,8 @@ class QueryHandler @Inject()
     // Will execute every `tick` seconds
     case req @ FetchLatestQueryExperts(q) =>
       val future = redisReader ? req
+
+      // TODO: No need to block here - can send mutable Future
       val leaderboard = Await.result(future, timeout.duration).asInstanceOf[QueryLeaderboard]
       // Right now, we don't do any further processing, just send to client
       Logger.info(s"QueryHandler for channel '$q' sending results to WebSocketSupervisor")

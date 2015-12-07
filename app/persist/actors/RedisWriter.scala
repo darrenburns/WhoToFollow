@@ -5,6 +5,7 @@ import com.google.inject.Singleton
 import hooks.RedisConnectionPool
 import learn.actors.FeatureExtraction.TweetFeatures
 import learn.actors.UserHashtagCounter.{UserHashtagCount, UserHashtagReport}
+import persist.actors.RedisWriter.{NewQuery, TweetQualityReportBatch}
 import play.api.Logger
 
 

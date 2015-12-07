@@ -16,7 +16,7 @@ interface UserRecommendationProps {
 
 export default class UserRecommendation extends React.Component<UserRecommendationProps, any> {
 
-    constructor(props): void {
+    constructor(props) {
         super(props);
         this.openUserTwitterProfile = this.openUserTwitterProfile.bind(this);
     }

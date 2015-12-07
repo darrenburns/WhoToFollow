@@ -7,6 +7,7 @@ import com.google.inject.Inject
 import com.google.inject.name.Named
 import com.mongodb.casbah.commons.MongoDBObject
 import hooks.MongoInit
+import persist.actors.RedisReader.{UserFeatures, UserFeatureRequest}
 import play.api.Logger
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._

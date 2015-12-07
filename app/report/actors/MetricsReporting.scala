@@ -6,6 +6,7 @@ import akka.util.Timeout
 import com.google.inject.Inject
 import com.google.inject.name.Named
 import play.api.Logger
+import report.actors.MetricsReporting.GetRecentQueryList
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.{Duration, _}
