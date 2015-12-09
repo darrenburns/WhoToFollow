@@ -49,7 +49,7 @@ export default class UserInfo extends React.Component<IUserInfoProps, IUserInfoS
     _classifyUser = (clazz: number): void => {
         console.log(clazz);
         LearningApi.classifyUser(this.props.params.screenName, this.props.params.query, clazz);
-        let snackbar: any = this.refs["snackbar"];
+        let snackbar: any = this.refs['snackbar'];
         snackbar.show();
     };
 
@@ -111,7 +111,7 @@ export default class UserInfo extends React.Component<IUserInfoProps, IUserInfoS
                                 <Snackbar ref="snackbar"
                                           message="Thanks for classifying this user."
                                           action="hide"
-                                          autoHideDuration={3}
+                                          autoHideDuration={3000}
                                 />
                             </Col>
                         </Row>

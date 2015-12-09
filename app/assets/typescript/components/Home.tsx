@@ -60,30 +60,21 @@ const Home = React.createClass({
     },
 
     render: function() {
-        console.log("Original this.state.recentQueries", this.state.recentQueries);
         let recentHashtags = this.state.recentQueries.map((queryString, idx) => {
-            console.log("Returning hashtag");
             return <Hashtag key={idx} hashtag={queryString}/>
         });
         console.log("Mapped", recentHashtags);
         return (
             <div>
                 <Row>
-                    <Col sm="100%">
-                        <span className="splash-text">Who To Follow</span>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col sm="100%">
+                    <Col sm="50%">
                         <SearchBar placeholder="Type a #hashtag to get recommendations..."
                                    handleChange={this.handleChange}
                                    handleEnter={this.handleEnter}
                                    currentQuery={this.state.currentQuery} />
                     </Col>
-                </Row>
-                <Row>
                     <Col sm="50%">
-                        <h3 className="padded-top-h">Recent searches</h3>
+                        <h3 className="padded-top-h">Recent Searches</h3>
                         <ul>
                             {recentHashtags.map(ht => <li>{ht}</li>)}
                         </ul>

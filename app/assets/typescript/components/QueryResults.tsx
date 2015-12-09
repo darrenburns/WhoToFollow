@@ -69,10 +69,6 @@ const QueryResults = React.createClass({
         clearInterval(keepAliveTrigger);
     },
 
-    onClickBackButton: function(e) {
-        this.history.goBack();
-    },
-
     render: function() {
         let queryResults = [];
         this.state.queryResults.forEach((result, idx) => {
@@ -92,11 +88,7 @@ const QueryResults = React.createClass({
             <Row>
                 <Col sm="100%">
                     <Row>
-                        <Col sm="20%">
-                            <IconButton iconClassName="material-icons" tooltipPosition="bottom-center"
-                                        tooltip="Search again" onClick={this.onClickBackButton}>arrow_back</IconButton>
-                        </Col>
-                        <Col sm="80%">
+                        <Col sm="100%">
                             <h1>Results for <Hashtag hashtag={this.props.params.query}/></h1>
                         </Col>
                     </Row>
