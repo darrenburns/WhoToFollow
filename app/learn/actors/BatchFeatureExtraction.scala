@@ -38,20 +38,16 @@ class BatchFeatureExtraction @Inject()
   override def receive = {
     case TweetBatch(tweets: Seq[Status]) =>
 
-      Logger.debug("PROCESSING TWEETS FROM USER TIMELINE.")
-
       // Filter the list so that it only contains tweets we haven't seen before
       // Futures contain Tuple of (tweetId, haveWeSeenThisTweetBefore?)
       var tweetAnalysisHistory = scala.collection.immutable.Set.empty[Future[Any]]
       tweets.foreach(tweet => {
-        Logger.debug(s"Asking Redis if tweet with id '${tweet.getId}' exists.")
         tweetAnalysisHistory += redisRead ? HasStatusBeenProcessed(tweet)
       })
 
       // When we have results for all of the tweets
       Future.sequence(tweetAnalysisHistory) onComplete {
         case Success(seenBefore) =>
-          Logger.debug(s"This is the set of tweets Redis has seen before: \n$seenBefore")
 
           // Keep only tweets we haven't seen before
           val newTweets = tweets.filter(tweet => !(seenBefore contains (tweet.getId, true)))
@@ -70,7 +66,6 @@ class BatchFeatureExtraction @Inject()
               // Mark these tweets as processed
               redisWrite ! ProcessedTweets(newlyProcessedTweets)
               // Send the features of the tweets in this batch to Redis
-              Logger.debug("Writing the features from the user timeline to Redis")
               redisWrite ! TweetFeatureBatch(featuresList)
               // Send the user/hashtag updates to Redis
               hashtagReports.foreach(report => {
