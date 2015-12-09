@@ -1,11 +1,10 @@
 ///<reference path='../models/Twitter.ts'/>
 ///<reference path='../models/Learning.ts'/>
 
-
 import * as React from 'react';
 import * as $ from 'jquery';
 import {Container, Row, Col} from 'elemental';
-import {Avatar, Paper, RaisedButton, List, ListItem, ListDivider, Snackbar} from 'material-ui'
+import {Avatar, Paper, RaisedButton, FlatButton, List, ListItem, ListDivider, Snackbar} from 'material-ui'
 import Hashtag from './Hashtag.tsx';
 import Configuration from "../util/config";
 import TimelineApi from '../endpoints/TimelineApi';
@@ -13,7 +12,6 @@ import LearningApi from '../endpoints/LearningApi';
 
 
 interface IUserInfoProps {
-    screenName: string;
     params: any;
 }
 
@@ -45,26 +43,26 @@ export default class UserInfo extends React.Component<IUserInfoProps, IUserInfoS
         )
     }
 
+    private _openUserInTwitter = (): void => {
+        window.open(`https://twitter.com/${this.props.params.screenName}`);
+    };
 
-    _classifyUser = (clazz: number): void => {
+    private _classifyUser = (clazz: number): void => {
         console.log(clazz);
         LearningApi.classifyUser(this.props.params.screenName, this.props.params.query, clazz);
         let snackbar: any = this.refs['snackbar'];
         snackbar.show();
     };
 
-    //_classifyUserHigh = (): void => {
-    //    LearningApi.classifyUser(this.props.params.screenName, this.props.params.query, clazz);
-    //    let snackbar: any = this.refs["snackbar"];
-    //    snackbar.show();
-    //};
-
     render() {
         return (
             <Container maxWidth={940}>
                 <Row>
-                    <Col sm="100%">
+                    <Col sm="70%">
                         <h1>@{this.props.params.screenName}</h1>
+                    </Col>
+                    <Col sm="30%" className="view-on-twitter-button-flex">
+                        <FlatButton label="View On Twitter" onTouchTap={this._openUserInTwitter} />
                     </Col>
                 </Row>
                 <Row>

@@ -63,7 +63,6 @@ const Home = React.createClass({
         let recentHashtags = this.state.recentQueries.map((queryString, idx) => {
             return <Hashtag key={idx} hashtag={queryString}/>
         });
-        console.log("Mapped", recentHashtags);
         return (
             <div>
                 <Row>
