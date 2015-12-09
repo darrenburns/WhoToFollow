@@ -9,7 +9,7 @@ import learn.utility.ExtractionUtils._
 import org.apache.spark.streaming.Seconds
 import org.apache.spark.streaming.dstream.{DStream, ReceiverInputDStream}
 import persist.actors.RedisWriter
-import RedisWriter.TweetQualityReportBatch
+import persist.actors.RedisWriter.{ProcessedTweetTuples, ProcessedTweets, TweetFeatureBatch}
 import play.api.{Configuration, Logger}
 import twitter4j.Status
 
@@ -28,6 +28,7 @@ object FeatureExtraction {
   /**
     * Representation of features which can be extracted from a tweet.
     *
+    * @param id The id of the tweet (assigned by Twitter)
     * @param username The user's username (not including the '@')
     * @param followerCount The number of followers the user has
     * @param punctuationCounts Totals for each punctuation character in the tweet
@@ -40,17 +41,19 @@ object FeatureExtraction {
     * @param dictionaryHits The number of words that are spelled correctly (found in dictionary)
     * @param linkCount The number of links contained within the tweet
     */
-  case class TweetFeatures(username: String,
-                           followerCount: Int,
-                           punctuationCounts: Map[Char, Int],
-                           wordCount: Int,
-                           capWordCount: Int,
-                           hashtagCount: Int,
-                           retweetCount: Int,
-                           mentionCount: Int,
-                           likeCount: Int,
-                           dictionaryHits: Int,
-                           linkCount: Int
+  case class TweetFeatures(
+                          id: Long,
+                          username: String,
+                          followerCount: Int,
+                          punctuationCounts: Map[Char, Int],
+                          wordCount: Int,
+                          capWordCount: Int,
+                          hashtagCount: Int,
+                          retweetCount: Int,
+                          mentionCount: Int,
+                          likeCount: Int,
+                          dictionaryHits: Int,
+                          linkCount: Int
                           )
   case class CheckQuality(status: Status)
 }
@@ -69,7 +72,7 @@ object FeatureExtraction {
 @Singleton
 class FeatureExtraction @Inject()
 (
-  @Named("redisWriter") redisWriter: ActorRef,
+  @Named("redisWriter") redisWrite: ActorRef,
   configuration: Configuration
 ) extends Actor with Serializable {
 
@@ -84,7 +87,10 @@ class FeatureExtraction @Inject()
     case ActiveTwitterStream(stream) =>
       Logger.info("FeatureExtraction starting...")
       mapToWindowedFeatureStream(stream, WindowSize).foreachRDD(features => {
-          redisWriter ! TweetQualityReportBatch(features.collect())
+        val featureSeq = features.collect
+        redisWrite ! TweetFeatureBatch(featureSeq)
+        val processedList = featureSeq.map(f => (f.username, f.id))
+        redisWrite ! ProcessedTweetTuples(processedList)
       })
       sender ! Ready()
       Logger.info("FeatureExtraction is ready.")

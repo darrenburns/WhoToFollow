@@ -1,6 +1,6 @@
 package modules
 
-import learn.actors.{UserHashtagCounter, TweetStreamActor, Indexer, FeatureExtraction}
+import learn.actors._
 import persist.actors.{RedisReader, RedisWriter, LabelStore}
 import query.actors.QueryHandler
 import com.google.inject.AbstractModule
@@ -15,6 +15,7 @@ class ActorModule extends AbstractModule with AkkaGuiceSupport {
     bindActor[RedisWriter]("redisWriter")
     bindActor[RedisReader]("redisReader")
     bindActor[FeatureExtraction]("featureExtraction")
+    bindActor[BatchFeatureExtraction]("batchFeatureExtraction")
     bindActor[Indexer]("indexer")
     bindActor[LabelStore]("labelStore")
     bindActor[MetricsReporting]("metricsReporting")

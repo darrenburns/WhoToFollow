@@ -5,6 +5,7 @@
 # Home page
 GET     /                                           controllers.Application.index
 GET     /ws/:channelName                            controllers.Application.getChannel(channelName: String)
+GET     /learning/timeline/:screenName              controllers.Application.fetchAndAnalyseTimeline(screenName: String)
 POST    /learning/label                             controllers.Application.voteForUser
 
 # Map static resources from the /public folder to the /assets URL path

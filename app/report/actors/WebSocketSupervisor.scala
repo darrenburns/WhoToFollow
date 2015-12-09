@@ -21,7 +21,6 @@ import play.api.libs.json.{JsObject, JsValue, Json, Writes}
 import query.actors.QueryHandler
 import report.actors.MetricsReporting.RecentQueries
 import report.utility.KeepAlive
-import twitter4j.Status
 
 import scala.collection.immutable.HashMap
 import scala.concurrent.duration.{Duration, FiniteDuration}
@@ -38,18 +37,6 @@ object WebSocketSupervisor {
       "query" -> rating.query,
       "username" -> rating.username,
       "rating" -> rating.rating
-    )
-  }
-
-  implicit val statusWrites = new Writes[Status] {
-    def writes(status: Status) = Json.obj(
-      "id" -> status.getId,
-      "text" -> status.getText,
-      "username" -> status.getUser.getName,
-      "screenname" -> status.getUser.getScreenName,
-      "date" -> status.getCreatedAt,
-      "retweets" -> status.getRetweetCount,
-      "avatar" -> status.getUser.getProfileImageURL
     )
   }
 

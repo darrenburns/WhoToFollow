@@ -5,8 +5,9 @@ import com.google.inject.Singleton
 import hooks.RedisConnectionPool
 import learn.actors.FeatureExtraction.TweetFeatures
 import learn.actors.UserHashtagCounter.{UserHashtagCount, UserHashtagReport}
-import persist.actors.RedisWriter.{NewQuery, TweetQualityReportBatch}
+import persist.actors.RedisWriter.{ProcessedTweetTuples, ProcessedTweets, NewQuery, TweetFeatureBatch}
 import play.api.Logger
+import twitter4j.Status
 
 
 /*
@@ -15,7 +16,14 @@ import play.api.Logger
 object RedisWriter {
   case class NewQuery(query: String)
   case class HashtagCountUpdate(results: Seq[UserHashtagCount])
-  case class TweetQualityReportBatch(reports: Seq[TweetFeatures])
+  case class TweetFeatureBatch(reports: Seq[TweetFeatures])
+  case class ProcessedTweets(tweets: Seq[twitter4j.Status])
+
+  /**
+    * @param tweets A sequence of (username, tweetId) tuples. This is all the information
+    *               required to tag the tweet as processed.
+    */
+  case class ProcessedTweetTuples(tweets: Seq[(String, Long)])
 }
 
 @Singleton
@@ -26,11 +34,15 @@ class RedisWriter extends Actor with Serializable {
   override def receive = {
     case UserHashtagReport(results) =>
       applyHashtagCounts(results)
-    case TweetQualityReportBatch(reports) =>
+    case TweetFeatureBatch(reports) =>
       Logger.debug("RedisWriter - received TweetQualityReportBatch")
       updateExtractedFeatures(reports)
     case NewQuery(q) =>
       addQuery(q)
+    case ProcessedTweets(tweets) =>
+      markTweetsAsProcessed(tweets)
+    case ProcessedTweetTuples(tweets) =>
+      markTweetTuplesAsProcessed(tweets)
 
 
   }
@@ -96,6 +108,32 @@ class RedisWriter extends Actor with Serializable {
         client.hincrby(s"user:$user:stats", "linkCount", report.linkCount)
       }
     })
+  }
+
+  /**
+    * Marks a sequence of tweets as processed in Redis to ensure we don't process it more than once.
+    *
+    * @param tweets A sequence of tweets
+    */
+  def markTweetsAsProcessed(tweets: Seq[Status]): Unit = {
+    clients.withClient{client =>
+      tweets.foreach(tweet => {
+        client.sadd(s"user:${tweet.getUser.getScreenName}:tweetIds", tweet.getId)
+      })
+    }
+  }
+
+  /**
+    * Marks a sequence of (screenName, tweetId) tuples as processed in Redis.
+    *
+    * @param tweetIds A sequence of (screenName: String, tweetId: Long) tuples.
+    */
+  def markTweetTuplesAsProcessed(tweetIds: Seq[(String, Long)]): Unit = {
+    clients.withClient{client =>
+      tweetIds.foreach(t => {
+        client.sadd(s"user:${t._1}:tweetIds", t._2)
+      })
+    }
   }
 
 }

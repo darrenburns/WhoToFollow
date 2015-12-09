@@ -26,6 +26,7 @@ object RedisReader {
                          dictionaryHits: Int,
                          linkCount: Int
                          )
+  case class HasStatusBeenProcessed(status: twitter4j.Status)
 
   def extractFeatureCount(map: Map[String, String], featureName: String): Int = {
     map.get(featureName) match {
@@ -88,6 +89,13 @@ class RedisReader extends Actor {
             linkCount=extractFeatureCount(userFeatureMap, "linkCount")
           )
         case None => Logger.debug("Queried a non-existent user in Redis.")
+      }
+
+    case HasStatusBeenProcessed(status) =>
+      clients.withClient{client =>
+        val statusId = status.getId
+        // Respond with a true or false
+        sender ! (statusId, client.sismember(s"user:${status.getUser.getScreenName}:tweetIds", statusId))
       }
 
   }
