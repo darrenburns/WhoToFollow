@@ -1,6 +1,6 @@
 package learn.actors
 
-import akka.actor.{Actor, ActorRef}
+import akka.actor.{PoisonPill, Actor, ActorRef}
 import akka.pattern.ask
 import akka.util.Timeout
 import com.google.inject.Inject
@@ -80,6 +80,8 @@ class BatchFeatureExtraction @Inject()
               Logger.error("Error during feature extraction. This occurred whilst extracting features from" +
                 "the tweets in a user timeline.", error)
           }
+
+          self ! PoisonPill
 
         case Failure(error) => Logger.error("Unable to determine whether tweets have been seen before.")
 
