@@ -35,9 +35,9 @@ object Application {
 
   implicit val responseListWrites = new Writes[ResponseList[twitter4j.Status]] {
     def writes(responseList: ResponseList[Status]) = {
-      val list = Vector.empty[Status]
+      var list = Vector.empty[Status]
       responseList.foreach(status => {
-        list :+ status
+        list :+= status
       })
       Json.obj(
         "tweets" -> Json.toJson(list)
@@ -107,6 +107,7 @@ class Application @Inject()
     val twitter = TwitterFactory.getSingleton
     val tweets = twitter.getUserTimeline(screenName)
     batchFeatureExtraction ! TweetBatch(tweets)
+    Logger.debug("TIMELINE Tweets length: " + tweets.size())
     Ok(Json.toJson(tweets))
   }
 
