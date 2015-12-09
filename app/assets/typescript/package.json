@@ -37,6 +37,7 @@
     "elemental": "^0.5.0",
     "history": "^1.13.1",
     "immutable": "^3.7.5",
+    "jquery": "^2.1.4",
     "material-ui": "^0.13.3",
     "react": "^0.14.0",
     "react-addons-create-fragment": "^0.14.0",

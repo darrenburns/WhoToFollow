@@ -2,12 +2,15 @@ package learn.actors
 
 import java.util
 
-import akka.actor.Actor
+import akka.actor.{ActorRef, Actor}
+import com.google.inject.Inject
+import com.google.inject.name.Named
 import learn.actors.TweetStreamActor.TweetBatch
 import org.apache.commons.io.IOUtils
 import org.terrier.indexing.TaggedDocument
 import org.terrier.indexing.tokenisation.Tokeniser
 import org.terrier.realtime.memory.MemoryIndex
+import persist.actors.RedisWriter.IncrementIndexSize
 import play.api.Logger
 
 import scala.collection.immutable.HashMap
@@ -23,12 +26,19 @@ object Indexer {
 /*
   Handles Terrier indexing of streaming tweets in real-time
  */
-class Indexer extends Actor {
+class Indexer @Inject()
+(
+  @Named("redisWriter") redisWriter: ActorRef
+) extends Actor {
 
   import Indexer._
 
   override def receive = {
     case TweetBatch(batch) =>
+      // Increment the index size in Redis by the size of the batch
+      // TODO: Just change the value to the size of the index whenever indexing is working
+      redisWriter ! IncrementIndexSize(batch.size)
+
 //
 //      batch.foreach(status => {
 //        // Converting user Twitter IDs to integers

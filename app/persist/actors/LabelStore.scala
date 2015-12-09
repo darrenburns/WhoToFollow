@@ -53,6 +53,10 @@ class LabelStore @Inject() (
       // Fetch the features for this user from Redis
       (redisReader ? UserFeatureRequest(name)) onComplete {
         case Success(features: UserFeatures) =>
+          val query = MongoDBObject(
+            "name" -> features.screenName,
+            "hashtag" -> hashtag
+          )
           val dbVote = MongoDBObject(
             "name" -> features.screenName,
             "hashtag" -> hashtag,
@@ -68,7 +72,7 @@ class LabelStore @Inject() (
             "linkCount" -> features.linkCount
           )
           Logger.debug("Features found for user. Saving features and classification in database.")
-          collection.insert(dbVote)
+          collection.update(query, dbVote, upsert=true)
           sender ! Success
         case Failure(t) =>
           Logger.debug(s"Failed to fetch user features for '$name' from Redis. Error: $t")

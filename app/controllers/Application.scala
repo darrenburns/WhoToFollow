@@ -35,9 +35,9 @@ object Application {
 
   implicit val responseListWrites = new Writes[ResponseList[twitter4j.Status]] {
     def writes(responseList: ResponseList[Status]) = {
-      val list = Vector.empty[Status]
+      var list = Vector.empty[Status]
       responseList.foreach(status => {
-        list :+ status
+        list :+= status
       })
       Json.obj(
         "tweets" -> Json.toJson(list)
@@ -71,7 +71,9 @@ class Application @Inject()
 
   /**
     * Receives a GET request containing a query. This method will request that the WSS creates
-    * a new channel named after the query.
+    * a new channel named after the query. We can also create a channel which can be used to
+    * update user features in realtime, or for updating the number of indexed documents on the
+    * homepage.
     */
   def getChannel(name: String) = WebSocket.tryAccept[JsValue] { request =>
       // Ask the WebSocketSupervisor for the requested channel.
@@ -86,13 +88,18 @@ class Application @Inject()
     * is sent to the store for future machine learning tasks.
     * @return An HTTP 200 response
     */
-  def voteForUser = Action { request =>
-    val json = request.body.asJson.get
-    val vote = json.as[Vote]
-    Logger.debug(s"Action: Received vote for ${vote.screenName} in" +
-      s" topic '${vote.hashtag}': Vote value = ${vote.voteId}")
-    labelStore ! vote
-    Ok // TODO: Assuming success
+  def voteForUser = Action(BodyParsers.parse.json) { request =>
+    val json = request.body.validate[Vote]
+    json.fold(
+      errors => {
+        BadRequest
+      },
+      vote => {
+        Logger.info(s"Received vote: $vote" )
+        labelStore ! vote
+        Ok
+      }
+    )
   }
 
   /**
@@ -107,6 +114,7 @@ class Application @Inject()
     val twitter = TwitterFactory.getSingleton
     val tweets = twitter.getUserTimeline(screenName)
     batchFeatureExtraction ! TweetBatch(tweets)
+    Logger.debug("TIMELINE Tweets length: " + tweets.size())
     Ok(Json.toJson(tweets))
   }
 

@@ -67,7 +67,7 @@ const Home = React.createClass({
         });
         console.log("Mapped", recentHashtags);
         return (
-            <Container maxWidth={800}>
+            <div>
                 <Row>
                     <Col sm="100%">
                         <span className="splash-text">Who To Follow</span>
@@ -89,7 +89,7 @@ const Home = React.createClass({
                         </ul>
                     </Col>
                 </Row>
-            </Container>
+            </div>
         )
     }
 

@@ -1,11 +1,15 @@
 package persist.actors
 
-import akka.actor.Actor
+import akka.actor.{ActorRef, Actor}
+import com.google.inject.Inject
+import com.google.inject.name.Named
 import com.redis.RedisClient.DESC
 import hooks.RedisConnectionPool
 import play.api.Logger
 import query.actors.QueryHandler.FetchLatestQueryExperts
-import report.actors.MetricsReporting.{GetRecentQueryList, RecentQueries}
+import report.actors.MetricsReporting.{GetLatestIndexSize, GetRecentQueryList, RecentQueries}
+import report.actors.WebSocketSupervisor
+import report.actors.WebSocketSupervisor.LatestIndexSize
 
 import scala.collection.mutable.ListBuffer
 
@@ -36,7 +40,10 @@ object RedisReader {
   }
 }
 
-class RedisReader extends Actor {
+class RedisReader @Inject()
+(
+  @Named("webSocketSupervisor") webSocketSupervisor: ActorRef
+) extends Actor {
 
   import RedisReader._
 
@@ -98,6 +105,13 @@ class RedisReader extends Actor {
         sender ! (statusId, client.sismember(s"user:${status.getUser.getScreenName}:tweetIds", statusId))
       }
 
+    case GetLatestIndexSize() =>
+      clients.withClient{client =>
+        client.get("indexSize") match {
+          case Some(size) => sender ! LatestIndexSize(size.toInt)
+          case None => Logger.error("Unable to determine the latest index size.")
+        }
+      }
   }
 
 }

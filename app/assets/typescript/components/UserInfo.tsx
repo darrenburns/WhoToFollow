@@ -1,28 +1,67 @@
+///<reference path='../models/Twitter.ts'/>
+///<reference path='../models/Learning.ts'/>
+
+
 import * as React from 'react';
+import * as $ from 'jquery';
 import {Container, Row, Col} from 'elemental';
-import {Avatar, Paper, RaisedButton} from 'material-ui'
+import {Avatar, Paper, RaisedButton, List, ListItem, ListDivider, Snackbar} from 'material-ui'
 import Hashtag from './Hashtag.tsx';
+import Configuration from "../util/config";
+import TimelineApi from '../endpoints/TimelineApi';
+import LearningApi from '../endpoints/LearningApi';
 
 
-interface UserInfoProps {
+interface IUserInfoProps {
     screenName: string;
     params: any;
 }
 
-export default class UserInfo extends React.Component<UserInfoProps, any> {
+interface IUserInfoState {
+    timeline: Array<Twitter.Status>
+}
 
-    constructor(props) {
+export default class UserInfo extends React.Component<IUserInfoProps, IUserInfoState> {
+
+    constructor(props: IUserInfoProps) {
         super(props);
+        this.state = {
+            timeline: []
+        }
     }
 
     componentWillMount() {
-        // Make Ajax request to the backend to get the user's timeline
-
+        let timelineXhr: JQueryXHR = TimelineApi.fetchAndAnalyse(this.props.params.screenName);
+        timelineXhr.then(
+            (results: any) => {
+                let recentTweets: Array<Twitter.Status> = results.tweets;
+                this.setState({
+                    timeline: recentTweets
+                })
+            },
+            (failResponse: any) => {
+                console.log("An error occurred fetching the user timeline." + failResponse);
+            }
+        )
     }
+
+
+    _classifyUser = (clazz: number): void => {
+        console.log(clazz);
+        LearningApi.classifyUser(this.props.params.screenName, this.props.params.query, clazz);
+        let snackbar: any = this.refs["snackbar"];
+        snackbar.show();
+    };
+
+    //_classifyUserHigh = (): void => {
+    //    LearningApi.classifyUser(this.props.params.screenName, this.props.params.query, clazz);
+    //    let snackbar: any = this.refs["snackbar"];
+    //    snackbar.show();
+    //};
 
     render() {
         return (
-            <Container maxWidth={800}>
+            <Container maxWidth={940}>
                 <Row>
                     <Col sm="100%">
                         <h1>@{this.props.params.screenName}</h1>
@@ -44,24 +83,36 @@ export default class UserInfo extends React.Component<UserInfoProps, any> {
                     </Col>
 
 
-                    <Col sm="45%">
+                    <Col sm="50%">
                         <h2>Timeline</h2>
-                        List of the user's tweets here!!
+                        <List>
+                            {this.state.timeline.map((status: Twitter.Status) => {
+                                return (
+                                    <ListItem key={status.id} primaryText={status.username}
+                                    secondaryText={status.text} secondaryTextLines={2} leftAvatar={<Avatar src={status.avatar} />} />
+                                    );
+                                })}
+                        </List>
                     </Col>
 
 
-                    <Col sm="30%">
+                    <Col sm="25%">
                         <Row>
                             <Col sm="100%">
                                 <h2>Classify User</h2>
                                 <p className="">
                                 Is this user tweeting high quality information
-                                relating the query topic <Hashtag hashtag={this.props.params.query} />?
+                                relating to the query topic <Hashtag hashtag={this.props.params.query} />?
                                 </p>
                                 <div className="classify-buttons-flex">
-                                    <RaisedButton label="Yes" secondary={true}/>
-                                    <RaisedButton label="No" primary={true}/>
+                                    <RaisedButton label="Yes" secondary={true} onTouchTap={this._classifyUser.bind(this, 1)} />
+                                    <RaisedButton label="No" primary={true} onTouchTap={this._classifyUser.bind(this, 0)} />
                                 </div>
+                                <Snackbar ref="snackbar"
+                                          message="Thanks for classifying this user."
+                                          action="hide"
+                                          autoHideDuration={3}
+                                />
                             </Col>
                         </Row>
                     </Col>

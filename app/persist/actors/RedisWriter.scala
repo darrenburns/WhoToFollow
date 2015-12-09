@@ -5,7 +5,7 @@ import com.google.inject.Singleton
 import hooks.RedisConnectionPool
 import learn.actors.FeatureExtraction.TweetFeatures
 import learn.actors.UserHashtagCounter.{UserHashtagCount, UserHashtagReport}
-import persist.actors.RedisWriter.{ProcessedTweetTuples, ProcessedTweets, NewQuery, TweetFeatureBatch}
+import persist.actors.RedisWriter._
 import play.api.Logger
 import twitter4j.Status
 
@@ -15,6 +15,7 @@ import twitter4j.Status
  */
 object RedisWriter {
   case class NewQuery(query: String)
+  case class IncrementIndexSize(incrementAmount: Int)
   case class HashtagCountUpdate(results: Seq[UserHashtagCount])
   case class TweetFeatureBatch(reports: Seq[TweetFeatures])
   case class ProcessedTweets(tweets: Seq[twitter4j.Status])
@@ -43,8 +44,8 @@ class RedisWriter extends Actor with Serializable {
       markTweetsAsProcessed(tweets)
     case ProcessedTweetTuples(tweets) =>
       markTweetTuplesAsProcessed(tweets)
-
-
+    case IncrementIndexSize(amount) =>
+      incrementIndexSize(amount)
   }
 
   /**
@@ -133,6 +134,17 @@ class RedisWriter extends Actor with Serializable {
       tweetIds.foreach(t => {
         client.sadd(s"user:${t._1}:tweetIds", t._2)
       })
+    }
+  }
+
+  /**
+    * Increments the counter for the size of the index in Redis.
+    *
+    * @param amount The amount to increment the index size by.
+    */
+  def incrementIndexSize(amount: Int): Unit = {
+    clients.withClient{client =>
+      client.incrby("indexSize", amount)
     }
   }
 

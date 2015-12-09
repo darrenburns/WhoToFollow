@@ -5,8 +5,6 @@ import * as React from 'react';
 const Tweet = (props) => {
     let tweet = props.tweet;
 
-
-
     return (
         <ListItem key={props.key}
                   leftAvatar={<Avatar src={tweet.avatar} />}

@@ -29,6 +29,7 @@ object WebSocketSupervisor {
 
   object Defaults {
     val RecentQueriesChannelName = "default:recent-queries"
+    val LatestIndexSizeChannelName = "default:index-size"
     val DeadChannelTimeout = 30
   }
 
@@ -50,6 +51,7 @@ object WebSocketSupervisor {
   case class CheckForDeadChannels()
   case class ChannelTriple(in: Iteratee[JsObject, Unit], out: Enumerator[JsValue],
                           channel: Concurrent.Channel[JsValue])
+  case class LatestIndexSize(count: Int)
 }
 
 
@@ -70,12 +72,12 @@ class WebSocketSupervisor @Inject()
 
   // Create the default:recent-queries channel which will handle sending recent queries to client
   createChannel(Defaults.RecentQueriesChannelName)
+  createChannel(Defaults.LatestIndexSizeChannelName)
 
   implicit val timeout = Timeout(20, TimeUnit.SECONDS)
 
-  private val expiredChannelTick =
-    context.system.scheduler.schedule(Duration.Zero, FiniteDuration(20, TimeUnit.SECONDS), self, CheckForDeadChannels())
 
+  context.system.scheduler.schedule(Duration.Zero, FiniteDuration(20, TimeUnit.SECONDS), self, CheckForDeadChannels())
 
   override def receive = {
 
@@ -153,8 +155,23 @@ class WebSocketSupervisor @Inject()
         case Some(chTriple) =>
           val json = Json.toJson(msg)
           chTriple.channel push json
-        case None => Logger.error(s"Channel ${Defaults.RecentQueriesChannelName} doesn't exist.")
+        case None => Logger.error(s"Channel ${Defaults.RecentQueriesChannelName} does not exist.")
       }
+
+    /*
+    The most recent index size recorded in Redis.
+     */
+    case LatestIndexSize(size) =>
+      Logger.debug("Received latest index size at socket output: " + size)
+      val indexSizeChannelTriple = channels.get(Defaults.LatestIndexSizeChannelName)
+      indexSizeChannelTriple match {
+        case Some(chTriple) =>
+          val json = Json.obj("indexSize" -> size)
+          chTriple.channel push json
+        case None => Logger.error(s"Channel ${Defaults.LatestIndexSizeChannelName} does not exist.")
+
+      }
+
   }
 
   /**
@@ -178,7 +195,7 @@ class WebSocketSupervisor @Inject()
     channels += (query -> chTriple)
 
     // Ensure that the default channels (for metrics etc.) are not overridden
-    if (query != Defaults.RecentQueriesChannelName) {
+    if (query != Defaults.RecentQueriesChannelName && query != Defaults.LatestIndexSizeChannelName) {
       queryHandlers += (query -> injectedChild(queryHandlerFactory(query), query))
       keepAlives += (query -> DateTime.now)
     }
