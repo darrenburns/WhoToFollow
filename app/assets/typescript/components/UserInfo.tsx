@@ -34,55 +34,23 @@ export default class UserInfo extends React.Component<IUserInfoProps, IUserInfoS
         }
     }
 
-    componentWillMount() {
-        let timelineXhr:JQueryXHR = TimelineApi.fetchAndAnalyse(this.props.params.screenName);
-        timelineXhr.then(
-            (results:any) => {
-                let recentTweets:Array<Twitter.Status> = results.tweets;
-                this.setState({
-                    timeline: recentTweets
-                })
-            },
-            (failResponse:any) => {
-                console.log("An error occurred fetching the user timeline." + failResponse);
-            }
-        );
+    componentDidMount() {
+        this._setUserTimeline(this.props.params.screenName);
+        // Listen to this users channel
+        this._setUserChannel(this.props.params.screenName);
+    }
 
-        let ws:WebSocket = new WebSocket(`ws://localhost:9000/ws/user:${this.props.params.screenName}`);
-        ws.onmessage = (event) => {
-            let update: Learning.UserFeatures = JSON.parse(event.data);
-            console.log("Update", update);
-            let newFeatures = Immutable.Map<string, number>();
-            for (let key of Object.keys(update)) {
-                console.log("Setting new features: " + key + " -> " + update[key]);
-                newFeatures = newFeatures.set(key, update[key]);
-            }
-            this.setState({latestFeaturesUpdate: newFeatures});
-        };
-
-        if (this.state.userSocket != null) {
-            this.state.userSocket.close();
+    componentDidUpdate(prevProps: IUserInfoProps) {
+        let newScreenName = this.props.params.screenName;
+        if (prevProps.params.screenName !== newScreenName) {
+            this._freeComponentResources();
+            this._setUserTimeline(newScreenName);
+            this._setUserChannel(newScreenName);
         }
-        let keepAliveHandle = setInterval(() => {
-            if (this.props.params.screenName !== '') {
-                this.state.userSocket.send(JSON.stringify({
-                    "channel": `user:${this.props.params.screenName}`,
-                    "request": Constants.KEEP_ALIVE_STRING
-                }))
-            }
-        }, Configuration.KEEP_ALIVE_FREQUENCY);
-        this.setState({userSocket: ws, socketKeepAliveHandle: keepAliveHandle});
     }
 
     componentWillUnmount() {
-        let sock: WebSocket = this.state.userSocket;
-        if (sock != null) {
-            sock.close();
-        }
-        let kah: number = this.state.socketKeepAliveHandle;
-        if (kah != null) {
-            clearInterval(kah);
-        }
+        this._freeComponentResources();
     }
 
     private _openUserInTwitter = (): void => {
@@ -95,6 +63,57 @@ export default class UserInfo extends React.Component<IUserInfoProps, IUserInfoS
         let snackbar: any = this.refs['snackbar'];
         snackbar.show();
     };
+
+    private _setUserChannel = (screenName: string): void => {
+        let ws:WebSocket = new WebSocket(`ws://localhost:9000/ws/user:${screenName}`);
+        ws.onmessage = (event) => {
+            let update: Learning.UserFeatures = JSON.parse(event.data);
+            let newFeatures = Immutable.Map<string, number>();
+            for (let key of Object.keys(update)) {
+                newFeatures = newFeatures.set(key, update[key]);
+            }
+            this.setState({latestFeaturesUpdate: newFeatures});
+        };
+        if (this.state.userSocket != null) {
+            this.state.userSocket.close();
+        }
+        let keepAliveHandle = setInterval(() => {
+            if (this.props.params.screenName !== '') {
+                this.state.userSocket.send(JSON.stringify({
+                    "channel": `user:${this.props.params.screenName}`,
+                    "request": Constants.KEEP_ALIVE_STRING
+                }))
+            }
+        }, Configuration.KEEP_ALIVE_FREQUENCY);
+        this.setState({socketKeepAliveHandle: keepAliveHandle, userSocket: ws});
+    };
+
+    private _setUserTimeline = (screenName: string): void => {
+        let timelineXhr:JQueryXHR = TimelineApi.fetchAndAnalyse(screenName);
+        timelineXhr.then(
+            (results:any) => {
+                let recentTweets:Array<Twitter.Status> = results.tweets;
+                this.setState({
+                    timeline: recentTweets
+                })
+            },
+            (failResponse:any) => {
+                console.log("An error occurred fetching the user timeline." + failResponse);
+            }
+        );
+
+    };
+
+    private _freeComponentResources(): void {
+        let sock: WebSocket = this.state.userSocket;
+        if (sock != null) {
+            sock.close();
+        }
+        let kah: number = this.state.socketKeepAliveHandle;
+        if (kah != null) {
+            clearInterval(kah);
+        }
+    }
 
     render() {
         console.log("Features size: " + this.state.latestFeaturesUpdate.size);

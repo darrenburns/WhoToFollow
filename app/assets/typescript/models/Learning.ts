@@ -4,9 +4,6 @@ module Learning {
         LOW, HIGH
     }
 
-    /*
-
-     */
     export interface UserFeatures {
         screenName: string;
         tweetCount: number;

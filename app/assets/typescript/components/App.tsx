@@ -7,6 +7,8 @@ import QueryResults from './QueryResults.tsx';
 import UserInfo from './UserInfo.tsx';
 import {AppBar, IconButton, FlatButton} from 'material-ui';
 import * as injectTapEventPlugin from 'react-tap-event-plugin';
+import Props = __React.Props;
+
 injectTapEventPlugin();
 
 interface IAppState {
@@ -26,7 +28,7 @@ const App = React.createClass<any, IAppState>({
     },
 
 
-    componentWillMount() {
+    componentDidMount() {
         let ws: WebSocket = new WebSocket(`ws://localhost:9000/ws/default:index-size`);
         ws.onmessage = event => {
             this.setState({indexSize: JSON.parse(event.data).indexSize});
@@ -39,14 +41,14 @@ const App = React.createClass<any, IAppState>({
         });
     },
 
-    _onClickBackButton(event: Event) {
-        this.history.goBack();
-    },
-
     componentWillUnmount() {
         if (this.state.indexSizeSocket != null) {
             this.state.indexSizeSocket.close();
         }
+    },
+
+    _onClickBackButton(event: Event) {
+        this.history.goBack();
     },
 
     render() {
@@ -70,7 +72,7 @@ ReactDOM.render((
         <Route component={App}>
             <Route path="home" component={Home} />
             <Route path="query/:query" component={QueryResults} />
-            <Route path="user/:screenName/query/:query" component={UserInfo} />
+            <Route path="query/:query/user/:screenName" component={UserInfo} />
         </Route>
     </Router>
 ), document.getElementById("wtfc-app-mount"));
