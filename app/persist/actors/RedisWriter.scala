@@ -36,7 +36,6 @@ class RedisWriter extends Actor with Serializable {
     case UserHashtagReport(results) =>
       applyHashtagCounts(results)
     case TweetFeatureBatch(reports) =>
-      Logger.debug("RedisWriter - received TweetQualityReportBatch")
       updateExtractedFeatures(reports)
     case NewQuery(q) =>
       addQuery(q)

@@ -10,7 +10,7 @@ import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
 import org.joda.time.DateTime
 import persist.actors.{RedisReader, RedisWriter}
-import RedisReader.{ExpertRating, QueryLeaderboard}
+import persist.actors.RedisReader.{UserFeatures, ExpertRating, QueryLeaderboard}
 import persist.actors.RedisWriter
 import RedisWriter.NewQuery
 import play.api.Logger
@@ -18,9 +18,9 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.concurrent.InjectedActorSupport
 import play.api.libs.iteratee.{Concurrent, Enumerator, Iteratee}
 import play.api.libs.json.{JsObject, JsValue, Json, Writes}
-import query.actors.QueryHandler
 import report.actors.MetricsReporting.RecentQueries
-import report.utility.KeepAlive
+import report.actors.ChannelManager
+import report.utility.{ChannelUtilities, KeepAlive}
 
 import scala.collection.immutable.HashMap
 import scala.concurrent.duration.{Duration, FiniteDuration}
@@ -47,6 +47,21 @@ object WebSocketSupervisor {
     )
   }
 
+  implicit val userFeaturesWrites = new Writes[UserFeatures] {
+    def writes(f: UserFeatures) = Json.obj(
+      "screenName" -> f.screenName,
+      "tweetCount" -> f.tweetCount,
+      "followerCount" -> f.followerCount,
+      "wordCount" -> f.wordCount,
+      "capitalisedCount" -> f.capitalisedCount,
+      "hashtagCount" -> f.hashtagCount,
+      "retweetCount" -> f.retweetCount,
+      "likeCount" -> f.likeCount,
+      "dictionaryHits" -> f.dictionaryHits,
+      "linkCount" -> f.linkCount
+    )
+  }
+
   case class OutputChannel(name: String)
   case class CheckForDeadChannels()
   case class ChannelTriple(in: Iteratee[JsObject, Unit], out: Enumerator[JsValue],
@@ -55,19 +70,17 @@ object WebSocketSupervisor {
 }
 
 
-
-
 @Singleton
 class WebSocketSupervisor @Inject()
 (
-  queryHandlerFactory: QueryHandler.Factory,
+  channelManagerFactory: ChannelManager.Factory,
   @Named("redisWriter") redisWriter: ActorRef
 ) extends Actor with InjectedActorSupport {
 
   import WebSocketSupervisor._
 
   protected[this] var channels: HashMap[String, ChannelTriple] = HashMap.empty
-  protected[this] var queryHandlers: HashMap[String, ActorRef] = HashMap.empty
+  protected[this] var channelManagers: HashMap[String, ActorRef] = HashMap.empty
   protected[this] var keepAlives: HashMap[String, DateTime] = HashMap.empty
 
   // Create the default:recent-queries channel which will handle sending recent queries to client
@@ -75,7 +88,6 @@ class WebSocketSupervisor @Inject()
   createChannel(Defaults.LatestIndexSizeChannelName)
 
   implicit val timeout = Timeout(20, TimeUnit.SECONDS)
-
 
   context.system.scheduler.schedule(Duration.Zero, FiniteDuration(20, TimeUnit.SECONDS), self, CheckForDeadChannels())
 
@@ -92,9 +104,16 @@ class WebSocketSupervisor @Inject()
           Logger.info(s"Fetching existing channel: $query")
           sender ! Right((ch.in, ch.out))
         case None =>
-          Logger.info(s"Creating channel for query $query.")
-          redisWriter ! NewQuery(query)
-          val ch = createChannel(query)
+          val lowerChannel = query.toLowerCase
+          Logger.info(s"Creating channel $lowerChannel.")
+          val ch = if (ChannelUtilities.isQueryChannel(query)) {
+            Logger.debug(s"Creating query channel for query: $query")
+            redisWriter ! NewQuery(lowerChannel)
+            createChannel(lowerChannel)
+          } else if (ChannelUtilities.isUserAnalysisChannel(query)) {
+            Logger.debug(s"This should be a user analysis channel: $query")
+            createChannel(query)
+          }
           sender ! (ch match {
             case chTriple: ChannelTriple => Right((chTriple.in, chTriple.out))
             case _ => Left("Not found")
@@ -106,6 +125,7 @@ class WebSocketSupervisor @Inject()
      being sent through the channel associated with that query.
      */
     case QueryLeaderboard(query, leaderboard) =>
+      Logger.debug("WSS receive leaderboard")
       val json = Json.toJson(leaderboard)
       val channelTriple = channels.get(query)
       channelTriple match {
@@ -136,10 +156,10 @@ class WebSocketSupervisor @Inject()
               channels -= channelName
             case None => Logger.error("Trying to close a non-existent channel.")
           }
-          queryHandlers.get(channelName) match {
+          channelManagers.get(channelName) match {
             case Some(handler) =>
               context stop handler
-              queryHandlers -= channelName
+              channelManagers -= channelName
             case None => Logger.error(s"Tried to stop a non-existent QueryHandler for query $channelName")
           }
           keepAlives -= channelName
@@ -162,7 +182,6 @@ class WebSocketSupervisor @Inject()
     The most recent index size recorded in Redis.
      */
     case LatestIndexSize(size) =>
-      Logger.debug("Received latest index size at socket output: " + size)
       val indexSizeChannelTriple = channels.get(Defaults.LatestIndexSizeChannelName)
       indexSizeChannelTriple match {
         case Some(chTriple) =>
@@ -171,6 +190,17 @@ class WebSocketSupervisor @Inject()
         case None => Logger.error(s"Channel ${Defaults.LatestIndexSizeChannelName} does not exist.")
 
       }
+
+    case features @ UserFeatures(s,_,_,_,_,_,_,_,_,_) =>
+      val chName = ChannelUtilities.getChannelNameFromScreenName(s)
+      val userChannelTri = channels.get(chName)
+      userChannelTri match {
+        case Some(tri) =>
+          Logger.debug("Features: " + features)
+          tri.channel push Json.toJson(features)
+        case None => Logger.error(s"Unable to send user features through channel $chName")
+      }
+
 
   }
 
@@ -194,9 +224,9 @@ class WebSocketSupervisor @Inject()
     val chTriple = ChannelTriple(in, out, channel)
     channels += (query -> chTriple)
 
-    // Ensure that the default channels (for metrics etc.) are not overridden
-    if (query != Defaults.RecentQueriesChannelName && query != Defaults.LatestIndexSizeChannelName) {
-      queryHandlers += (query -> injectedChild(queryHandlerFactory(query), query))
+    // Store the manager and instantiate the keep-alive
+    if (ChannelUtilities.isQueryChannel(query) || ChannelUtilities.isUserAnalysisChannel(query)) {
+      channelManagers += (query -> injectedChild(channelManagerFactory(query), query))
       keepAlives += (query -> DateTime.now)
     }
     chTriple
@@ -206,7 +236,7 @@ class WebSocketSupervisor @Inject()
     In order to keep track of which WebSockets are still needed,
    the client repeatedly sends keep-alive messages directed at
    the channel they are interested in. The client does this every
-   js/util/config.keepAliveFrequency seconds. Also every Defaults.DeadChannelTimeout
+   typescript/util/config.keepAliveFrequency seconds. Also every Defaults.DeadChannelTimeout
    seconds, we check the most recent keep-alive time. If a keep-alive hasn't
    been sent in the past minute for a given channel, then all resources for
    that channel are closed

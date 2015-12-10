@@ -3,10 +3,12 @@
 
 import * as React from 'react';
 import * as $ from 'jquery';
+import * as Immutable from 'immutable';
 import {Container, Row, Col} from 'elemental';
 import {Avatar, Paper, RaisedButton, FlatButton, List, ListItem, ListDivider, Snackbar} from 'material-ui'
 import Hashtag from './Hashtag.tsx';
 import Configuration from "../util/config";
+import Constants from "../util/constants";
 import TimelineApi from '../endpoints/TimelineApi';
 import LearningApi from '../endpoints/LearningApi';
 
@@ -16,7 +18,10 @@ interface IUserInfoProps {
 }
 
 interface IUserInfoState {
-    timeline: Array<Twitter.Status>
+    timeline?: Array<Twitter.Status>;
+    userSocket?: WebSocket;
+    latestFeaturesUpdate?: Immutable.Map<string, number>;
+    socketKeepAliveHandle?: number;
 }
 
 export default class UserInfo extends React.Component<IUserInfoProps, IUserInfoState> {
@@ -24,23 +29,60 @@ export default class UserInfo extends React.Component<IUserInfoProps, IUserInfoS
     constructor(props: IUserInfoProps) {
         super(props);
         this.state = {
-            timeline: []
+            timeline: [],
+            latestFeaturesUpdate: Immutable.Map<string, number>()
         }
     }
 
     componentWillMount() {
-        let timelineXhr: JQueryXHR = TimelineApi.fetchAndAnalyse(this.props.params.screenName);
+        let timelineXhr:JQueryXHR = TimelineApi.fetchAndAnalyse(this.props.params.screenName);
         timelineXhr.then(
-            (results: any) => {
-                let recentTweets: Array<Twitter.Status> = results.tweets;
+            (results:any) => {
+                let recentTweets:Array<Twitter.Status> = results.tweets;
                 this.setState({
                     timeline: recentTweets
                 })
             },
-            (failResponse: any) => {
+            (failResponse:any) => {
                 console.log("An error occurred fetching the user timeline." + failResponse);
             }
-        )
+        );
+
+        let ws:WebSocket = new WebSocket(`ws://localhost:9000/ws/user:${this.props.params.screenName}`);
+        ws.onmessage = (event) => {
+            let update: Learning.UserFeatures = JSON.parse(event.data);
+            console.log("Update", update);
+            let newFeatures = Immutable.Map<string, number>();
+            for (let key of Object.keys(update)) {
+                console.log("Setting new features: " + key + " -> " + update[key]);
+                newFeatures = newFeatures.set(key, update[key]);
+            }
+            this.setState({latestFeaturesUpdate: newFeatures});
+        };
+
+        if (this.state.userSocket != null) {
+            this.state.userSocket.close();
+        }
+        let keepAliveHandle = setInterval(() => {
+            if (this.props.params.screenName !== '') {
+                this.state.userSocket.send(JSON.stringify({
+                    "channel": `user:${this.props.params.screenName}`,
+                    "request": Constants.KEEP_ALIVE_STRING
+                }))
+            }
+        }, Configuration.KEEP_ALIVE_FREQUENCY);
+        this.setState({userSocket: ws, socketKeepAliveHandle: keepAliveHandle});
+    }
+
+    componentWillUnmount() {
+        let sock: WebSocket = this.state.userSocket;
+        if (sock != null) {
+            sock.close();
+        }
+        let kah: number = this.state.socketKeepAliveHandle;
+        if (kah != null) {
+            clearInterval(kah);
+        }
     }
 
     private _openUserInTwitter = (): void => {
@@ -55,6 +97,18 @@ export default class UserInfo extends React.Component<IUserInfoProps, IUserInfoS
     };
 
     render() {
+        console.log("Features size: " + this.state.latestFeaturesUpdate.size);
+        let tweetsProcessed = this.state.latestFeaturesUpdate.get('tweetCount', 0);
+        console.log("In render - Got tweets processed: " + tweetsProcessed);
+        let followersCount = this.state.latestFeaturesUpdate.get('followerCount', 0);
+        let wordsCounted = this.state.latestFeaturesUpdate.get('wordCount', 0);
+        let capitalCount = this.state.latestFeaturesUpdate.get('capitalisedCount', 0);
+        let hashtagCount = this.state.latestFeaturesUpdate.get('hashtagCount', 0);
+        let retweetCount = this.state.latestFeaturesUpdate.get('retweetCount', 0);
+        let likeCount = this.state.latestFeaturesUpdate.get('likeCount', 0);
+        let dictionaryHits = this.state.latestFeaturesUpdate.get('dictionaryHits', 0);
+        let linkCount = this.state.latestFeaturesUpdate.get('linkCount', 0);
+
         return (
             <Container maxWidth={940}>
                 <Row>
@@ -75,7 +129,18 @@ export default class UserInfo extends React.Component<IUserInfoProps, IUserInfoS
                         <Row>
                             <Col sm="100%">
                                 <h2>Features</h2>
-                                <p>List of features here.</p>
+                                <ul>
+                                    <li><strong>Tweets Processed</strong>: {tweetsProcessed}</li>
+                                    <li><strong>Followers</strong>: {followersCount}</li>
+                                    <li><strong>Words Counted</strong>: {wordsCounted}</li>
+                                    <li><strong>% Capitalised Words</strong>: {(100*capitalCount/wordsCounted).toFixed(2)}%</li>
+                                    <li><strong>Hashtags Encountered</strong>: {hashtagCount}</li>
+                                    <li><strong>Times Retweeted</strong>: {retweetCount}</li>
+                                    <li><strong>Times Liked</strong>: {likeCount}</li>
+                                    <li><strong>Links Used</strong>: {linkCount}</li>
+                                    <li><strong>Spelling Accuracy</strong>:
+                                    {(100*dictionaryHits/wordsCounted).toFixed(2)}%</li>
+                                </ul>
                             </Col>
                         </Row>
                     </Col>

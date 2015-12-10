@@ -13,6 +13,10 @@ import persist.actors.RedisWriter.{ProcessedTweetTuples, ProcessedTweets, TweetF
 import play.api.{Configuration, Logger}
 import twitter4j.Status
 
+object UserFeaturesMatch {
+
+}
+
 object FeatureExtraction {
 
   object Defaults {

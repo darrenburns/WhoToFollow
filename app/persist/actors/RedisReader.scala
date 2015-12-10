@@ -1,12 +1,13 @@
 package persist.actors
 
 import akka.actor.{ActorRef, Actor}
-import com.google.inject.Inject
+import com.google.inject.{Singleton, Inject}
 import com.google.inject.name.Named
 import com.redis.RedisClient.DESC
 import hooks.RedisConnectionPool
 import play.api.Logger
-import query.actors.QueryHandler.FetchLatestQueryExperts
+import report.actors.{ChannelManager, WebSocketSupervisor}
+import ChannelManager.GetQueryMentionCounts
 import report.actors.MetricsReporting.{GetLatestIndexSize, GetRecentQueryList, RecentQueries}
 import report.actors.WebSocketSupervisor
 import report.actors.WebSocketSupervisor.LatestIndexSize
@@ -40,6 +41,7 @@ object RedisReader {
   }
 }
 
+@Singleton
 class RedisReader @Inject()
 (
   @Named("webSocketSupervisor") webSocketSupervisor: ActorRef
@@ -51,7 +53,7 @@ class RedisReader @Inject()
 
   override def receive = {
 
-    case FetchLatestQueryExperts(query) =>
+    case GetQueryMentionCounts(query) =>
       // i.e. ZRANGE hashtags:#query 0 20 WITHSCORES
       val cleanQuery = if (!query.startsWith("#")) s"#$query" else query
       val queryResult = clients.withClient{client =>
