@@ -62,23 +62,26 @@ const QueryResults = React.createClass({
                     history = history.set(username, Immutable.List([]));
                 }
             });
-            // Continuously send Keep-Alives to inform server that we still want recs and stats
-            let keepAliveTrigger = setInterval(() => {
-                if (this.props.params.query !== '' && this.state.querySocket) {
-                    this.state.querySocket.send(JSON.stringify({
-                        "channel": this.props.params.query,
-                        "request": Constants.KEEP_ALIVE_STRING
-                    }))
-                }
-            }, Configuration.KEEP_ALIVE_FREQUENCY);
             this.setState({
-                queryComplete: true,
                 queryResults: Immutable.List(recs),
-                queryUserHistories: history,
-                querySocket: querySocket,
-                keepAlive: keepAliveTrigger
+                queryUserHistories: history
             });
         };
+        // Continuously send Keep-Alives to inform server that we still want recs and stats
+        let keepAliveTrigger = setInterval(() => {
+            console.log(`Sending keep alive for query channel ${query}`);
+            if (this.props.params.query !== '' && this.state.querySocket) {
+                this.state.querySocket.send(JSON.stringify({
+                    "channel": this.props.params.query,
+                    "request": Constants.KEEP_ALIVE_STRING
+                }))
+            }
+        }, Configuration.KEEP_ALIVE_FREQUENCY);
+        this.setState({
+            queryComplete: true,
+            querySocket: querySocket,
+            keepAlive: keepAliveTrigger
+        });
     },
 
     _freeComponentResources(): void {

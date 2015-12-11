@@ -21,11 +21,6 @@ export default class UserRecommendation extends React.Component<UserRecommendati
         this.openUserTwitterProfile = this.openUserTwitterProfile.bind(this);
     }
 
-    componentWillReceiveProps(props): void {
-
-        console.log("Received props");
-    }
-
     openUserTwitterProfile(): void {
         window.open(`https://twitter.com/${this.props.username}`);
     }
