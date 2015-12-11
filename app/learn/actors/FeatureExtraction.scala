@@ -1,5 +1,7 @@
 package learn.actors
 
+import java.io.File
+
 import akka.actor.{Actor, ActorRef}
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
@@ -13,9 +15,6 @@ import persist.actors.RedisWriter.{ProcessedTweetTuples, ProcessedTweets, TweetF
 import play.api.{Configuration, Logger}
 import twitter4j.Status
 
-object UserFeaturesMatch {
-
-}
 
 object FeatureExtraction {
 
@@ -28,6 +27,7 @@ object FeatureExtraction {
       */
     val WindowSize = 10
   }
+
 
   /**
     * Representation of features which can be extracted from a tweet.

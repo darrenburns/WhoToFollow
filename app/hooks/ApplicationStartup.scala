@@ -4,7 +4,7 @@ import akka.actor.{ActorRef, ActorSystem}
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
 import com.mongodb.casbah.MongoClient
-import com.redis.{RedisClientPool, RedisClient}
+import com.redis.RedisClientPool
 import org.apache.spark.SparkConf
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 
@@ -22,8 +22,8 @@ object MongoInit {
   private lazy val mc = MongoClient("localhost", 27017)
   private lazy val db = mc("wtfcontext")
   lazy val coll = db("labels")
-
 }
+
 
 @Singleton
 class ApplicationStartup @Inject() (system: ActorSystem,

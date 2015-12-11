@@ -79,6 +79,7 @@ const Home = React.createClass({
                         </ul>
                     </Col>
                 </Row>
+                {this.props.children}
             </div>
         )
     }

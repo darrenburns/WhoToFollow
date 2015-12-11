@@ -10,7 +10,7 @@ import * as Immutable from 'immutable';
 import Configuration from '../util/config';
 import Constants from '../util/constants';
 
-let keepAliveTrigger;
+
 
 const QueryResults = React.createClass({
 
@@ -21,13 +21,33 @@ const QueryResults = React.createClass({
             querySocket: null,
             queryResults: Immutable.List([]),
             queryComplete: false,
+            keepAlive: null,
             queryUserHistories: Immutable.Map({})
         }
     },
 
-    componentWillMount: function() {
-        // Create the WebSocket
-        console.log('Mounting QueryResults');
+    componentDidMount: function() {
+        this._setQueryChannel(this.props.params.query);
+    },
+
+    componentWillUnmount: function() {
+        this._freeComponentResources();
+    },
+
+    componentDidUpdate: function(prevProps: any): void {
+        if (prevProps.params['query'] !== this.props['params']['query']) {
+            this._freeComponentResources();
+            // Clear the current query information to prevent confusion during load
+            this.setState({
+                queryResults: Immutable.List(),
+                queryUserHistories: Immutable.Map(),
+                queryComplete: false
+            });
+            this._setQueryChannel(this.props.params.query);
+        }
+    },
+
+    _setQueryChannel(query: string): void {
         let querySocket = new WebSocket(`ws://localhost:9000/ws/${this.props.params.query}`);
         querySocket.onmessage = event => {
             let recs = JSON.parse(event.data);
@@ -43,14 +63,14 @@ const QueryResults = React.createClass({
                 }
             });
             this.setState({
-                    queryComplete: true,
-                    queryResults: Immutable.List(recs),
-                    queryUserHistories: history,
-                    querySocket: querySocket
+                queryComplete: true,
+                queryResults: Immutable.List(recs),
+                queryUserHistories: history,
+                querySocket: querySocket
             });
         };
         // Continuously send Keep-Alives to inform server that we still want recs and stats
-        keepAliveTrigger = setInterval(() => {
+        let keepAliveTrigger = setInterval(() => {
             if (this.props.params.query !== '' && this.state.querySocket) {
                 this.state.querySocket.send(JSON.stringify({
                     "channel": this.props.params.query,
@@ -60,13 +80,13 @@ const QueryResults = React.createClass({
         }, Configuration.KEEP_ALIVE_FREQUENCY);
     },
 
-    componentWillUnmount: function() {
-        console.log("Dismounting QueryResults");
+    _freeComponentResources(): void {
         if (this.state.querySocket != null) {
             this.state.querySocket.close();
         }
-        console.log("Cancelling keepAliveTrigger, ID: " + keepAliveTrigger);
-        clearInterval(keepAliveTrigger);
+        if (this.state.keepAlive != null) {
+            clearInterval(this.state.keepAlive);
+        }
     },
 
     render: function() {

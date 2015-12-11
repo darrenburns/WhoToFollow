@@ -36,7 +36,9 @@ class BatchFeatureExtraction @Inject()
   implicit val timeout = Timeout(10 seconds)
 
   override def receive = {
-    case TweetBatch(tweets: Seq[Status]) =>
+    case TweetBatch(tweets: List[Status]) =>
+
+      Logger.debug(">>>> Received new tweet batch from a user timeline.")
 
       // Filter the list so that it only contains tweets we haven't seen before
       // Futures contain Tuple of (tweetId, haveWeSeenThisTweetBefore?)
@@ -52,6 +54,7 @@ class BatchFeatureExtraction @Inject()
           // Keep only tweets we haven't seen before
           val newTweets = tweets.filter(tweet => !(seenBefore contains (tweet.getId, true)))
 
+          Logger.debug(s"Batch analysing ${newTweets.size} tweets.")
           // Build a sequence of futures of tuples
           val batchTweetFuture = newTweets.map(status => Future {
             (status, ExtractionUtils.getStatusFeatures(status),
@@ -63,9 +66,11 @@ class BatchFeatureExtraction @Inject()
           finishedIteration onComplete {
             case Success(results) =>
               val (newlyProcessedTweets, featuresList, hashtagReports) = results.unzip3
+              Logger.debug(s"Finished analysis of ${newlyProcessedTweets.size}.")
               // Mark these tweets as processed
               redisWrite ! ProcessedTweets(newlyProcessedTweets)
               // Send the features of the tweets in this batch to Redis
+              Logger.debug(s"Sending feature list of size ${featuresList.size} to Redis.")
               redisWrite ! TweetFeatureBatch(featuresList)
               // Send the user/hashtag updates to Redis
               hashtagReports.foreach(report => {
@@ -75,8 +80,6 @@ class BatchFeatureExtraction @Inject()
               Logger.error("Error during feature extraction. This occurred whilst extracting features from" +
                 "the tweets in a user timeline.", error)
           }
-
-          self ! PoisonPill
 
         case Failure(error) => Logger.error("Unable to determine whether tweets have been seen before.")
 

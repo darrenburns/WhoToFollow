@@ -58,7 +58,7 @@ const App = React.createClass<any, IAppState>({
                     title="WhoToFollow"
                     iconElementLeft={<IconButton iconClassName="material-icons" tooltipPosition="bottom-center"
                                         tooltip="Back" onClick={this._onClickBackButton}>arrow_back</IconButton>}
-                    iconElementRight={<FlatButton label={this.state.indexSize + " tweets indexed"}  />}
+                    iconElementRight={<FlatButton label={this.state.indexSize + " tweets processed"}  />}
                 />
                 {this.props.children}
             </Container>
@@ -70,9 +70,10 @@ const App = React.createClass<any, IAppState>({
 ReactDOM.render((
     <Router>
         <Route component={App}>
-            <Route path="home" component={Home} />
-            <Route path="query/:query" component={QueryResults} />
-            <Route path="query/:query/user/:screenName" component={UserInfo} />
+            <Route path="/" component={Home}>
+                <Route path="/query/:query" component={QueryResults} />
+            </Route>
+            <Route path="/query/:query/user/:screenName" component={UserInfo} />
         </Route>
     </Router>
 ), document.getElementById("wtfc-app-mount"));

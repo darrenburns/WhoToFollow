@@ -5,7 +5,7 @@ import play.api.Play.current
 
 object QualityAnalyser {
   lazy val dictionaryPath = current.configuration.getString("analysis.featureExtraction.dictionary")
-    .getOrElse("/usr/share/dict/american-english")
+    .getOrElse("/usr/share/dict/words")
   lazy val dictionary = scala.io.Source.fromFile(dictionaryPath).getLines.toSet
 }
 
@@ -63,7 +63,7 @@ class QualityAnalyser(text: String) extends Serializable {
   def countDictionaryHits(): Int = {
     var hits = 0
     words.foreach(word => {
-      if (!word.isEmpty && dictionary.contains(word)) {
+      if (!word.isEmpty && dictionary.contains(word.toLowerCase)) {
         hits += 1
       }
     })

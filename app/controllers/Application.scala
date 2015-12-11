@@ -113,8 +113,11 @@ class Application @Inject()
     // Fetch a list of tweets from the users timeline
     val twitter = TwitterFactory.getSingleton
     val tweets = twitter.getUserTimeline(screenName)
-    batchFeatureExtraction ! TweetBatch(tweets)
-    Logger.debug("TIMELINE Tweets length: " + tweets.size())
+    if (tweets.size > 0) {
+
+      Logger.debug(s"Sending batch of tweets from timeline of $screenName: " + tweets.size())
+      batchFeatureExtraction ! TweetBatch(tweets.toList)
+    }
     Ok(Json.toJson(tweets))
   }
 
