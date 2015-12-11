@@ -63,6 +63,7 @@ const QueryResults = React.createClass({
                 }
             });
             this.setState({
+                queryComplete: true,
                 queryResults: Immutable.List(recs),
                 queryUserHistories: history
             });
@@ -78,7 +79,6 @@ const QueryResults = React.createClass({
             }
         }, Configuration.KEEP_ALIVE_FREQUENCY);
         this.setState({
-            queryComplete: true,
             querySocket: querySocket,
             keepAlive: keepAliveTrigger
         });
