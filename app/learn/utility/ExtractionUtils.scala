@@ -2,8 +2,15 @@ package learn.utility
 
 import learn.actors.FeatureExtraction.TweetFeatures
 import learn.actors.UserHashtagCounter.{UserHashtagCount, UserHashtagReport}
+import org.apache.commons.net.ntp.TimeStamp
 import twitter4j.Status
 import utils.QualityAnalyser
+
+/* TODO
+ Look at example in slides for querying an incremental index.
+ Use Terrier scores as additional feature.
+ Temporal features
+ */
 
 object ExtractionUtils {
 
@@ -13,6 +20,7 @@ object ExtractionUtils {
     val mentionCount = status.getUserMentionEntities.length
     val linkCount = status.getURLEntities.length
     TweetFeatures(
+      status = status,
       id = status.getId,
       username = status.getUser.getScreenName,
       followerCount = status.getUser.getFollowersCount,
@@ -34,6 +42,10 @@ object ExtractionUtils {
       // Might be worth changing how they're stored in Redis when this is fixed.
         UserHashtagCount(status.getUser.getScreenName, hashtag.getText, 1)
     }))
+  }
+
+  def fetchAndAnalyseTimeline(screenName: String): Unit = {
+
   }
 
 }

@@ -10,13 +10,17 @@ import learn.utility.ExtractionUtils
 import persist.actors.RedisReader.HasStatusBeenProcessed
 import persist.actors.RedisWriter.{ProcessedTweets, TweetFeatureBatch}
 import play.api.Logger
-import twitter4j.Status
+import twitter4j.{TwitterFactory, Status}
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 
+
+object BatchFeatureExtraction {
+  case class FetchAndAnalyseTimeline(screenName: String)
+}
 
 /**
   * Handles feature extraction from status/textual data where a Spark streaming context
@@ -32,6 +36,8 @@ class BatchFeatureExtraction @Inject()
   @Named("redisWriter") redisWrite: ActorRef,
   @Named("redisReader") redisRead: ActorRef
 ) extends Actor {
+
+  import BatchFeatureExtraction._
 
   implicit val timeout = Timeout(10 seconds)
 

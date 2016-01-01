@@ -19,7 +19,7 @@ import scala.concurrent.duration._
 
 object TweetStreamActor {
   val DefaultBatchSize = 20
-  case class TweetBatch(tweets: Seq[Status])
+  case class TweetBatch(tweets: List[Status])
   case class Ready()
 }
 
@@ -53,7 +53,7 @@ class TweetStreamActor @Inject()
 
       // Send batches of tweets to the indexer
       streamHandle.foreachRDD(batch => {
-        indexer ! TweetBatch(batch.collect())
+        indexer ! TweetBatch(batch.collect().toList)
       })
 
       // Actors have registered Spark actions, so we can initialise the Spark context

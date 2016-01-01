@@ -1,7 +1,5 @@
 package learn.actors
 
-import java.io.File
-
 import akka.actor.{Actor, ActorRef}
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
@@ -10,8 +8,7 @@ import learn.actors.UserHashtagCounter.ActiveTwitterStream
 import learn.utility.ExtractionUtils._
 import org.apache.spark.streaming.Seconds
 import org.apache.spark.streaming.dstream.{DStream, ReceiverInputDStream}
-import persist.actors.RedisWriter
-import persist.actors.RedisWriter.{ProcessedTweetTuples, ProcessedTweets, TweetFeatureBatch}
+import persist.actors.RedisWriter.{ProcessedTweetTuples, TweetFeatureBatch}
 import play.api.{Configuration, Logger}
 import twitter4j.Status
 
@@ -32,6 +29,7 @@ object FeatureExtraction {
   /**
     * Representation of features which can be extracted from a tweet.
     *
+    * @param status The status object these features correspond to
     * @param id The id of the tweet (assigned by Twitter)
     * @param username The user's username (not including the '@')
     * @param followerCount The number of followers the user has
@@ -46,6 +44,7 @@ object FeatureExtraction {
     * @param linkCount The number of links contained within the tweet
     */
   case class TweetFeatures(
+                          status: Status,
                           id: Long,
                           username: String,
                           followerCount: Int,

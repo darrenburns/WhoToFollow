@@ -57,7 +57,7 @@ const QueryResults = React.createClass({
                 if (history.has(username)) {
                     let userData = history.get(username);
                     // TODO: remove randoms
-                    history = history.set(username, userData.unshift(Math.floor(Math.random() * (rec.rating+1))));
+                    history = history.set(username, userData.push(Math.floor(Math.random()*10)+1));
                 } else {
                     history = history.set(username, Immutable.List([]));
                 }
@@ -101,7 +101,7 @@ const QueryResults = React.createClass({
             queryResults.push(
                 <UserRecommendation key={`recommendation:${idx}`}
                                     username={result.username}
-                                    rating={Math.floor(5 * Math.random() * (result.rating + 1))}
+                                    rating={result.rating + 1}
                                     userHistory={hist}
                                     query={result.query} />
             );
@@ -113,7 +113,7 @@ const QueryResults = React.createClass({
                 <Col sm="100%">
                     <Row>
                         <Col sm="100%">
-                            <h1>Results for <Hashtag hashtag={this.props.params.query}/></h1>
+                            <h2>Results for <Hashtag hashtag={this.props.params.query}/></h2>
                         </Col>
                     </Row>
                     <Row>

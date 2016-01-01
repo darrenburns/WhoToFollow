@@ -26,7 +26,7 @@ export default class UserRecommendation extends React.Component<UserRecommendati
     }
 
     render() {
-        let correctlyOrderedHist: Array<number> = this.props.userHistory.toArray().reverse();
+        let correctlyOrderedHist: Array<number> = this.props.userHistory.toArray();
         return (
                 <GridTile key={this.props.key}
                           title={` @${this.props.username}`}
@@ -34,10 +34,11 @@ export default class UserRecommendation extends React.Component<UserRecommendati
                               <span>
                               {`Mentioned '${this.props.query}' ${this.props.rating} times`}
                               <br/>
-                                  <Sparklines data={correctlyOrderedHist} limit={100} width={187}>
+                                  <Sparklines data={correctlyOrderedHist} limit={50} width={187}>
                                     <SparklinesLine style={{ strokeWidth: 1, stroke: "#41c3f9", fill: "none" }} />
                                     <SparklinesSpots style={{ fill: "#41c3f9" }} />
                                   </Sparklines>
+                                  <br/>
                               </span>
                           }
                 >

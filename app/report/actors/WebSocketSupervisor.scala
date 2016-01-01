@@ -101,17 +101,15 @@ class WebSocketSupervisor @Inject()
     case OutputChannel(query) =>
       channels.get(query) match {
         case Some(ch) =>
-          Logger.info(s"Fetching existing channel: $query")
+          Logger.debug(s"Fetching existing channel: $query")
           sender ! Right((ch.in, ch.out))
         case None =>
           val lowerChannel = query.toLowerCase
-          Logger.info(s"Creating channel $lowerChannel.")
           val ch = if (ChannelUtilities.isQueryChannel(query)) {
             Logger.debug(s"Creating query channel for query: $query")
             redisWriter ! NewQuery(lowerChannel)
             createChannel(lowerChannel)
           } else if (ChannelUtilities.isUserAnalysisChannel(query)) {
-            Logger.debug(s"This should be a user analysis channel: $query")
             createChannel(query)
           }
           sender ! (ch match {
@@ -125,16 +123,17 @@ class WebSocketSupervisor @Inject()
      being sent through the channel associated with that query.
      */
     case QueryLeaderboard(query, leaderboard) =>
-      Logger.debug("WSS receive leaderboard")
       val json = Json.toJson(leaderboard)
       val channelTriple = channels.get(query)
       channelTriple match {
         case Some(triple) =>
           try {
             triple.channel push json
-          } catch {
+          } catch {  // TODO fix
             case cce: ClosedChannelException =>
-              Logger.info(s"A client closed the connection to channel $query.")
+              Logger.error(s"A client closed the connection to channel $query.")
+            case e: Exception =>
+              Logger.error(s"An exception occurred while pushing results to channel $query", e)
           }
         case None => Logger.error("Trying to send leaderboard through non-existent channel.")
       }
@@ -174,7 +173,15 @@ class WebSocketSupervisor @Inject()
       primaryChannelTriple match {
         case Some(chTriple) =>
           val json = Json.toJson(msg)
-          chTriple.channel push json
+          try {
+            chTriple.channel push json
+          } catch {
+            case cce: ClosedChannelException =>
+              Logger.error(s"A client closed the connection to the recent queries channel.")
+            case e: Exception =>
+              Logger.error(s"An exception occurred while pushing results to recent queries channel.", e)
+          }
+
         case None => Logger.error(s"Channel ${Defaults.RecentQueriesChannelName} does not exist.")
       }
 
@@ -186,7 +193,14 @@ class WebSocketSupervisor @Inject()
       indexSizeChannelTriple match {
         case Some(chTriple) =>
           val json = Json.obj("indexSize" -> size)
-          chTriple.channel push json
+          try {
+            chTriple.channel push json
+          } catch {
+            case cce: ClosedChannelException =>
+              Logger.error("The latest index size channel is closed.")
+            case e: Exception =>
+              Logger.error("An exception occurred while trying to push the most recent index size.", e)
+        }
         case None => Logger.error(s"Channel ${Defaults.LatestIndexSizeChannelName} does not exist.")
 
       }
@@ -197,10 +211,17 @@ class WebSocketSupervisor @Inject()
       userChannelTri match {
         case Some(tri) =>
           Logger.debug("Features: " + features)
-          tri.channel push Json.toJson(features)
+          try {
+            tri.channel push Json.toJson(features)
+          } catch {
+            case cce: ClosedChannelException =>
+              Logger.error(s"The user features channel for '$chName' was closed.")
+            case e: Exception =>
+              Logger.error(s"An exception occurred while trying to push the most recent" +
+                s" features for channel: $chName", e)
+          }
         case None => Logger.error(s"Unable to send user features through channel $chName")
       }
-
 
   }
 
