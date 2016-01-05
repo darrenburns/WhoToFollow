@@ -15,7 +15,7 @@ import twitter4j.Status
  */
 object RedisWriter {
   case class NewQuery(query: String)
-  case class IncrementIndexSize(incrementAmount: Int)
+  case class IndexSize(size: Int)
   case class HashtagCountUpdate(results: Seq[UserHashtagCount])
   case class TweetFeatureBatch(reports: Seq[TweetFeatures])
   case class ProcessedTweets(tweets: Seq[twitter4j.Status])
@@ -44,8 +44,6 @@ class RedisWriter extends Actor with Serializable {
       markTweetsAsProcessed(tweets)
     case ProcessedTweetTuples(tweets) =>
       markTweetTuplesAsProcessed(tweets)
-    case IncrementIndexSize(amount) =>
-      incrementIndexSize(amount)
   }
 
   /**
@@ -144,16 +142,7 @@ class RedisWriter extends Actor with Serializable {
     }
   }
 
-  /**
-    * Increments the counter for the size of the index in Redis.
-    *
-    * @param amount The amount to increment the index size by.
-    */
-  private def incrementIndexSize(amount: Int): Unit = {
-    clients.withClient{client =>
-      client.incrby("indexSize", amount)
-    }
-  }
+
 
 }
 

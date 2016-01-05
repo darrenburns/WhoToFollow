@@ -4,12 +4,12 @@ import akka.actor.Actor
 import learn.actors.Indexer
 import org.terrier.matching.ResultSet
 import org.terrier.querying.Manager
+import play.api.Logger
 
 object QueryService {
 
   /* Sendables */
-  case class QueryResults(originalQuery: String, resultSet: ResultSet)
-
+  case class TerrierResultSet(originalQuery: String, resultSet: ResultSet)
   /* Receivables */
   case class Query(query: String)
 
@@ -21,6 +21,9 @@ class QueryService extends Actor {
 
   override def receive = {
     case Query(queryString) =>
+
+      Logger.debug(s"QueryService has received query: '$queryString'.")
+
       // Retrieve the memory index.
       val memIndex = Indexer.index
 
@@ -42,7 +45,10 @@ class QueryService extends Actor {
 
       // Send the result set to the channel manager who will forward it through the socket to connected clients.
       val results = srq.getResultSet
-      sender ! QueryResults(queryString, results)
+
+      Logger.debug(s"QueryService has obtained initial ResultSet from Terrier: ${results.getResultSize} result(s).")
+
+      sender ! TerrierResultSet(queryString, results)
   }
 
 }

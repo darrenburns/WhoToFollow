@@ -9,17 +9,15 @@ import com.github.nscala_time.time.Imports._
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
 import org.joda.time.DateTime
-import persist.actors.{RedisReader, RedisWriter}
-import persist.actors.RedisReader.{UserFeatures, ExpertRating, QueryLeaderboard}
-import persist.actors.RedisWriter
-import RedisWriter.NewQuery
+import persist.actors.RedisReader.{ExpertRating, UserFeatures}
+import persist.actors.RedisWriter.NewQuery
 import play.api.Logger
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.concurrent.InjectedActorSupport
 import play.api.libs.iteratee.{Concurrent, Enumerator, Iteratee}
 import play.api.libs.json.{JsObject, JsValue, Json, Writes}
+import report.actors.ChannelManager.UserTerrierScore
 import report.actors.MetricsReporting.RecentQueries
-import report.actors.ChannelManager
 import report.utility.{ChannelUtilities, KeepAlive}
 
 import scala.collection.immutable.HashMap
@@ -31,6 +29,15 @@ object WebSocketSupervisor {
     val RecentQueriesChannelName = "default:recent-queries"
     val LatestIndexSizeChannelName = "default:index-size"
     val DeadChannelTimeout = 30
+  }
+
+  implicit val queryResultsWrites = new Writes[QueryResults] {
+    def writes(results: QueryResults) = {
+      val scoreJsonList = results.userScores.map(result => {
+          Json.obj("screenName" -> result.screenName, "score" -> result.score)
+      })
+      Json.obj("query" -> results.query, "results" -> Json.toJson(scoreJsonList))
+    }
   }
 
   implicit val expertRatingWrites = new Writes[ExpertRating] {
@@ -66,7 +73,8 @@ object WebSocketSupervisor {
   case class CheckForDeadChannels()
   case class ChannelTriple(in: Iteratee[JsObject, Unit], out: Enumerator[JsValue],
                           channel: Concurrent.Channel[JsValue])
-  case class LatestIndexSize(count: Int)
+  case class CollectionStats(numberOfDocuments: Int)
+  case class QueryResults(query: String, userScores: Array[UserTerrierScore])
 }
 
 
@@ -83,7 +91,7 @@ class WebSocketSupervisor @Inject()
   protected[this] var channelManagers: HashMap[String, ActorRef] = HashMap.empty
   protected[this] var keepAlives: HashMap[String, DateTime] = HashMap.empty
 
-  // Create the default:recent-queries channel which will handle sending recent queries to client
+  // Create the default channels
   createChannel(Defaults.RecentQueriesChannelName)
   createChannel(Defaults.LatestIndexSizeChannelName)
 
@@ -122,14 +130,15 @@ class WebSocketSupervisor @Inject()
      The expertise rankings retrieved for a given query. Results in the rankings/leaderboard
      being sent through the channel associated with that query.
      */
-    case QueryLeaderboard(query, leaderboard) =>
-      val json = Json.toJson(leaderboard)
+    case results @ QueryResults(query, resultSet) =>
+      val json = Json.toJson(results)
+      Logger.debug("Outputting json results: " + json)
       val channelTriple = channels.get(query)
       channelTriple match {
         case Some(triple) =>
           try {
             triple.channel push json
-          } catch {  // TODO fix
+          } catch {
             case cce: ClosedChannelException =>
               Logger.error(s"A client closed the connection to channel $query.")
             case e: Exception =>
@@ -188,11 +197,11 @@ class WebSocketSupervisor @Inject()
     /*
     The most recent index size recorded in Redis.
      */
-    case LatestIndexSize(size) =>
+    case CollectionStats(numDocs) =>
       val indexSizeChannelTriple = channels.get(Defaults.LatestIndexSizeChannelName)
       indexSizeChannelTriple match {
         case Some(chTriple) =>
-          val json = Json.obj("indexSize" -> size)
+          val json = Json.obj("indexSize" -> numDocs)
           try {
             chTriple.channel push json
           } catch {

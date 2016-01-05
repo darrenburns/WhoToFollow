@@ -6,17 +6,17 @@ import akka.util.Timeout
 import com.google.inject.Inject
 import com.google.inject.assistedinject.Assisted
 import com.google.inject.name.Named
-import learn.actors.TweetStreamActor.TweetBatch
-import persist.actors.RedisReader.{UserFeatures, UserFeatureRequest, QueryLeaderboard}
-import play.api.Logger
-import query.actors.QueryService.Query
+import learn.actors.Indexer
+import persist.actors.RedisReader.{UserFeatureRequest, UserFeatures}
+import play.api.{Configuration, Logger}
+import query.actors.QueryService.{Query, TerrierResultSet}
+import report.actors.ChannelManager.UserTerrierScore
+import report.actors.WebSocketSupervisor.QueryResults
 import report.utility.ChannelUtilities
 import twitter4j.TwitterFactory
 
-import scala.concurrent.{Future, Await}
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
-import scala.collection.JavaConversions._
 
 
 
@@ -27,6 +27,7 @@ object ChannelManager {
   }
 
   case class GetQueryMentionCounts(query: String)
+  case class UserTerrierScore(screenName: String, score: Double)
 }
 
 /*
@@ -38,40 +39,96 @@ class ChannelManager @Inject()
    @Named("webSocketSupervisor") webSocketSupervisor: ActorRef,
    @Named("batchFeatureExtraction") batchFeatureExtraction: ActorRef,
    @Named("indexer") index: ActorRef,
-   @Assisted query: String)
+   @Named("queryService") queryService: ActorRef,
+   config: Configuration,
+   @Assisted queryString: String)
    extends Actor {
 
-  import ChannelManager._
   import context.dispatcher
 
   implicit val timeout = Timeout(20 seconds)
 
-  // Handle the query every half second TODO CHANGE
-  val tick = context.system.scheduler.schedule(Duration.Zero, 5.seconds, self, DoTheRightThing(query))
+  val resultSetSize = config.getInt("resultSetSize").getOrElse(15)
 
-  Logger.info(s"ChannelManager for channel '$query' created")
+  // Handle the query every x second TODO CHANGE - we dont want to rerun the Terrier query, only the model
+  val tick = context.system.scheduler.schedule(Duration.Zero, 5.seconds, self, Query(queryString))
+
+  Logger.info(s"ChannelManager for channel '$queryString' created")
 
   override def receive = {
     case Query(query) =>
       if (ChannelUtilities.isQueryChannel(query)) {
-        // TODO: Pass the query through Terrier here.
-        redisReader ? GetQueryMentionCounts(query) onComplete {
-          case Success(ql: QueryLeaderboard) =>
-            // Get the timelines of all the users here and send them for analysis
-            val twitter = TwitterFactory.getSingleton
-            val analysisF = ql.leaderboard.map(r => Future {
-              val tweets = twitter.getUserTimeline(r.username)
-              if (tweets.nonEmpty) {
-                Logger.debug(s"Sending batch of tweets from timeline of ${r.username}: " + tweets.size())
-                batchFeatureExtraction ! TweetBatch(tweets.toList)
-                index ! TweetBatch(tweets.toList)
+        val twitter = TwitterFactory.getSingleton
+        Logger.debug(s"Passing query '$query' to QueryService.")
+        queryService ? Query(queryString) onComplete {
+          case Success(results: TerrierResultSet) =>
+            Logger.debug("ChannelManager has received results from QueryService.")
+
+            val resultSet = results.resultSet
+            val docIds = resultSet.getDocids
+
+            Logger.debug("Memory metaindex keys:")
+
+            val metaIndex = Indexer.index.getMetaIndex
+            metaIndex.getKeys.foreach(key => {
+              Logger.debug("Key = " + key)
+            })
+
+            // Get a list of usernames from the docIds
+            val usernames = docIds.map(docId => {
+              Logger.debug("DocId = " + docId)
+              Logger.debug("Metaindex getItem 'username': " + metaIndex.getItem("username", docId))
+              Logger.debug("Metaindex getItem 'docno': " + metaIndex.getItem("docno", docId))
+
+              // Get the username metadata for the current docId
+              val usernameOption = Option(metaIndex.getItem("username", docId))
+              usernameOption match {
+                case Some(username) =>
+                  Logger.debug(username)
+                  username
+                  // TODO Check the last time we have seen this user. Store timestamps in Redis and if we havent
+                  // seen the user in the last hour or so then fetch the timeline
+                case None =>
+                  // TODO This happens sometimes - not sure why.
+                  Logger.error("USERNAME metadata not found in document.")
+                  docId.toString
               }
             })
-            webSocketSupervisor ! ql
-          case Failure(error) => Logger.error("Error retrieving latest initial query ranks.", error)
+
+            Logger.debug("Usernames found: " + usernames)
+
+            val scores = resultSet.getScores
+
+            // Get the sequence of user -> score
+            val queryResults = (usernames zip scores) map {
+              case (screenName: String, score: Double) =>
+                UserTerrierScore(screenName, score)
+            }
+
+            // Send the results through the socket for display on the UI
+            webSocketSupervisor ! QueryResults(queryString, queryResults)
+
+
+
+
         }
-      } else if (ChannelUtilities.isUserAnalysisChannel(channelName)) {
-        ChannelUtilities.getScreenNameFromChannelName(channelName) match {
+//        redisReader ? GetQueryMentionCounts(query) onComplete {
+//          case Success(ql: QueryLeaderboard) =>
+//            // Get the timelines of all the users here and send them for analysis
+//            val twitter = TwitterFactory.getSingleton
+//            val analysisF = ql.leaderboard.map(r => Future {
+//              val tweets = twitter.getUserTimeline(r.username)
+//              if (tweets.nonEmpty) {
+//                Logger.debug(s"Sending batch of tweets from timeline of ${r.username}: " + tweets.size())
+//                batchFeatureExtraction ! TweetBatch(tweets.toList)
+//                index ! TweetBatch(tweets.toList)
+//              }
+//            })
+//            webSocketSupervisor ! ql
+//          case Failure(error) => Logger.error("Error retrieving latest initial query ranks.", error)
+//        }
+      } else if (ChannelUtilities.isUserAnalysisChannel(query)) {
+        ChannelUtilities.getScreenNameFromChannelName(query) match {
           case Some(screenName) =>
             // Ask Redis for everything required and compose the futures
             redisReader ? UserFeatureRequest(screenName) onComplete {
@@ -84,7 +141,7 @@ class ChannelManager @Inject()
   }
 
   override def postStop() = {
-    tick.cancel()  // Tell the scheduler to stop sending the scheduled message
+//    tick.cancel()  // Tell the scheduler to stop sending the scheduled message TODO readd when rdy
   }
 
 }
