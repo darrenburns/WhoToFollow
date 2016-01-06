@@ -6,6 +6,7 @@ import akka.util.Timeout
 import com.google.inject.Inject
 import com.google.inject.assistedinject.Assisted
 import com.google.inject.name.Named
+import learn.actors.BatchFeatureExtraction.FetchAndAnalyseTimeline
 import learn.actors.Indexer
 import persist.actors.RedisReader.{UserFeatureRequest, UserFeatures}
 import play.api.{Configuration, Logger}
@@ -66,40 +67,25 @@ class ChannelManager @Inject()
 
             val resultSet = results.resultSet
             val docIds = resultSet.getDocids
-
-            Logger.debug("Memory metaindex keys:")
-
             val metaIndex = Indexer.index.getMetaIndex
-            metaIndex.getKeys.foreach(key => {
-              Logger.debug("Key = " + key)
-            })
 
             // Get a list of usernames from the docIds
             val usernames = docIds.map(docId => {
-              Logger.debug("DocId = " + docId)
-              Logger.debug("Metaindex getItem 'username': " + metaIndex.getItem("username", docId))
-              Logger.debug("Metaindex getItem 'docno': " + metaIndex.getItem("docno", docId))
-
               // Get the username metadata for the current docId
               val usernameOption = Option(metaIndex.getItem("username", docId))
               usernameOption match {
                 case Some(username) =>
-                  Logger.debug(username)
+                  batchFeatureExtraction ! FetchAndAnalyseTimeline(username)
                   username
-                  // TODO Check the last time we have seen this user. Store timestamps in Redis and if we havent
-                  // seen the user in the last hour or so then fetch the timeline
                 case None =>
-                  // TODO This happens sometimes - not sure why.
                   Logger.error("USERNAME metadata not found in document.")
                   docId.toString
               }
             })
 
-            Logger.debug("Usernames found: " + usernames)
-
-            val scores = resultSet.getScores
 
             // Get the sequence of user -> score
+            val scores = resultSet.getScores
             val queryResults = (usernames zip scores) map {
               case (screenName: String, score: Double) =>
                 UserTerrierScore(screenName, score)
@@ -107,9 +93,6 @@ class ChannelManager @Inject()
 
             // Send the results through the socket for display on the UI
             webSocketSupervisor ! QueryResults(queryString, queryResults)
-
-
-
 
         }
 //        redisReader ? GetQueryMentionCounts(query) onComplete {

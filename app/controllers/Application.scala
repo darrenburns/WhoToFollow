@@ -5,20 +5,18 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.google.inject.Inject
 import com.google.inject.name.Named
-import learn.actors.BatchFeatureExtraction
-import learn.actors.BatchFeatureExtraction.FetchAndAnalyseTimeline
+import hooks.Twitter
 import learn.actors.TweetStreamActor.TweetBatch
 import persist.actors.LabelStore.Vote
 import play.api.Logger
 import play.api.libs.iteratee.{Enumerator, Iteratee}
-import play.api.libs.json.{JsString, Json, Writes, JsValue}
+import play.api.libs.json.{JsValue, Json, Writes}
 import play.api.mvc._
 import report.actors.WebSocketSupervisor.OutputChannel
-import twitter4j.{ResponseList, Status, TwitterFactory}
+import twitter4j.{ResponseList, Status}
 
-import scala.concurrent.duration._
 import scala.collection.JavaConversions._
-import scala.util.{Success, Failure}
+import scala.concurrent.duration._
 
 
 object Application {
@@ -113,7 +111,7 @@ class Application @Inject()
     */
   def fetchAndAnalyseTimeline(screenName: String) = Action { request =>
     // Fetch a list of tweets from the users timeline
-    val twitter = TwitterFactory.getSingleton
+    val twitter = Twitter.instance
     val tweets = twitter.getUserTimeline(screenName)
     if (tweets.nonEmpty) {
       Logger.debug(s"Sending batch of tweets from timeline of $screenName: " + tweets.size())

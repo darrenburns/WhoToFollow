@@ -8,10 +8,9 @@ let {Colors} = Styles;
 
 interface UserRecommendationProps {
     key: string,
-    username: string,
-    query: string,
+    screenName: string,
     userHistory: Immutable.List<number>,
-    rating: number
+    score: number
 }
 
 export default class UserRecommendation extends React.Component<UserRecommendationProps, any> {
@@ -22,17 +21,17 @@ export default class UserRecommendation extends React.Component<UserRecommendati
     }
 
     openUserTwitterProfile(): void {
-        window.open(`https://twitter.com/${this.props.username}`);
+        window.open(`https://twitter.com/${this.props.screenName}`);
     }
 
     render() {
         let correctlyOrderedHist: Array<number> = this.props.userHistory.toArray();
         return (
                 <GridTile key={this.props.key}
-                          title={` @${this.props.username}`}
+                          title={` @${this.props.screenName}`}
                           subtitle={
                               <span>
-                              {`Mentioned '${this.props.query}' ${this.props.rating} times`}
+                              {`Score: '${this.props.score}'`}
                               <br/>
                                   <Sparklines data={correctlyOrderedHist} limit={50} width={187}>
                                     <SparklinesLine style={{ strokeWidth: 1, stroke: "#41c3f9", fill: "none" }} />
@@ -42,7 +41,7 @@ export default class UserRecommendation extends React.Component<UserRecommendati
                               </span>
                           }
                 >
-                    <img src={`http://avatars.io/twitter/${this.props.username}`} alt={this.props.username}/>
+                    <img src={`http://avatars.io/twitter/${this.props.screenName}`} alt={this.props.screenName}/>
                 </GridTile>
         )
     }

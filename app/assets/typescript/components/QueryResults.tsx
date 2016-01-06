@@ -9,8 +9,13 @@ import {GridList, IconButton, CircularProgress, Paper, FlatButton} from 'materia
 import * as Immutable from 'immutable';
 import Configuration from '../util/config';
 import Constants from '../util/constants';
+import List = Immutable.List;
+import Map = Immutable.Map;
 
-
+interface UserScore {
+    screenName: string,
+    score: number
+}
 
 const QueryResults = React.createClass({
 
@@ -50,16 +55,15 @@ const QueryResults = React.createClass({
     _setQueryChannel(query: string): void {
         let querySocket = new WebSocket(`ws://localhost:9000/ws/${this.props.params.query}`);
         querySocket.onmessage = event => {
-            let recs = JSON.parse(event.data);
-            let history = this.state.queryUserHistories;
-            recs.forEach(rec => {
-                let username = rec.username;
-                if (history.has(username)) {
-                    let userData = history.get(username);
-                    // TODO: remove randoms
-                    history = history.set(username, userData.push(Math.floor(Math.random()*10)+1));
+            let recs: Array<UserScore> = JSON.parse(event.data).results;
+            let history: Map<string, List<number>> = this.state.queryUserHistories;
+            recs.forEach((rec: UserScore) => {
+                let screenName: string = rec.screenName;
+                if (history.has(screenName)) {
+                    let userData: List<number> = history.get(screenName);
+                    history = history.set(screenName, userData.push(rec.score));
                 } else {
-                    history = history.set(username, Immutable.List([]));
+                    history = history.set(screenName, Immutable.List([]));
                 }
             });
             this.setState({
@@ -95,15 +99,14 @@ const QueryResults = React.createClass({
 
     render: function() {
         let queryResults = [];
-        this.state.queryResults.forEach((result, idx) => {
-            let hist = this.state.queryUserHistories.get(result.username);
-            // TODO: Remove randoms below
+        this.state.queryResults.forEach((result: UserScore, idx: number) => {
+            let hist: List<number> = this.state.queryUserHistories.get(result.screenName);
             queryResults.push(
                 <UserRecommendation key={`recommendation:${idx}`}
-                                    username={result.username}
-                                    rating={result.rating + 1}
+                                    screenName={result.screenName}
+                                    score={result.score + 1}
                                     userHistory={hist}
-                                    query={result.query} />
+                />
             );
         }, this);
         let spinner = <CircularProgress mode="indeterminate" />;

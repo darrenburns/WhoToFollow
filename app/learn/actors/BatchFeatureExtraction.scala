@@ -1,21 +1,27 @@
 package learn.actors
 
+import java.util.concurrent.TimeUnit
+
+import com.github.nscala_time.time.Imports._
 import akka.actor.{PoisonPill, Actor, ActorRef}
 import akka.pattern.ask
 import akka.util.Timeout
 import com.google.inject.Inject
 import com.google.inject.name.Named
+import hooks.Twitter
 import learn.actors.TweetStreamActor.TweetBatch
 import learn.utility.ExtractionUtils
+import org.joda.time.DateTime
 import persist.actors.RedisReader.HasStatusBeenProcessed
 import persist.actors.RedisWriter.{ProcessedTweets, TweetFeatureBatch}
 import play.api.Logger
 import twitter4j.{TwitterFactory, Status}
 
+import scala.collection.immutable.HashMap
+import scala.collection.JavaConversions._
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
 
 
 object BatchFeatureExtraction {
@@ -39,9 +45,26 @@ class BatchFeatureExtraction @Inject()
 
   import BatchFeatureExtraction._
 
-  implicit val timeout = Timeout(10 seconds)
+  implicit val timeout = Timeout(10, TimeUnit.SECONDS)
+
+  // Map of screenName -> Last time their timeline was checked
+  protected[this] var latestUserChecks: HashMap[String, DateTime] = HashMap.empty
 
   override def receive = {
+    case FetchAndAnalyseTimeline(screenName: String) =>
+      Logger.debug(s"Received request to check timeline of user '$screenName'")
+      // Check to see when we last looked at this users timeline
+      latestUserChecks.get(screenName) match {
+        case Some(lastChecked) =>
+          // If we haven't looked at timeline in at least 2 hours then check again
+          if (lastChecked < DateTime.now - 2.hours){
+            analyseUserTimeline(screenName)
+          }
+        case None =>
+          // We have never seen this user before so we want to analyse their timeline
+          analyseUserTimeline(screenName)
+      }
+
     case TweetBatch(tweets: List[Status]) =>
 
       Logger.debug(">>>> Received new tweet batch from a user timeline.")
@@ -62,9 +85,14 @@ class BatchFeatureExtraction @Inject()
 
           Logger.debug(s"Batch analysing ${newTweets.size} tweets.")
           // Build a sequence of futures of tuples
-          val batchTweetFuture = newTweets.map(status => Future {
+          val batchTweetFuture = newTweets.map(status => {
+            // Mark the time that we last reviewed this user
+            latestUserChecks += (status.getUser.getScreenName -> DateTime.now)
+            // Perform feature extraction
+            Future {
             (status, ExtractionUtils.getStatusFeatures(status),
               ExtractionUtils.getHashtagCounts(status))
+            }
           })
 
           // When all futures are complete
@@ -88,10 +116,11 @@ class BatchFeatureExtraction @Inject()
           }
 
         case Failure(error) => Logger.error("Unable to determine whether tweets have been seen before.")
-
-
       }
+  }
 
+  def analyseUserTimeline(screenName: String): Unit = {
+    self ! TweetBatch(Twitter.instance.getUserTimeline(screenName).toList)
   }
 
 }

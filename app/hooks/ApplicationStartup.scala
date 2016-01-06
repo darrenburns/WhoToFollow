@@ -7,6 +7,7 @@ import com.mongodb.casbah.MongoClient
 import com.redis.RedisClientPool
 import org.apache.spark.SparkConf
 import org.apache.spark.streaming.{Seconds, StreamingContext}
+import twitter4j.TwitterFactory
 
 
 object SparkInit {
@@ -22,6 +23,10 @@ object MongoInit {
   private lazy val mc = MongoClient("localhost", 27017)
   private lazy val db = mc("wtfcontext")
   lazy val coll = db("labels")
+}
+
+object Twitter {
+  lazy val instance = TwitterFactory.getSingleton
 }
 
 
