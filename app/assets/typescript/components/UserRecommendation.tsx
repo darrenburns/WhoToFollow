@@ -29,24 +29,20 @@ export default class UserRecommendation extends React.Component<UserRecommendati
     render() {
         let correctlyOrderedHist: Array<number> = this.props.userHistory.toArray();
         return (
-                <GridTile key={this.props.key}
-                          title={` @${this.props.screenName}`}
-                          subtitle={
-                              <span>
-                              <Link to={`/user/${this.props.screenName}`}>
-                                {`Score: '${this.props.score}'`}
-                              </Link>
-                              <br/>
-                                  <Sparklines data={correctlyOrderedHist} limit={50} width={187}>
-                                    <SparklinesLine style={{ strokeWidth: 1, stroke: "#41c3f9", fill: "none" }} />
-                                    <SparklinesSpots style={{ fill: "#41c3f9" }} />
-                                  </Sparklines>
-                                  <br/>
-                              </span>
-                          }
-                >
-                    <img src={`http://avatars.io/twitter/${this.props.screenName}`} alt={this.props.screenName}/>
-                </GridTile>
+                <div className="recommendation-tile" key={this.props.key}>
+                    <img src={`http://avatars.io/twitter/${this.props.screenName}`} alt={this.props.screenName}
+                    width="70px" height="70px"/>
+                    <Link to={`/user/${this.props.screenName}`}>
+                        <strong>@{this.props.screenName}</strong>
+                    </Link>
+                    {`Score: '${this.props.score}'`}
+                    <br/>
+                      <Sparklines data={correctlyOrderedHist} limit={50} width={187}>
+                        <SparklinesLine style={{ strokeWidth: 1, stroke: "#41c3f9", fill: "none" }} />
+                        <SparklinesSpots style={{ fill: "#41c3f9" }} />
+                      </Sparklines>
+                    <br/>
+                </div>
         )
     }
 }

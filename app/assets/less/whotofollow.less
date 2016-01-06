@@ -44,3 +44,20 @@ p {
   align-items: center;
   -webkit-align-items: center;
 }
+
+.recommendations {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-justify-content: center;
+  justify-content: center;
+  /* Or do it all in one line with flex flow */
+  -webkit-flex-flow: row wrap;
+  flex-flow: row wrap;
+}
+
+.recommendation-tile {
+  width: 300px;
+  height: 180px;
+  background-color: darkgray;
+  border: 1px solid dodgerblue;
+}

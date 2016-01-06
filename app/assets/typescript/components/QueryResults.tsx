@@ -1,5 +1,3 @@
-///<reference path='../node_modules/immutable/dist/Immutable.d.ts'/>
-
 import * as React from 'react';
 import {History} from 'react-router';
 import UserRecommendation from './UserRecommendation.tsx';
@@ -7,15 +5,51 @@ import Hashtag from './Hashtag.tsx';
 import {Row, Col} from 'elemental';
 import {GridList, IconButton, CircularProgress, Paper, FlatButton} from 'material-ui';
 import * as Immutable from 'immutable';
+import {velocityHelpers, VelocityComponent, VelocityTransitionGroup} from 'velocity-react';
+import 'velocity-animate/velocity.ui';
 import Configuration from '../util/config';
 import Constants from '../util/constants';
 import List = Immutable.List;
 import Map = Immutable.Map;
 
+
 interface UserScore {
     screenName: string,
     score: number
 }
+
+const Animations = {
+    // Register these with UI Pack so that we can use stagger later.
+    In: velocityHelpers.registerEffect({
+        calls: [
+            [{
+                transformPerspective: [ 800, 800 ],
+                transformOriginX: [ '50%', '50%' ],
+                transformOriginY: [ '100%', '100%' ],
+                marginBottom: 0,
+                opacity: 1,
+                rotateX: [0, 130],
+            }, 1, {
+                easing: 'ease-out',
+            }]
+        ],
+    }),
+
+    Out: velocityHelpers.registerEffect({
+        calls: [
+            [{
+                transformPerspective: [ 800, 800 ],
+                transformOriginX: [ '50%', '50%' ],
+                transformOriginY: [ '0%', '0%' ],
+                marginBottom: -30,
+                opacity: 0,
+                rotateX: -70,
+            }, 1, {
+                easing: 'ease-out',
+            }]
+        ],
+    }),
+};
 
 const QueryResults = React.createClass({
 
@@ -98,13 +132,41 @@ const QueryResults = React.createClass({
     },
 
     render: function() {
-        let queryResults = [];
-        this.state.queryResults.forEach((result: UserScore, idx: number) => {
+
+        /*
+        Animation related stuff
+         */
+        var enterAnimation = {
+            animation: Animations.In,
+            stagger: this.state.duration,
+            duration: this.state.duration,
+            backwards: true,
+            style: {
+                // Since we're staggering, we want to keep the display at "none" until Velocity runs
+                // the display attribute at the start of the animation.
+                display: 'none',
+            },
+        };
+
+        var leaveAnimation = {
+            animation: Animations.Out,
+            stagger: this.state.duration,
+            duration: this.state.duration,
+            backwards: true,
+        };
+
+        var groupStyle = {
+            margin: '10px 0',
+        };
+
+
+
+        let queryResults = this.state.queryResults.map((result: UserScore) => {
             let hist: List<number> = this.state.queryUserHistories.get(result.screenName);
-            queryResults.push(
-                <UserRecommendation key={`recommendation:${idx}`}
+            return (
+                <UserRecommendation key={result.screenName}
                                     screenName={result.screenName}
-                                    score={result.score + 1}
+                                    score={result.score}
                                     userHistory={hist}
                 />
             );
@@ -122,12 +184,9 @@ const QueryResults = React.createClass({
                     <Row>
                         <Col sm="100%">
                             {queryResults.length > 0 ?
-                                    <GridList
-                                        cols={4}
-                                        padding={3}
-                                        cellHeight={200}>
-                                        {queryResults}
-                                    </GridList>
+                            <VelocityTransitionGroup style={groupStyle} runOnMount={true} component="div" enter={enterAnimation} leave={leaveAnimation}>
+                                {queryResults}
+                            </VelocityTransitionGroup>
                                 :
                                 (this.state.queryComplete ?
                                     noResultsMessage :
