@@ -116,7 +116,7 @@ const QueryResults = React.createClass({
                 <Col sm="100%">
                     <Row>
                         <Col sm="100%">
-                            <h2>Results for <Hashtag hashtag={this.props.params.query}/></h2>
+                            <h2>{queryResults.length} Results for <Hashtag hashtag={this.props.params.query}/></h2>
                         </Col>
                     </Row>
                     <Row>

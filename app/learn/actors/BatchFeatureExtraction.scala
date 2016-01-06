@@ -40,7 +40,8 @@ object BatchFeatureExtraction {
 class BatchFeatureExtraction @Inject()
 (
   @Named("redisWriter") redisWrite: ActorRef,
-  @Named("redisReader") redisRead: ActorRef
+  @Named("redisReader") redisRead: ActorRef,
+  @Named("indexer") indexer: ActorRef
 ) extends Actor {
 
   import BatchFeatureExtraction._
@@ -86,6 +87,9 @@ class BatchFeatureExtraction @Inject()
           Logger.debug(s"Batch analysing ${newTweets.size} tweets.")
           // Build a sequence of futures of tuples
           val batchTweetFuture = newTweets.map(status => {
+            // Index the tweets we haven't seen before
+            indexer ! TweetBatch(newTweets)
+
             // Mark the time that we last reviewed this user
             latestUserChecks += (status.getUser.getScreenName -> DateTime.now)
             // Perform feature extraction

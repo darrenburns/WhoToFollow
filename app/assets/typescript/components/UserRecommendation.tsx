@@ -1,4 +1,5 @@
 import * as React from 'react';
+import {Link} from 'react-router';
 import {Styles, Avatar, GridTile} from 'material-ui';
 import {Sparklines, SparklinesLine, SparklinesSpots} from 'react-sparklines';
 import * as Immutable from 'immutable';
@@ -10,7 +11,8 @@ interface UserRecommendationProps {
     key: string,
     screenName: string,
     userHistory: Immutable.List<number>,
-    score: number
+    score: number,
+    params?: any
 }
 
 export default class UserRecommendation extends React.Component<UserRecommendationProps, any> {
@@ -31,7 +33,9 @@ export default class UserRecommendation extends React.Component<UserRecommendati
                           title={` @${this.props.screenName}`}
                           subtitle={
                               <span>
-                              {`Score: '${this.props.score}'`}
+                              <Link to={`/user/${this.props.screenName}`}>
+                                {`Score: '${this.props.score}'`}
+                              </Link>
                               <br/>
                                   <Sparklines data={correctlyOrderedHist} limit={50} width={187}>
                                     <SparklinesLine style={{ strokeWidth: 1, stroke: "#41c3f9", fill: "none" }} />

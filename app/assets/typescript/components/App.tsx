@@ -72,8 +72,8 @@ ReactDOM.render((
         <Route component={App}>
             <Route path="/" component={Home}>
                 <Route path="/query/:query" component={QueryResults} />
+                <Route path="/user/:screenName" component={UserInfo} />
             </Route>
-            <Route path="/query/:query/user/:screenName" component={UserInfo} />
         </Route>
     </Router>
 ), document.getElementById("wtfc-app-mount"));
