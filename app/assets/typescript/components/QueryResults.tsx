@@ -6,7 +6,6 @@ import {Row, Col} from 'elemental';
 import {GridList, IconButton, CircularProgress, Paper, FlatButton} from 'material-ui';
 import * as Immutable from 'immutable';
 import {velocityHelpers, VelocityComponent, VelocityTransitionGroup} from 'velocity-react';
-import 'velocity-animate/velocity.ui';
 import Configuration from '../util/config';
 import Constants from '../util/constants';
 import List = Immutable.List;
@@ -17,39 +16,6 @@ interface UserScore {
     screenName: string,
     score: number
 }
-
-const Animations = {
-    // Register these with UI Pack so that we can use stagger later.
-    In: velocityHelpers.registerEffect({
-        calls: [
-            [{
-                transformPerspective: [ 800, 800 ],
-                transformOriginX: [ '50%', '50%' ],
-                transformOriginY: [ '100%', '100%' ],
-                marginBottom: 0,
-                opacity: 1,
-                rotateX: [0, 130],
-            }, 1, {
-                easing: 'ease-out',
-            }]
-        ],
-    }),
-
-    Out: velocityHelpers.registerEffect({
-        calls: [
-            [{
-                transformPerspective: [ 800, 800 ],
-                transformOriginX: [ '50%', '50%' ],
-                transformOriginY: [ '0%', '0%' ],
-                marginBottom: -30,
-                opacity: 0,
-                rotateX: -70,
-            }, 1, {
-                easing: 'ease-out',
-            }]
-        ],
-    }),
-};
 
 const QueryResults = React.createClass({
 
@@ -137,29 +103,15 @@ const QueryResults = React.createClass({
         Animation related stuff
          */
         var enterAnimation = {
-            animation: Animations.In,
-            stagger: this.state.duration,
-            duration: this.state.duration,
-            backwards: true,
-            style: {
-                // Since we're staggering, we want to keep the display at "none" until Velocity runs
-                // the display attribute at the start of the animation.
-                display: 'none',
-            },
+            animation: "fadeIn",
+            backwards: true
         };
 
         var leaveAnimation = {
-            animation: Animations.Out,
-            stagger: this.state.duration,
-            duration: this.state.duration,
-            backwards: true,
+            animation: "fadeOut",
+            duration: 1500,
+            backwards: true
         };
-
-        var groupStyle = {
-            margin: '10px 0',
-        };
-
-
 
         let queryResults = this.state.queryResults.map((result: UserScore) => {
             let hist: List<number> = this.state.queryUserHistories.get(result.screenName);
@@ -184,9 +136,9 @@ const QueryResults = React.createClass({
                     <Row>
                         <Col sm="100%">
                             {queryResults.length > 0 ?
-                            <VelocityTransitionGroup style={groupStyle} runOnMount={true} component="div" enter={enterAnimation} leave={leaveAnimation}>
-                                {queryResults}
-                            </VelocityTransitionGroup>
+                                <div className="recommendations">
+                                    {queryResults}
+                                </div>
                                 :
                                 (this.state.queryComplete ?
                                     noResultsMessage :

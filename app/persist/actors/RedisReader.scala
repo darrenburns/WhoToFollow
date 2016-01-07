@@ -5,6 +5,7 @@ import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
 import com.redis.RedisClient.DESC
 import hooks.RedisConnectionPool
+import org.joda.time.DateTime
 import play.api.Logger
 import report.actors.ChannelManager.GetQueryMentionCounts
 import report.actors.MetricsReporting.{GetRecentQueryList, RecentQueries}
@@ -26,7 +27,8 @@ object RedisReader {
                          retweetCount: Int,
                          likeCount: Int,
                          dictionaryHits: Int,
-                         linkCount: Int
+                         linkCount: Int,
+                         hashtagTimestamps: List[(String, Double)]
                          )
   case class HasStatusBeenProcessed(status: twitter4j.Status)
 
@@ -78,9 +80,15 @@ class RedisReader @Inject()
       sender ! RecentQueries(resultBatch.toSet)
 
     case UserFeatureRequest(screenName) =>
-      clients.withClient{client =>
+      val userStats = clients.withClient{client =>
         client.hgetall(s"user:$screenName:stats")
-      } match {
+      }
+
+      val hashtagTimestamps = clients.withClient{client =>
+        client.zrangeWithScore(s"user:$screenName:timestamps", 0, -1, DESC)
+      }
+
+      userStats match {
         case Some(userFeatureMap) =>
           sender ! UserFeatures(
             screenName=screenName,
@@ -92,7 +100,11 @@ class RedisReader @Inject()
             retweetCount=extractFeatureCount(userFeatureMap, "retweetCount"),
             likeCount=extractFeatureCount(userFeatureMap, "likeCount"),
             dictionaryHits=extractFeatureCount(userFeatureMap, "dictionaryHits"),
-            linkCount=extractFeatureCount(userFeatureMap, "linkCount")
+            linkCount=extractFeatureCount(userFeatureMap, "linkCount"),
+            hashtagTimestamps=hashtagTimestamps match {
+              case Some(timestampList) => timestampList
+              case None => List.empty[(String, Double)]
+            }
           )
         case None => Logger.debug("Queried a non-existent user in Redis.")
       }

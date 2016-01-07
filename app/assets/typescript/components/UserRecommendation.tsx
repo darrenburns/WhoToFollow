@@ -30,18 +30,24 @@ export default class UserRecommendation extends React.Component<UserRecommendati
         let correctlyOrderedHist: Array<number> = this.props.userHistory.toArray();
         return (
                 <div className="recommendation-tile" key={this.props.key}>
-                    <img src={`http://avatars.io/twitter/${this.props.screenName}`} alt={this.props.screenName}
-                    width="70px" height="70px"/>
-                    <Link to={`/user/${this.props.screenName}`}>
-                        <strong>@{this.props.screenName}</strong>
-                    </Link>
-                    {`Score: '${this.props.score}'`}
-                    <br/>
-                      <Sparklines data={correctlyOrderedHist} limit={50} width={187}>
-                        <SparklinesLine style={{ strokeWidth: 1, stroke: "#41c3f9", fill: "none" }} />
-                        <SparklinesSpots style={{ fill: "#41c3f9" }} />
-                      </Sparklines>
-                    <br/>
+                    <div className="recommendation-avatar">
+                        <img src={`http://avatars.io/twitter/${this.props.screenName}`}
+                             alt={this.props.screenName} width="80px" height="80px"/>
+                    </div>
+                    <div className="recommendation-middle">
+                        <Link to={`/user/${this.props.screenName}`}>
+                            <strong className="recommendation-username">@{this.props.screenName}</strong>
+                        </Link>
+                    </div>
+                    <div className="recommendation-sparkline">
+                        <Sparklines data={correctlyOrderedHist} limit={50} width={220} height={70}>
+                            <SparklinesLine style={{ strokeWidth: 1, stroke: "#41c3f9", fill: "none" }} />
+                            <SparklinesSpots style={{ fill: "#41c3f9" }} />
+                        </Sparklines>
+                    </div>
+                    <div className="recommendation-score">
+                        {`${this.props.score.toFixed(2)}`}
+                    </div>
                 </div>
         )
     }

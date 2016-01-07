@@ -68,9 +68,8 @@ class UserHashtagCounter @Inject()
 
     // Status -> several tuples of form ((user, hashtag), 1)
     val userHashtags = stream.flatMap(status => {
-      status.getText.split(" ")
-        .filter(_.startsWith("#"))
-        .map(hashtag => ((status.getUser.getScreenName, hashtag toLowerCase()), 1))
+      status.getHashtagEntities
+        .map(hashtag => ((status.getUser.getScreenName, hashtag.getText toLowerCase()), 1))
     })
 
     // Counting aggregation of (user, hashtag) pairs

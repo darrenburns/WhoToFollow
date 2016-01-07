@@ -55,18 +55,24 @@ object WebSocketSupervisor {
   }
 
   implicit val userFeaturesWrites = new Writes[UserFeatures] {
-    def writes(f: UserFeatures) = Json.obj(
-      "screenName" -> f.screenName,
-      "tweetCount" -> f.tweetCount,
-      "followerCount" -> f.followerCount,
-      "wordCount" -> f.wordCount,
-      "capitalisedCount" -> f.capitalisedCount,
-      "hashtagCount" -> f.hashtagCount,
-      "retweetCount" -> f.retweetCount,
-      "likeCount" -> f.likeCount,
-      "dictionaryHits" -> f.dictionaryHits,
-      "linkCount" -> f.linkCount
-    )
+    def writes(f: UserFeatures) = {
+      val hashtagTimestamps = Json.toJson(f.hashtagTimestamps.map(hashtagTs => {
+        Json.obj("hashtag" -> hashtagTs._1, "timestamp" -> hashtagTs._2)
+      }))
+      Json.obj(
+        "screenName" -> f.screenName,
+        "tweetCount" -> f.tweetCount,
+        "followerCount" -> f.followerCount,
+        "wordCount" -> f.wordCount,
+        "capitalisedCount" -> f.capitalisedCount,
+        "hashtagCount" -> f.hashtagCount,
+        "retweetCount" -> f.retweetCount,
+        "likeCount" -> f.likeCount,
+        "dictionaryHits" -> f.dictionaryHits,
+        "linkCount" -> f.linkCount,
+        "hashtagTimestamps" -> hashtagTimestamps
+      )
+    }
   }
 
   case class OutputChannel(name: String)

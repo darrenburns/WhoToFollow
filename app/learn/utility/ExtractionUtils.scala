@@ -6,11 +6,6 @@ import org.apache.commons.net.ntp.TimeStamp
 import twitter4j.Status
 import utils.QualityAnalyser
 
-/* TODO
- Look at example in slides for querying an incremental index.
- Use Terrier scores as additional feature.
- Temporal features
- */
 
 object ExtractionUtils {
 
