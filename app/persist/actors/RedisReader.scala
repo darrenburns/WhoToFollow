@@ -67,7 +67,7 @@ class RedisReader @Inject()
 
     case GetRecentQueryList() =>
       val recentQueryResult = clients.withClient{client =>
-        client.lrange("recentQueries", 0, 6)
+        client.lrange("recentQueries", 0, 19)
       }
       var resultBatch = ListBuffer[String]()
       recentQueryResult match {
@@ -77,7 +77,7 @@ class RedisReader @Inject()
               resultBatch += r
           }
       }
-      sender ! RecentQueries(resultBatch.toSet)
+      sender ! RecentQueries(resultBatch.toList)
 
     case UserFeatureRequest(screenName) =>
       val userStats = clients.withClient{client =>

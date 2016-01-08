@@ -16,7 +16,7 @@ import scala.util.{Failure, Success}
 
 
 object MetricsReporting {
-  case class RecentQueries(recentQueriesList: Set[String])
+  case class RecentQueries(recentQueriesList: List[String])
   case class GetRecentQueryList()
 }
 

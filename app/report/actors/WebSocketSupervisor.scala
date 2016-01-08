@@ -75,6 +75,14 @@ object WebSocketSupervisor {
     }
   }
 
+  implicit val newQueryWrites = new Writes[NewQuery] {
+    def writes(nq: NewQuery) = Json.obj(
+      "query" -> nq.query,
+      "id" -> nq.id,
+      "timestamp" -> nq.timestamp.getMillis
+    )
+  }
+
   case class OutputChannel(name: String)
   case class CheckForDeadChannels()
   case class ChannelTriple(in: Iteratee[JsObject, Unit], out: Enumerator[JsValue],
@@ -121,7 +129,7 @@ class WebSocketSupervisor @Inject()
           val lowerChannel = query.toLowerCase
           val ch = if (ChannelUtilities.isQueryChannel(query)) {
             Logger.debug(s"Creating query channel for query: $query")
-            redisWriter ! NewQuery(lowerChannel)
+            redisWriter ! NewQuery(lowerChannel, lowerChannel.hashCode, DateTime.now)
             createChannel(lowerChannel)
           } else if (ChannelUtilities.isUserAnalysisChannel(query)) {
             createChannel(query)
@@ -181,26 +189,6 @@ class WebSocketSupervisor @Inject()
       })
 
     /*
-     The list of recent queries to display on the homepage of the UI
-     */
-    case msg @ RecentQueries(queries) =>
-      val primaryChannelTriple = channels.get(Defaults.RecentQueriesChannelName)
-      primaryChannelTriple match {
-        case Some(chTriple) =>
-          val json = Json.toJson(msg)
-          try {
-            chTriple.channel push json
-          } catch {
-            case cce: ClosedChannelException =>
-              Logger.error(s"A client closed the connection to the recent queries channel.")
-            case e: Exception =>
-              Logger.error(s"An exception occurred while pushing results to recent queries channel.", e)
-          }
-
-        case None => Logger.error(s"Channel ${Defaults.RecentQueriesChannelName} does not exist.")
-      }
-
-    /*
     The most recent index size recorded in Redis.
      */
     case CollectionStats(numDocs) =>
@@ -220,7 +208,7 @@ class WebSocketSupervisor @Inject()
 
       }
 
-    case features @ UserFeatures(s,_,_,_,_,_,_,_,_,_) =>
+    case features @ UserFeatures(s,_,_,_,_,_,_,_,_,_,_) =>
       val chName = ChannelUtilities.getChannelNameFromScreenName(s)
       val userChannelTri = channels.get(chName)
       userChannelTri match {
@@ -259,6 +247,16 @@ class WebSocketSupervisor @Inject()
     // Construct and keep a reference to the channel components
     val chTriple = ChannelTriple(in, out, channel)
     channels += (query -> chTriple)
+
+    // Send the query through the socket to inform people of queries
+    if (ChannelUtilities.isQueryChannel(query)) {
+      channels.get(Defaults.RecentQueriesChannelName) match {
+        case Some(ch) =>
+          ch.channel push Json.toJson(NewQuery(query, query.hashCode, DateTime.now))
+        case None =>
+          Logger.error("Failed to send query through RecentQuery channel.")
+      }
+    }
 
     // Store the manager and instantiate the keep-alive
     if (ChannelUtilities.isQueryChannel(query) || ChannelUtilities.isUserAnalysisChannel(query)) {

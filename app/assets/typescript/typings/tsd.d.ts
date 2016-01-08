@@ -9,6 +9,8 @@
 /// <reference path="react-sparklines/react-sparklines.d.ts" />
 /// <reference path="react-tap-event-plugin/react-tap-event-plugin.d.ts" />
 /// <reference path="jquery/jquery.d.ts" />
+/// <reference path="moment/moment-node.d.ts" />
+/// <reference path="moment/moment.d.ts" />
 ///<reference path='../node_modules/immutable/dist/Immutable.d.ts'/>
 
 

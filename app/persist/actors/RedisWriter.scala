@@ -5,6 +5,7 @@ import com.google.inject.Singleton
 import hooks.RedisConnectionPool
 import learn.actors.FeatureExtraction.TweetFeatures
 import learn.actors.UserHashtagCounter.{UserHashtagCount, UserHashtagReport}
+import org.joda.time.DateTime
 import persist.actors.RedisWriter._
 import play.api.Logger
 import twitter4j.Status
@@ -14,7 +15,7 @@ import twitter4j.Status
  Reports can be sent here for storage in Redis.
  */
 object RedisWriter {
-  case class NewQuery(query: String)
+  case class NewQuery(query: String, id: Int, timestamp: DateTime)
   case class IndexSize(size: Int)
   case class HashtagCountUpdate(results: Seq[UserHashtagCount])
   case class TweetFeatureBatch(reports: Seq[TweetFeatures])
@@ -38,7 +39,7 @@ class RedisWriter extends Actor with Serializable {
     case TweetFeatureBatch(reports) =>
       Logger.debug("Received latest tweet features.")
       updateExtractedFeatures(reports)
-    case NewQuery(q) =>
+    case NewQuery(q, id, timestamp) =>
       addQuery(q)
     case ProcessedTweets(tweets) =>
       markTweetsAsProcessed(tweets)

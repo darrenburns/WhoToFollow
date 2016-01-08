@@ -4,6 +4,7 @@ import {Container, Row, Col} from 'elemental';
 import Tweet from './Tweet.tsx';
 import UserRecommendation from './UserRecommendation.tsx';
 import SearchBar from './SearchBar.tsx';
+import {ScrollingList, ScrollingListItem} from './ScrollingList.tsx';
 import Hashtag from './Hashtag.tsx';
 import {List, ListDivider, Paper, Card, CardText} from 'material-ui';
 import {Route, Router, Link, History} from 'react-router';
@@ -11,7 +12,20 @@ import config from '../util/config';
 import constants from '../util/constants';
 
 
-const Home = React.createClass({
+export interface RecentQuery {
+    query: string
+    id: number
+    timestamp: number
+}
+
+
+interface HomeState {
+    currentQuery: string
+    recentQueries: Array<string>
+    recentQueriesSocket: WebSocket
+}
+
+const Home = React.createClass<any, HomeState>({
 
     mixins: [History],
 
@@ -24,9 +38,12 @@ const Home = React.createClass({
     },
 
     componentWillMount() {
-        let ws = new WebSocket(`ws://localhost:9000/ws/default:recent-queries`);
+        let ws: WebSocket = new WebSocket(`ws://localhost:9000/ws/default:recent-queries`);
         ws.onmessage = event => {
-            this.setState({recentQueries: JSON.parse(event.data).recentQueries});
+            let data = JSON.parse(event.data);
+            if (data.hasOwnProperty("query")) {
+                this.setState({recentQueries: [data].concat(this.state.recentQueries).slice(0, 5)})
+            }
         };
         if (this.state.recentQueriesSocket != null) {
             this.state.recentQueriesSocket.close();
@@ -60,23 +77,22 @@ const Home = React.createClass({
     },
 
     render: function() {
-        let recentHashtags = this.state.recentQueries.map((queryString, idx) => {
+        let recentQueries = this.state.recentQueries.map((queryString, idx) => {
             return <Hashtag key={idx} hashtag={queryString}/>
         });
         return (
             <div>
                 <Row>
                     <Col sm="50%">
-                        <SearchBar placeholder="Type a #hashtag to get recommendations..."
+                        <h3 className="padded-top-h">Search</h3>
+                        <SearchBar placeholder="Type a query to get recommendations..."
                                    handleChange={this.handleChange}
                                    handleEnter={this.handleEnter}
                                    currentQuery={this.state.currentQuery} />
                     </Col>
                     <Col sm="50%">
                         <h3 className="padded-top-h">Recent Searches</h3>
-                        <ul>
-                            {recentHashtags.map(ht => <li>{ht}</li>)}
-                        </ul>
+                        <ScrollingList duration={500} numItemsToShow={4} items={this.state.recentQueries} />
                     </Col>
                 </Row>
                 {this.props.children}

@@ -1,5 +1,3 @@
-///<reference path='../models/Twitter.ts'/>
-///<reference path='../models/Learning.ts'/>
 
 import * as React from 'react';
 import * as $ from 'jquery';
