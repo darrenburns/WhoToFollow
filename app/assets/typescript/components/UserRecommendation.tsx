@@ -9,7 +9,9 @@ let {Colors} = Styles;
 
 interface UserRecommendationProps {
     key: string,
+    query: string,
     screenName: string,
+    name: string,
     userHistory: Immutable.List<number>,
     score: number,
     params?: any
@@ -30,23 +32,33 @@ export default class UserRecommendation extends React.Component<UserRecommendati
         let correctlyOrderedHist: Array<number> = this.props.userHistory.toArray();
         return (
                 <div className="recommendation-tile" key={this.props.key}>
+
                     <div className="recommendation-avatar">
                         <img src={`http://avatars.io/twitter/${this.props.screenName}`}
                              alt={this.props.screenName} width="80px" height="80px"/>
                     </div>
-                    <div className="recommendation-middle">
-                        <Link to={`/user/${this.props.screenName}`}>
-                            <strong className="recommendation-username">@{this.props.screenName}</strong>
-                        </Link>
-                    </div>
-                    <div className="recommendation-sparkline">
-                        <Sparklines data={correctlyOrderedHist} limit={50} width={220} height={70}>
-                            <SparklinesLine style={{ strokeWidth: 1, stroke: "#41c3f9", fill: "none" }} />
-                            <SparklinesSpots style={{ fill: "#41c3f9" }} />
-                        </Sparklines>
-                    </div>
-                    <div className="recommendation-score">
-                        {`${this.props.score.toFixed(2)}`}
+
+                    <div className="recommendation-body">
+
+                        <div className="recommendation-topline">
+                            <span className="recommendation-name">
+                                {this.props.name}
+                            </span>
+                            <Link to={`/query/${this.props.query}/user/${this.props.screenName}`}>
+                                <span className="recommendation-username">@{this.props.screenName}</span>
+                            </Link>
+                        </div>
+
+                        <div className="recommendation-bottomline">
+                            <Sparklines data={correctlyOrderedHist} limit={50} width={150} height={50}>
+                                <SparklinesLine style={{ strokeWidth: 1, stroke: "#41c3f9", fill: "none" }} />
+                                <SparklinesSpots style={{ fill: "#41c3f9" }} />
+                            </Sparklines>
+                            <span className="recommendation-score">
+                                {`${this.props.score.toFixed(2)}`}
+                            </span>
+                        </div>
+
                     </div>
                 </div>
         )

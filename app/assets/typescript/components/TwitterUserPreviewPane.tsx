@@ -1,3 +1,5 @@
+/// <reference path="../models/Twitter.ts" />
+
 
 import * as React from 'react';
 import * as $ from 'jquery';
@@ -11,20 +13,24 @@ import TimelineApi from '../endpoints/TimelineApi';
 import LearningApi from '../endpoints/LearningApi';
 
 
-interface IUserInfoProps {
+interface ITwitterUserPreviewPaneProps {
     params: any;
 }
 
-interface IUserInfoState {
+interface ITwitterUserPreviewPaneState {
     timeline?: Array<Twitter.Status>;
+    bio?: string;
+    coverPhotoUrl?: string;
+    profileColour?: string;
     userSocket?: WebSocket;
     latestFeaturesUpdate?: Immutable.Map<string, number>;
     socketKeepAliveHandle?: number;
 }
 
-export default class UserInfo extends React.Component<IUserInfoProps, IUserInfoState> {
+export default class TwitterUserPreviewPane extends
+    React.Component<ITwitterUserPreviewPaneProps, ITwitterUserPreviewPaneState> {
 
-    constructor(props: IUserInfoProps) {
+    constructor(props: ITwitterUserPreviewPaneProps) {
         super(props);
         this.state = {
             timeline: [],
@@ -38,7 +44,7 @@ export default class UserInfo extends React.Component<IUserInfoProps, IUserInfoS
         this._setUserChannel(this.props.params.screenName);
     }
 
-    componentDidUpdate(prevProps: IUserInfoProps) {
+    componentDidUpdate(prevProps: ITwitterUserPreviewPaneProps) {
         let newScreenName = this.props.params.screenName;
         if (prevProps.params.screenName !== newScreenName) {
             this._freeComponentResources();
@@ -90,8 +96,14 @@ export default class UserInfo extends React.Component<IUserInfoProps, IUserInfoS
         let timelineXhr:JQueryXHR = TimelineApi.fetchAndAnalyse(screenName);
         timelineXhr.then(
             (results:any) => {
-                let recentTweets:Array<Twitter.Status> = results.tweets;
+                let recentTweets: Array<Twitter.Status> = results.timeline;
+                let bio = results.metadata.bio;
+                let coverPhotoUrl = results.metadata.coverPhotoUrl;
+                let profileColour = results.metadata.profileColour;
                 this.setState({
+                    bio: bio,
+                    coverPhotoUrl: coverPhotoUrl,
+                    profileColour: profileColour,
                     timeline: recentTweets
                 })
             },
@@ -126,80 +138,100 @@ export default class UserInfo extends React.Component<IUserInfoProps, IUserInfoS
         let dictionaryHits = this.state.latestFeaturesUpdate.get('dictionaryHits', 0);
         let linkCount = this.state.latestFeaturesUpdate.get('linkCount', 0);
 
+
         return (
-            <Container maxWidth={940}>
-                <Row>
-                    <Col sm="70%">
-                        <h1>@{this.props.params.screenName}</h1>
-                    </Col>
-                    <Col sm="30%" className="view-on-twitter-button-flex">
-                        <FlatButton label="View On Twitter" onTouchTap={this._openUserInTwitter} />
-                    </Col>
-                </Row>
-                <Row>
-                    <Col sm="25%">
-                        <Row>
-                            <Col sm="100%">
-                                <Avatar src={`http://avatars.io/twitter/${this.props.params.screenName}`} size={130}/>
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col sm="100%">
-                                <h2>Features</h2>
-                                <ul>
-                                    <li><strong>Tweets Processed</strong>: {tweetsProcessed}</li>
-                                    <li><strong>Followers</strong>: {followersCount}</li>
-                                    <li><strong>Words Counted</strong>: {wordsCounted}</li>
-                                    <li><strong>% Capitalised Words</strong>: {(100*capitalCount/wordsCounted).toFixed(2)}%</li>
-                                    <li><strong>Hashtags Encountered</strong>: {hashtagCount}</li>
-                                    <li><strong>Times Retweeted</strong>: {retweetCount}</li>
-                                    <li><strong>Times Liked</strong>: {likeCount}</li>
-                                    <li><strong>Links Used</strong>: {linkCount}</li>
-                                    <li><strong>Spelling Accuracy</strong>:
-                                    {(100*dictionaryHits/wordsCounted).toFixed(2)}%</li>
-                                </ul>
-                            </Col>
-                        </Row>
-                    </Col>
 
+            <div className="user-preview-pane">
+                <div className="user-cover-photo" style={{backgroundImage: `url(${this.state.coverPhotoUrl})`}}>
+                    <image className="user-profile-image"
+                           src={`http://avatars.io/twitter/${this.props.params.screenName}`}
+                           alt={this.props.params.screenName}
+                    />
+                </div>
+                <div className="user-preview-features">
+                    <p><strong>{followersCount}</strong> followers</p>
+                    <p><strong>{dictionaryHits}%</strong> spelling accuracy</p>
+                </div>
+                <div className="user-preview-body">
+                    <h2>Most Recent Tweets</h2>
+                    <p>List of tweets here</p>
+                </div>
+            </div>
 
-                    <Col sm="50%">
-                        <h2>Timeline</h2>
-                        <List>
-                            {this.state.timeline.map((status: Twitter.Status) => {
-                                return (
-                                    <ListItem key={status.id} primaryText={status.username}
-                                    secondaryText={status.text} secondaryTextLines={2} leftAvatar={<Avatar src={status.avatar} />} />
-                                    );
-                                })}
-                        </List>
-                    </Col>
-
-
-                    <Col sm="25%">
-                        <Row>
-                            <Col sm="100%">
-                                <h2>Classify User</h2>
-                                <p className="">
-                                Is this user tweeting high quality information
-                                relating to the query topic <Hashtag hashtag={this.props.params.query} />?
-                                </p>
-                                <div className="classify-buttons-flex">
-                                    <RaisedButton label="Yes" secondary={true} onTouchTap={this._classifyUser.bind(this, 1)} />
-                                    <RaisedButton label="No" primary={true} onTouchTap={this._classifyUser.bind(this, 0)} />
-                                </div>
-                                <Snackbar ref="snackbar"
-                                          message="Thanks for classifying this user."
-                                          action="hide"
-                                          autoHideDuration={3000}
-                                />
-                            </Col>
-                        </Row>
-                    </Col>
-
-                </Row>
-            </Container>
         )
     }
 
 }
+// OLD LAYOUT
+//<Container maxWidth={940}>
+//    <Row>
+//        <Col sm="70%">
+//            <h1>@{this.props.params.screenName}</h1>
+//        </Col>
+//        <Col sm="30%" className="view-on-twitter-button-flex">
+//            <FlatButton label="View On Twitter" onTouchTap={this._openUserInTwitter} />
+//        </Col>
+//    </Row>
+//    <Row>
+//        <Col sm="25%">
+//            <Row>
+//                <Col sm="100%">
+//                    <Avatar src={`http://avatars.io/twitter/${this.props.params.screenName}`} size={130}/>
+//                </Col>
+//            </Row>
+//            <Row>
+//                <Col sm="100%">
+//                    <h2>Features</h2>
+//                    <ul>
+//                        <li><strong>Tweets Processed</strong>: {tweetsProcessed}</li>
+//                        <li><strong>Followers</strong>: {followersCount}</li>
+//                        <li><strong>Words Counted</strong>: {wordsCounted}</li>
+//                        <li><strong>% Capitalised Words</strong>: {(100*capitalCount/wordsCounted).toFixed(2)}%</li>
+//                        <li><strong>Hashtags Encountered</strong>: {hashtagCount}</li>
+//                        <li><strong>Times Retweeted</strong>: {retweetCount}</li>
+//                        <li><strong>Times Liked</strong>: {likeCount}</li>
+//                        <li><strong>Links Used</strong>: {linkCount}</li>
+//                        <li><strong>Spelling Accuracy</strong>:
+//                                    {(100*dictionaryHits/wordsCounted).toFixed(2)}%</li>
+//                    </ul>
+//                </Col>
+//            </Row>
+//        </Col>
+//
+//
+//        <Col sm="50%">
+//            <h2>Timeline</h2>
+//            <List>
+//                {this.state.timeline.map((status: Twitter.Status) => {
+//                    return (
+//                    <ListItem key={status.id} primaryText={status.username}
+//                              secondaryText={status.text} secondaryTextLines={2} leftAvatar={<Avatar src={status.avatar} />} />
+//                        );
+//                    })}
+//            </List>
+//        </Col>
+//
+//
+//        <Col sm="25%">
+//            <Row>
+//                <Col sm="100%">
+//                    <h2>Classify User</h2>
+//                    <p className="">
+//                        Is this user tweeting high quality information
+//                        relating to the query topic <Hashtag hashtag={this.props.params.query} />?
+//                    </p>
+//                    <div className="classify-buttons-flex">
+//                        <RaisedButton label="Yes" secondary={true} onTouchTap={this._classifyUser.bind(this, 1)} />
+//                        <RaisedButton label="No" primary={true} onTouchTap={this._classifyUser.bind(this, 0)} />
+//                    </div>
+//                    <Snackbar ref="snackbar"
+//                              message="Thanks for classifying this user."
+//                              action="hide"
+//                              autoHideDuration={3000}
+//                    />
+//                </Col>
+//            </Row>
+//        </Col>
+//
+//    </Row>
+//</Container>

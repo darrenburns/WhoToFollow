@@ -14,6 +14,7 @@ import Map = Immutable.Map;
 
 interface UserScore {
     screenName: string,
+    name: string,
     score: number
 }
 
@@ -117,6 +118,8 @@ const QueryResults = React.createClass({
             let hist: List<number> = this.state.queryUserHistories.get(result.screenName);
             return (
                 <UserRecommendation key={result.screenName}
+                                    query={this.props.params.query}
+                                    name={result.name}
                                     screenName={result.screenName}
                                     score={result.score}
                                     userHistory={hist}
@@ -130,11 +133,11 @@ const QueryResults = React.createClass({
                 <Col sm="100%">
                     <Row>
                         <Col sm="100%">
-                            <h2>{queryResults.length} Results for <Hashtag hashtag={this.props.params.query}/></h2>
+                            <h2>Terrier suggests <strong>{queryResults.length}</strong> users for '<span className="query-text">{this.props.params.query}</span>'.</h2>
                         </Col>
                     </Row>
                     <Row>
-                        <Col sm="100%">
+                        <Col sm="45%">
                             {queryResults.length > 0 ?
                                 <div className="recommendations">
                                     {queryResults}
@@ -144,6 +147,10 @@ const QueryResults = React.createClass({
                                     noResultsMessage :
                                     spinner)}
 
+                        </Col>
+                        <Col sm="55%">
+                            {/* The TwitterUserPreview pane will be loaded in here */}
+                            {this.props.children}
                         </Col>
                     </Row>
                 </Col>
