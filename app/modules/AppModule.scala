@@ -1,12 +1,12 @@
 package modules
 
 import com.google.inject.AbstractModule
-import hooks.{ApplicationShutdown, ApplicationStartup}
+import hooks.{ApplicationShutdown, ApplicationPreStart}
 
 
 class AppModule extends AbstractModule {
   def configure() = {
-    bind(classOf[ApplicationStartup]).asEagerSingleton()
+    bind(classOf[ApplicationPreStart]).asEagerSingleton()
     bind(classOf[ApplicationShutdown]).asEagerSingleton()
   }
 }

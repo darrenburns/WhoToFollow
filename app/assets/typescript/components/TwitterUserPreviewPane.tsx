@@ -19,8 +19,9 @@ interface ITwitterUserPreviewPaneProps {
 
 interface ITwitterUserPreviewPaneState {
     timeline?: Array<Twitter.Status>;
-    bio?: string;
+    name?: string;
     coverPhotoUrl?: string;
+    avatarUrl?: string;
     profileColour?: string;
     userSocket?: WebSocket;
     latestFeaturesUpdate?: Immutable.Map<string, number>;
@@ -97,13 +98,11 @@ export default class TwitterUserPreviewPane extends
         timelineXhr.then(
             (results:any) => {
                 let recentTweets: Array<Twitter.Status> = results.timeline;
-                let bio = results.metadata.bio;
-                let coverPhotoUrl = results.metadata.coverPhotoUrl;
-                let profileColour = results.metadata.profileColour;
                 this.setState({
-                    bio: bio,
-                    coverPhotoUrl: coverPhotoUrl,
-                    profileColour: profileColour,
+                    avatarUrl: results.metadata.avatarUrl,
+                    name: results.metadata.name,
+                    coverPhotoUrl: results.metadata.coverPhotoUrl,
+                    profileColour: results.metadata.profileColour,
                     timeline: recentTweets
                 })
             },
@@ -138,19 +137,34 @@ export default class TwitterUserPreviewPane extends
         let dictionaryHits = this.state.latestFeaturesUpdate.get('dictionaryHits', 0);
         let linkCount = this.state.latestFeaturesUpdate.get('linkCount', 0);
 
-
+        let coverStyles = {
+            backgroundImage: this.state.coverPhotoUrl !== "unknown" ? `url(${this.state.coverPhotoUrl})` : null,
+            backgroundColor: `#${this.state.profileColour}`
+        };
         return (
 
             <div className="user-preview-pane">
-                <div className="user-cover-photo" style={{backgroundImage: `url(${this.state.coverPhotoUrl})`}}>
-                    <image className="user-profile-image"
-                           src={`http://avatars.io/twitter/${this.props.params.screenName}`}
+                <div className="user-cover-photo" style={coverStyles}>
+                    <img className="user-profile-image"
+                            height="100px" width="100px"
+                           src={this.state.avatarUrl}
                            alt={this.props.params.screenName}
                     />
+                    <div className="user-cover-names">
+                        <span className="user-profile-name">{this.state.name}</span>
+                        <br/>
+                        <span className="user-profile-screenname">@{this.props.params.screenName}</span>
+                    </div>
                 </div>
                 <div className="user-preview-features">
-                    <p><strong>{followersCount}</strong> followers</p>
-                    <p><strong>{dictionaryHits}%</strong> spelling accuracy</p>
+                    <span className="user-preview-feature-item"><strong>{followersCount}</strong> followers</span>
+                    <span className="user-preview-feature-item"><strong>{tweetsProcessed}</strong> tweets processed</span>
+                    <span className="user-preview-feature-item"><strong>{wordsCounted}</strong> words</span>
+                    <span className="user-preview-feature-item"><strong>{hashtagCount}</strong> hashtags</span>
+                    <span className="user-preview-feature-item"><strong>{(capitalCount/wordsCounted).toFixed(1)}%</strong> capitalised words</span>
+                    <span className="user-preview-feature-item"><strong>{(dictionaryHits/wordsCounted).toFixed(1)}%</strong> spelling accuracy</span>
+                    <span className="user-preview-feature-item"><strong>{likeCount}</strong> likes from others</span>
+                    <span className="user-preview-feature-item"><strong>{retweetCount}</strong> retweets from others</span>
                 </div>
                 <div className="user-preview-body">
                     <h2>Most Recent Tweets</h2>

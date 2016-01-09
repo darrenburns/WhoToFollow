@@ -14,7 +14,6 @@ import query.actors.QueryService.{Query, TerrierResultSet}
 import report.actors.ChannelManager.UserTerrierScore
 import report.actors.WebSocketSupervisor.QueryResults
 import report.utility.ChannelUtilities
-import twitter4j.TwitterFactory
 
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
@@ -28,7 +27,7 @@ object ChannelManager {
   }
 
   case class GetQueryMentionCounts(query: String)
-  case class UserTerrierScore(screenName: String, score: Double)
+  case class UserTerrierScore(screenName: String, name: String, score: Double)
 }
 
 /*
@@ -59,7 +58,6 @@ class ChannelManager @Inject()
   override def receive = {
     case Query(query) =>
       if (ChannelUtilities.isQueryChannel(query)) {
-        val twitter = TwitterFactory.getSingleton
         Logger.debug(s"Passing query '$query' to QueryService.")
         queryService ? Query(queryString) onComplete {
           case Success(results: TerrierResultSet) =>
@@ -69,26 +67,27 @@ class ChannelManager @Inject()
             val docIds = resultSet.getDocids
             val metaIndex = Indexer.index.getMetaIndex
 
-            // Get a list of usernames from the docIds
-            val usernames = docIds.map(docId => {
+            // Get a list of usernames and screennames from the docIds
+            val profiles = docIds.map(docId => {
               // Get the username metadata for the current docId
               val usernameOption = Option(metaIndex.getItem("username", docId))
-              usernameOption match {
-                case Some(username) =>
+              val nameOption = Option(metaIndex.getItem("name", docId))
+              (usernameOption, nameOption) match {
+                case (Some(username), Some(name)) =>
                   batchFeatureExtraction ! FetchAndAnalyseTimeline(username)
-                  username
-                case None =>
+                  (username, name)
+                case (None, None) =>
                   Logger.error("USERNAME metadata not found in document.")
-                  docId.toString
+                  (docId.toString, docId.toString)
               }
             })
 
 
             // Get the sequence of user -> score
             val scores = resultSet.getScores
-            val queryResults = (usernames zip scores) map {
-              case (screenName: String, score: Double) =>
-                UserTerrierScore(screenName, score)
+            val queryResults = (profiles zip scores) map {
+              case ((screenName: String, name: String), score: Double) =>
+                UserTerrierScore(screenName=screenName, name=name, score)
             }
 
             // Send the results through the socket for display on the UI

@@ -5,11 +5,13 @@ import learn.actors.Indexer
 import org.terrier.matching.ResultSet
 import org.terrier.querying.Manager
 import play.api.Logger
+import play.api.libs.json.{Json, Writes}
 
 object QueryService {
 
   /* Sendables */
   case class TerrierResultSet(originalQuery: String, resultSet: ResultSet)
+
   /* Receivables */
   case class Query(query: String)
 
@@ -18,14 +20,12 @@ object QueryService {
 class QueryService extends Actor {
 
   import QueryService._
+  val memIndex = Indexer.index
 
   override def receive = {
     case Query(queryString) =>
 
       Logger.debug(s"QueryService has received query: '$queryString'.")
-
-      // Retrieve the memory index.
-      val memIndex = Indexer.index
 
       // create a search manager (runs the search process over an index)
       val queryingManager = new Manager(memIndex)

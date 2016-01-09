@@ -133,7 +133,7 @@ const QueryResults = React.createClass({
                 <Col sm="100%">
                     <Row>
                         <Col sm="100%">
-                            <h2>Terrier suggests <strong>{queryResults.length}</strong> users for '<span className="query-text">{this.props.params.query}</span>'.</h2>
+                            <h2 className="padded-top-header">Terrier suggests <strong>{queryResults.length}</strong> users for '<span className="query-text">{this.props.params.query}</span>'.</h2>
                         </Col>
                     </Row>
                     <Row>

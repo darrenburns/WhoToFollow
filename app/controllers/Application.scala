@@ -8,14 +8,17 @@ import com.google.inject.name.Named
 import hooks.Twitter
 import learn.actors.TweetStreamActor.TweetBatch
 import persist.actors.LabelStore.Vote
+import persist.actors.UserMetadataReader.UserMetadata
+import persist.actors.UserMetadataWriter.UserMetadataQuery
 import play.api.Logger
 import play.api.libs.iteratee.{Enumerator, Iteratee}
 import play.api.libs.json.{JsValue, Json, Writes}
 import play.api.mvc._
 import report.actors.WebSocketSupervisor.OutputChannel
-import twitter4j.{ResponseList, Status}
+import twitter4j.Status
 
 import scala.collection.JavaConversions._
+import scala.concurrent.Await
 import scala.concurrent.duration._
 
 
@@ -33,31 +36,20 @@ object Application {
     )
   }
 
-  implicit val responseListWrites = new Writes[ResponseList[twitter4j.Status]] {
-    def writes(responseList: ResponseList[Status]) = {
-      var list = Vector.empty[Status]
-      responseList.foreach(status => {
-        list :+= status
-      })
-      Json.obj(
-        "tweets" -> Json.toJson(list)
-      )
-    }
-
-  }
-
 }
 
 class Application @Inject()
 (
   @Named("webSocketSupervisor") webSocketSupervisor: ActorRef,
   @Named("labelStore") labelStore: ActorRef,
-  @Named("batchFeatureExtraction") batchFeatureExtraction: ActorRef
+  @Named("batchFeatureExtraction") batchFeatureExtraction: ActorRef,
+  @Named("userMetadataReader") userMetadataReader: ActorRef
 ) extends Controller {
+
 
   import Application._
 
-  implicit val timeout = Timeout(5 seconds)
+  implicit val timeout = Timeout(10 seconds)
 
   /**
     * Display the index static file which contains the mount point for the frontend React app.
@@ -110,6 +102,7 @@ class Application @Inject()
     *         of the user contained within the request parameters.
     */
   def fetchAndAnalyseTimeline(screenName: String) = Action { request =>
+
     // Fetch a list of tweets from the users timeline
     val twitter = Twitter.instance
     val tweets = twitter.getUserTimeline(screenName)
@@ -117,7 +110,14 @@ class Application @Inject()
       Logger.debug(s"Sending batch of tweets from timeline of $screenName: " + tweets.size())
       batchFeatureExtraction ! TweetBatch(tweets.toList)
     }
-    Ok(Json.toJson(tweets))
+    // Get the metadata we stored on the user
+    val metadataFuture = userMetadataReader ? UserMetadataQuery(screenName)
+    // TODO: Fix blocking here
+    val metadata = Await.result(metadataFuture, timeout.duration).asInstanceOf[UserMetadata]
+    Ok(Json.obj(
+      "metadata" -> Json.toJson(metadata),
+      "timeline" -> Json.toJson(tweets.toList)
+    ))
   }
 
 }

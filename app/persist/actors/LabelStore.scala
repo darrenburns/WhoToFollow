@@ -31,7 +31,8 @@ object LabelStore {
       (JsPath \ "voteId").read[Int]
     )(Vote.apply _)
 
-  lazy val collection = MongoInit.coll
+  lazy val db = MongoInit.db
+  lazy val collection = db("labels")
 }
 
 

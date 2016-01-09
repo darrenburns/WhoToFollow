@@ -1,7 +1,7 @@
 package modules
 
 import learn.actors._
-import persist.actors.{RedisReader, RedisWriter, LabelStore}
+import persist.actors._
 import com.google.inject.AbstractModule
 import play.api.libs.concurrent.AkkaGuiceSupport
 import query.actors.QueryService
@@ -20,6 +20,8 @@ class ActorModule extends AbstractModule with AkkaGuiceSupport {
     bindActor[LabelStore]("labelStore")
     bindActor[QueryService]("queryService")
     bindActor[MetricsReporting]("metricsReporting")
+    bindActor[UserMetadataWriter]("userMetadataWriter")
+    bindActor[UserMetadataReader]("userMetadataReader")
     bindActorFactory[ChannelManager, ChannelManager.Factory]
   }
 }

@@ -21,8 +21,7 @@ object RedisConnectionPool {
 
 object MongoInit {
   private lazy val mc = MongoClient("localhost", 27017)
-  private lazy val db = mc("wtfcontext")
-  lazy val coll = db("labels")
+  lazy val db = mc("wtfcontext")
 }
 
 object Twitter {
@@ -31,10 +30,10 @@ object Twitter {
 
 
 @Singleton
-class ApplicationStartup @Inject() (system: ActorSystem,
-                                     @Named("tweetStreamActor") tweetStreamActor: ActorRef) {
+class ApplicationPreStart @Inject()(system: ActorSystem,
+                                    @Named("tweetStreamActor") tweetStreamActor: ActorRef) {
 
-  // Inject the tweetStream to initialise it on application startup
+
 
 }
 

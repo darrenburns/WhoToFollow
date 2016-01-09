@@ -89,7 +89,7 @@ export class ScrollingList extends React.Component<ScrollingListProps, Scrolling
         };
 
         let rows: Array<JSX.Element> = this.state.items.map((rq: RecentQuery, idx: number) =>
-            <ScrollingListItem key={rq.id} text={rq.query} subtext={moment(rq.timestamp).fromNow()} />);
+            <ScrollingListItem key={rq.id + ":" + rq.timestamp.toString()} text={rq.query} subtext={moment(rq.timestamp).fromNow()} />);
 
         return (
             <VelocityTransitionGroup component="div" className="scrolling-list" enter={enterAnimation} leave={leaveAnimation}>

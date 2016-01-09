@@ -14,6 +14,7 @@ import learn.utility.ExtractionUtils
 import org.joda.time.DateTime
 import persist.actors.RedisReader.HasStatusBeenProcessed
 import persist.actors.RedisWriter.{ProcessedTweets, TweetFeatureBatch}
+import persist.actors.UserMetadataWriter.TwitterUser
 import play.api.Logger
 import twitter4j.{TwitterFactory, Status}
 
@@ -41,7 +42,8 @@ class BatchFeatureExtraction @Inject()
 (
   @Named("redisWriter") redisWrite: ActorRef,
   @Named("redisReader") redisRead: ActorRef,
-  @Named("indexer") indexer: ActorRef
+  @Named("indexer") indexer: ActorRef,
+  @Named("userMetadataWriter") userMetadataWriter: ActorRef
 ) extends Actor {
 
   import BatchFeatureExtraction._
@@ -53,7 +55,6 @@ class BatchFeatureExtraction @Inject()
 
   override def receive = {
     case FetchAndAnalyseTimeline(screenName: String) =>
-      Logger.debug(s"Received request to check timeline of user '$screenName'")
       // Check to see when we last looked at this users timeline
       latestUserChecks.get(screenName) match {
         case Some(lastChecked) =>
@@ -92,6 +93,7 @@ class BatchFeatureExtraction @Inject()
 
             // Mark the time that we last reviewed this user
             latestUserChecks += (status.getUser.getScreenName -> DateTime.now)
+
             // Perform feature extraction
             Future {
             (status, ExtractionUtils.getStatusFeatures(status),
@@ -124,6 +126,9 @@ class BatchFeatureExtraction @Inject()
   }
 
   def analyseUserTimeline(screenName: String): Unit = {
+    // Cache the user metadata
+    userMetadataWriter ! TwitterUser(Twitter.instance.showUser(screenName))
+    // Analyse the tweets from the user timeline
     self ! TweetBatch(Twitter.instance.getUserTimeline(screenName).toList)
   }
 

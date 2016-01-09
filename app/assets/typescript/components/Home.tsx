@@ -77,21 +77,18 @@ const Home = React.createClass<any, HomeState>({
     },
 
     render: function() {
-        let recentQueries = this.state.recentQueries.map((queryString, idx) => {
-            return <Hashtag key={idx} hashtag={queryString}/>
-        });
         return (
             <div>
                 <Row>
                     <Col sm="50%">
-                        <h3 className="padded-top-h">Search</h3>
+                        <h3 className="padded-top-header">Search</h3>
                         <SearchBar placeholder="Type a query to get recommendations..."
                                    handleChange={this.handleChange}
                                    handleEnter={this.handleEnter}
                                    currentQuery={this.state.currentQuery} />
                     </Col>
                     <Col sm="50%">
-                        <h3 className="padded-top-h">Recent Searches</h3>
+                        <h3 className="padded-top-header">Recent Searches</h3>
                         <ScrollingList duration={500} numItemsToShow={4} items={this.state.recentQueries} />
                     </Col>
                 </Row>

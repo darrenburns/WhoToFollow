@@ -10,6 +10,7 @@ import org.apache.commons.io.IOUtils
 import org.terrier.indexing.TaggedDocument
 import org.terrier.indexing.tokenisation.Tokeniser
 import org.terrier.realtime.memory.MemoryIndex
+import persist.actors.UserMetadataWriter.TwitterUser
 import report.actors.WebSocketSupervisor.CollectionStats
 
 import scala.collection.immutable.HashMap
@@ -17,7 +18,7 @@ import scala.collection.immutable.HashMap
 object Indexer {
   val index = new MemoryIndex()
   val tokeniser = Tokeniser.getTokeniser
-  var docIds = new HashMap[String, Int]()
+  var docIds = new HashMap[String, Int]()  // TwitterUserId -> TerrierDocId
   var userCount = 0
 
   /* Receivables */
@@ -29,7 +30,8 @@ object Indexer {
  */
 class Indexer @Inject()
 (
-  @Named("redisWriter") redisWriter: ActorRef
+  @Named("redisWriter") redisWriter: ActorRef,
+  @Named("userMetadataWriter") userMetadataWriter: ActorRef
 ) extends Actor {
 
   import Indexer._
@@ -45,12 +47,17 @@ class Indexer @Inject()
         val doc = new TaggedDocument(IOUtils.toInputStream(trecStatus, "UTF-8"),
           new util.HashMap[String, String](), tokeniser)
 
-        doc.setProperty("username", status.getUser.getScreenName)
-
         docIds.get(longUserNo) match {
           case Some(docId) =>
+            // Seen this user before, add the new tweet to their document
             index.addToDocument(docId, doc)
           case None =>
+            // First time we've seen this user
+            // Store the metadata in the metaindex
+            val user = status.getUser
+            doc.setProperty("username", user.getScreenName)
+            doc.setProperty("name", user.getName)
+            // Index user for the first time
             index.indexDocument(doc)
             val docId = index.getCollectionStatistics.getNumberOfDocuments - 1
             docIds += (longUserNo -> docId.toInt)

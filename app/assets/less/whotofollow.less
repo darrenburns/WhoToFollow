@@ -8,13 +8,17 @@
 @panel-shadow: 0 2px 4px 0 rgba(0,0,0,0.08);
 
 body {
+  color: @text-colour;
   padding-top: 30px;
+}
+
+.padded-top-header {
+  padding-top: 25px;
 }
 
 h1, h2, h3, h4, h5, h6 {
   color: @text-colour;
   font-family: Roboto, Helvetica, Arial, sans-serif;
-  padding-top: 30px;
 }
 
 p {
@@ -50,6 +54,11 @@ p {
   -webkit-align-items: center;
 }
 
+
+.query-text {
+  color: @blue;
+}
+
 /* Recommendation page and component styles */
 
 .recommendations {
@@ -65,34 +74,49 @@ p {
     padding: 10px;
     height: 100px;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-
     background: white;
     border: 1px solid #E9E9E9;
     box-shadow: 0 2px 4px 0 rgba(0,0,0,0.08);
+    color: @text-colour;
 
-    .recommendation-middle {
+    .recommendation-body {
+      display: flex;
+      flex-flow: column nowrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      flex: 1 1 auto;
       padding: 10px;
-      flex-basis: 40%;
-      .recommendation-username {
-        font-size: 1.5em;
+      font-size: 1.2em;
+
+      .recommendation-topline {
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+
+        .recommendation-username {
+          text-overflow: ellipsis;
+        }
+
       }
-    }
 
-    .recommendation-sparkline {
-      margin-right: auto;
-    }
+      .recommendation-bottomline {
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+        font-size: 1.7em;
+        font-family: Roboto, Helvetica, sans-serif;
+      }
 
-    .recommendation-score {
-      font-size: 2.2em;
-      font-family: Roboto, Helvetica, sans-serif;
-      color: @text-colour;
     }
 
   }
 
+}
+
+.panel {
+  background: @panel-background;
+  border: @panel-border;
+  box-shadow: @panel-shadow;
 }
 
 /* ScrollingList component styles */
@@ -100,10 +124,7 @@ p {
 .scrolling-list {
 
   width: 100%;
-
-  background: @panel-background;
-  border: @panel-border;
-  box-shadow: @panel-shadow;
+  .panel;
 
   .scrolling-list-item {
 
@@ -112,7 +133,7 @@ p {
     padding: 10px;
 
     .scrolling-list-item-text {
-      color: @blue;
+      .query-text;
     }
 
     .scrolling-list-item-subtext {
@@ -130,4 +151,64 @@ p {
   }
 }
 
+
+/* User preview pane component styles */
+.user-preview-pane {
+  display: flex;
+  flex-flow: column nowrap;
+  padding: 0;
+  margin: 0;
+
+  .panel;
+
+  .user-cover-photo {
+    display: flex;
+    align-items: flex-end;
+    margin: 0;
+    padding: 5px;
+    height: 230px;
+
+    .user-profile-image {
+      border: 2px solid #FFFFFF;
+      box-shadow: 0 2px 4px 0 rgba(0,0,0,0.50);
+    }
+
+    .user-cover-names {
+      padding: 10px;
+      color: #FFFFFF;
+      font-size: 24px;
+      text-shadow: 0 1px 3px #000000;
+
+      .user-profile-name {
+        font-size: 24px;
+        font-weight: bold;
+      }
+
+      .user-profile-screenname {
+        font-size: 18px;
+      }
+
+    }
+
+  }
+
+  .user-preview-features {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-flow: row wrap;
+    .panel;
+    border-left: 0;
+    border-right: 0;
+
+    .user-preview-feature-item {
+      padding: 4px;
+    }
+  }
+
+  .user-preview-body {
+    padding: 10px;
+  }
+
+}
 

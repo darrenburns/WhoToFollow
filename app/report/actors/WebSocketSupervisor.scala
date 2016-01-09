@@ -34,7 +34,7 @@ object WebSocketSupervisor {
   implicit val queryResultsWrites = new Writes[QueryResults] {
     def writes(results: QueryResults) = {
       val scoreJsonList = results.userScores.map(result => {
-          Json.obj("screenName" -> result.screenName, "score" -> result.score)
+          Json.obj("screenName" -> result.screenName, "name" -> result.name, "score" -> result.score)
       })
       Json.obj("query" -> results.query, "results" -> Json.toJson(scoreJsonList))
     }
@@ -121,6 +121,15 @@ class WebSocketSupervisor @Inject()
      the creation of a new WebSocket.
      */
     case OutputChannel(query) =>
+      // Send the query through the socket to inform people of queries
+      if (ChannelUtilities.isQueryChannel(query)) {
+        channels.get(Defaults.RecentQueriesChannelName) match {
+          case Some(ch) =>
+            ch.channel push Json.toJson(NewQuery(query, query.hashCode, DateTime.now))
+          case None =>
+            Logger.error("Failed to send query through RecentQuery channel.")
+        }
+      }
       channels.get(query) match {
         case Some(ch) =>
           Logger.debug(s"Fetching existing channel: $query")
@@ -146,7 +155,6 @@ class WebSocketSupervisor @Inject()
      */
     case results @ QueryResults(query, resultSet) =>
       val json = Json.toJson(results)
-      Logger.debug("Outputting json results: " + json)
       val channelTriple = channels.get(query)
       channelTriple match {
         case Some(triple) =>
@@ -247,16 +255,6 @@ class WebSocketSupervisor @Inject()
     // Construct and keep a reference to the channel components
     val chTriple = ChannelTriple(in, out, channel)
     channels += (query -> chTriple)
-
-    // Send the query through the socket to inform people of queries
-    if (ChannelUtilities.isQueryChannel(query)) {
-      channels.get(Defaults.RecentQueriesChannelName) match {
-        case Some(ch) =>
-          ch.channel push Json.toJson(NewQuery(query, query.hashCode, DateTime.now))
-        case None =>
-          Logger.error("Failed to send query through RecentQuery channel.")
-      }
-    }
 
     // Store the manager and instantiate the keep-alive
     if (ChannelUtilities.isQueryChannel(query) || ChannelUtilities.isUserAnalysisChannel(query)) {
