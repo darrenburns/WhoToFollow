@@ -167,8 +167,8 @@ export default class TwitterUserPreviewPane extends
                     <span className="user-preview-feature-item"><strong>{tweetsProcessed}</strong> tweets processed</span>
                     <span className="user-preview-feature-item"><strong>{wordsCounted}</strong> words</span>
                     <span className="user-preview-feature-item"><strong>{hashtagCount}</strong> hashtags</span>
-                    <span className="user-preview-feature-item"><strong>{(capitalCount/wordsCounted).toFixed(1)}%</strong> capitalised words</span>
-                    <span className="user-preview-feature-item"><strong>{(dictionaryHits/wordsCounted).toFixed(1)}%</strong> spelling accuracy</span>
+                    <span className="user-preview-feature-item"><strong>{(100*capitalCount/wordsCounted).toFixed(1)}%</strong> capitalised words</span>
+                    <span className="user-preview-feature-item"><strong>{(100*dictionaryHits/wordsCounted).toFixed(1)}%</strong> spelling accuracy</span>
                     <span className="user-preview-feature-item"><strong>{likeCount}</strong> likes from others</span>
                     <span className="user-preview-feature-item"><strong>{retweetCount}</strong> retweets from others</span>
                 </div>
@@ -177,8 +177,8 @@ export default class TwitterUserPreviewPane extends
                     <div className="tweet-list">
                         {
                             this.state.timeline.map((status: Twitter.Status) =>
-                                <Tweet key={status.id} likes={status.likes} text={status.text}
-                                       retweets={status.retweets} timestamp={status.date} />)
+                                <Tweet key={status.id} status={status} query={this.props.params.query}
+                                       colour={this.state.profileColour} />)
                         }
                     </div>
                 </div>

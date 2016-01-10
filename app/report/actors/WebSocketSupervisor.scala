@@ -221,7 +221,6 @@ class WebSocketSupervisor @Inject()
       val userChannelTri = channels.get(chName)
       userChannelTri match {
         case Some(tri) =>
-          Logger.debug("Features: " + features)
           try {
             tri.channel push Json.toJson(features)
           } catch {

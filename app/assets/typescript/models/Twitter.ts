@@ -1,6 +1,11 @@
 
 module Twitter {
 
+    interface RetweetedUser {
+        username: string;
+        screenname: string;
+    }
+
     /**
      * Status returned from the getUserTimeline Twitter API call.
      */
@@ -13,6 +18,8 @@ module Twitter {
         retweets: number
         likes: number
         avatar: string  // The URL for the user's avatar
+        isRetweet: boolean;
+        retweetedUser?: RetweetedUser
     }
 
 }

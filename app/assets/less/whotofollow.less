@@ -70,14 +70,12 @@ p {
   -webkit-flex-flow: row wrap;
   flex-flow: row wrap;
 
+  .panel;
+
   .recommendation-tile {
     width: 100%;
     height: 100px;
     display: flex;
-    background: white;
-    border: 1px solid #E9E9E9;
-    box-shadow: 0 2px 4px 0 rgba(0,0,0,0.08);
-    color: @text-colour;
 
     .recommendation-body {
       padding: 10px;
@@ -94,6 +92,7 @@ p {
         justify-content: space-between;
 
         .recommendation-username {
+          color: @blue;
           text-overflow: ellipsis;
         }
 
@@ -107,6 +106,10 @@ p {
         font-family: Roboto, Helvetica, sans-serif;
       }
 
+    }
+
+    &:not(:first-child) {
+      border-top: @panel-border;
     }
 
   }
@@ -224,7 +227,24 @@ p {
 
     display: flex;
 
-    .tweet-sidebar {
+    .tweet-sidebar-left {
+      display: flex;
+      padding: 10px;
+      align-items: flex-start;
+    }
+
+    .tweet-body {
+      flex-basis: 84%;
+      padding: 10px;
+
+      .tweet-subtext {
+        display: flex;
+        justify-content: space-between;
+        color: @subtext-colour;
+      }
+    }
+
+    .tweet-sidebar-right {
       flex-basis: 16%;
       width: 85px;
       padding: 10px;
@@ -235,20 +255,12 @@ p {
       justify-content: space-around;
 
       background-color: @panel-secondary-background;
-      border-right: @panel-border;
+      color: @subtext-colour;
+      border-left: @panel-border;
 
       & > span {
         display: flex;
         align-items: center;
-      }
-    }
-
-    .tweet-body {
-      flex-basis: 84%;
-      padding: 10px;
-
-      .tweet-subtext {
-        color: @subtext-colour;
       }
     }
 

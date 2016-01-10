@@ -4,6 +4,7 @@ import {Styles, Avatar, GridTile} from 'material-ui';
 import {Sparklines, SparklinesLine, SparklinesSpots} from 'react-sparklines';
 import * as Immutable from 'immutable';
 import ReactElement = __React.ReactElement;
+import TwitterUtility from "../util/TwitterUtility";
 
 let {Colors} = Styles;
 
@@ -34,7 +35,7 @@ export default class UserRecommendation extends React.Component<UserRecommendati
                 <div className="recommendation-tile" key={this.props.key}>
 
                     <div className="recommendation-avatar">
-                        <img src={`https://twitter.com/${this.props.screenName}/profile_image?size=original`}
+                        <img src={TwitterUtility.getProfilePictureUrl(this.props.screenName, "original")}
                              alt={this.props.screenName} width="100px" height="100px"/>
                     </div>
 

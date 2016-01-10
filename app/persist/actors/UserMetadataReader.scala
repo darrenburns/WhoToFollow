@@ -44,7 +44,6 @@ class UserMetadataReader extends Actor {
 
     /* Fetch existing metadata for a user */
     case UserMetadataQuery(screenName: String) =>
-      Logger.debug(s"!!! Received request for $screenName metadata")
       val metaObj = collection.findOne(
         MongoDBObject(
           "screenName" -> screenName
@@ -52,7 +51,6 @@ class UserMetadataReader extends Actor {
       ) match {
         case Some(meta) =>
           val userMetadata = fromDbObject(meta)
-          Logger.debug("UserMetadata: " + userMetadata)
           sender ! userMetadata
         case None => Logger.error(s"Unable to find metadata for $screenName.")
       }

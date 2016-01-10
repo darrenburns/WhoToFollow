@@ -5,9 +5,9 @@ import java.util.concurrent.TimeUnit
 import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
+import com.github.nscala_time.time.Imports._
 import com.google.inject.Inject
 import com.google.inject.name.Named
-import com.github.nscala_time.time.Imports._
 import hooks.Twitter
 import learn.actors.TweetStreamActor.TweetBatch
 import persist.actors.LabelStore.Vote
@@ -22,22 +22,38 @@ import twitter4j.Status
 
 import scala.collection.JavaConversions._
 import scala.concurrent.Await
-import scala.concurrent.duration._
 
 
 object Application {
 
   implicit val statusWrites = new Writes[Status] {
-    def writes(status: Status) = Json.obj(
-      "id" -> status.getId,
-      "text" -> status.getText,
-      "username" -> status.getUser.getName,
-      "screenname" -> status.getUser.getScreenName,
-      "date" -> new DateTime(status.getCreatedAt).getMillis,
-      "retweets" -> status.getRetweetCount,
-      "likes" -> status.getFavoriteCount,
-      "avatar" -> status.getUser.getProfileImageURL
-    )
+    def writes(status: Status) = {
+      val retweetedStatus = status.getRetweetedStatus
+      val statusJson = Json.obj(
+        "id" -> status.getId,
+        "text" -> status.getText,
+        "username" -> status.getUser.getName,
+        "screenname" -> status.getUser.getScreenName,
+        "date" -> new DateTime(status.getCreatedAt).getMillis,
+        "retweets" -> status.getRetweetCount,
+        "likes" -> status.getFavoriteCount,
+        "avatar" -> status.getUser.getProfileImageURL,
+        "isRetweet" -> status.isRetweet
+      )
+      if (status.isRetweet) {
+        // If it's a retweet include the original author in the JSON
+        val retweetedUser = retweetedStatus.getUser
+        statusJson ++ Json.obj(
+          "retweetedUser" -> Json.obj(
+            "username" -> retweetedUser.getName,
+            "screenname" -> retweetedUser.getScreenName
+          )
+        )
+      } else {
+        // Otherwise just write JSON for the status
+        statusJson
+      }
+    }
   }
 
 }
