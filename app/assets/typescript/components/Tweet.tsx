@@ -19,7 +19,7 @@ interface ITweetProps {
 export default class Tweet extends React.Component<ITweetProps, any> {
 
     private static highlightQuery(query: string, text: string): string {
-        let regex = new RegExp(`\\s#?(${query})[^a-zA-Z]`, 'gi');
+        let regex = new RegExp(`(#?${query})`, 'gi');
         return text.replace(regex, `<mark>$1</mark>`);
     }
 
