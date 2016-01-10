@@ -6,7 +6,8 @@ import * as $ from 'jquery';
 import * as Immutable from 'immutable';
 import {Container, Row, Col} from 'elemental';
 import {Avatar, Paper, RaisedButton, FlatButton, List, ListItem, ListDivider, Snackbar} from 'material-ui'
-import Hashtag from './Hashtag.tsx';
+import Hashtag from './Hashtag';
+import Tweet from './Tweet'
 import Configuration from "../util/config";
 import Constants from "../util/constants";
 import TimelineApi from '../endpoints/TimelineApi';
@@ -139,8 +140,13 @@ export default class TwitterUserPreviewPane extends
 
         let coverStyles = {
             backgroundImage: this.state.coverPhotoUrl !== "unknown" ? `url(${this.state.coverPhotoUrl})` : null,
-            backgroundColor: `#${this.state.profileColour}`
+            backgroundColor: `#${this.state.profileColour}`  // Will be shown when there is no profile picture
         };
+
+        let profileTrimStyle = {
+            borderTop: `3px solid #${this.state.profileColour}`
+        };
+
         return (
 
             <div className="user-preview-pane">
@@ -156,7 +162,7 @@ export default class TwitterUserPreviewPane extends
                         <span className="user-profile-screenname">@{this.props.params.screenName}</span>
                     </div>
                 </div>
-                <div className="user-preview-features">
+                <div className="user-preview-features" style={profileTrimStyle}>
                     <span className="user-preview-feature-item"><strong>{followersCount}</strong> followers</span>
                     <span className="user-preview-feature-item"><strong>{tweetsProcessed}</strong> tweets processed</span>
                     <span className="user-preview-feature-item"><strong>{wordsCounted}</strong> words</span>
@@ -167,8 +173,14 @@ export default class TwitterUserPreviewPane extends
                     <span className="user-preview-feature-item"><strong>{retweetCount}</strong> retweets from others</span>
                 </div>
                 <div className="user-preview-body">
-                    <h2>Most Recent Tweets</h2>
-                    <p>List of tweets here</p>
+                    <h3>Most Recent Tweets</h3>
+                    <div className="tweet-list">
+                        {
+                            this.state.timeline.map((status: Twitter.Status) =>
+                                <Tweet key={status.id} likes={status.likes} text={status.text}
+                                       retweets={status.retweets} timestamp={status.date} />)
+                        }
+                    </div>
                 </div>
             </div>
 
@@ -176,76 +188,3 @@ export default class TwitterUserPreviewPane extends
     }
 
 }
-// OLD LAYOUT
-//<Container maxWidth={940}>
-//    <Row>
-//        <Col sm="70%">
-//            <h1>@{this.props.params.screenName}</h1>
-//        </Col>
-//        <Col sm="30%" className="view-on-twitter-button-flex">
-//            <FlatButton label="View On Twitter" onTouchTap={this._openUserInTwitter} />
-//        </Col>
-//    </Row>
-//    <Row>
-//        <Col sm="25%">
-//            <Row>
-//                <Col sm="100%">
-//                    <Avatar src={`http://avatars.io/twitter/${this.props.params.screenName}`} size={130}/>
-//                </Col>
-//            </Row>
-//            <Row>
-//                <Col sm="100%">
-//                    <h2>Features</h2>
-//                    <ul>
-//                        <li><strong>Tweets Processed</strong>: {tweetsProcessed}</li>
-//                        <li><strong>Followers</strong>: {followersCount}</li>
-//                        <li><strong>Words Counted</strong>: {wordsCounted}</li>
-//                        <li><strong>% Capitalised Words</strong>: {(100*capitalCount/wordsCounted).toFixed(2)}%</li>
-//                        <li><strong>Hashtags Encountered</strong>: {hashtagCount}</li>
-//                        <li><strong>Times Retweeted</strong>: {retweetCount}</li>
-//                        <li><strong>Times Liked</strong>: {likeCount}</li>
-//                        <li><strong>Links Used</strong>: {linkCount}</li>
-//                        <li><strong>Spelling Accuracy</strong>:
-//                                    {(100*dictionaryHits/wordsCounted).toFixed(2)}%</li>
-//                    </ul>
-//                </Col>
-//            </Row>
-//        </Col>
-//
-//
-//        <Col sm="50%">
-//            <h2>Timeline</h2>
-//            <List>
-//                {this.state.timeline.map((status: Twitter.Status) => {
-//                    return (
-//                    <ListItem key={status.id} primaryText={status.username}
-//                              secondaryText={status.text} secondaryTextLines={2} leftAvatar={<Avatar src={status.avatar} />} />
-//                        );
-//                    })}
-//            </List>
-//        </Col>
-//
-//
-//        <Col sm="25%">
-//            <Row>
-//                <Col sm="100%">
-//                    <h2>Classify User</h2>
-//                    <p className="">
-//                        Is this user tweeting high quality information
-//                        relating to the query topic <Hashtag hashtag={this.props.params.query} />?
-//                    </p>
-//                    <div className="classify-buttons-flex">
-//                        <RaisedButton label="Yes" secondary={true} onTouchTap={this._classifyUser.bind(this, 1)} />
-//                        <RaisedButton label="No" primary={true} onTouchTap={this._classifyUser.bind(this, 0)} />
-//                    </div>
-//                    <Snackbar ref="snackbar"
-//                              message="Thanks for classifying this user."
-//                              action="hide"
-//                              autoHideDuration={3000}
-//                    />
-//                </Col>
-//            </Row>
-//        </Col>
-//
-//    </Row>
-//</Container>

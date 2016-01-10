@@ -80,14 +80,14 @@ const Home = React.createClass<any, HomeState>({
         return (
             <div>
                 <Row>
-                    <Col sm="50%">
+                    <Col lg="50%">
                         <h3 className="padded-top-header">Search</h3>
                         <SearchBar placeholder="Type a query to get recommendations..."
                                    handleChange={this.handleChange}
                                    handleEnter={this.handleEnter}
                                    currentQuery={this.state.currentQuery} />
                     </Col>
-                    <Col sm="50%">
+                    <Col lg="50%">
                         <h3 className="padded-top-header">Recent Searches</h3>
                         <ScrollingList duration={500} numItemsToShow={4} items={this.state.recentQueries} />
                     </Col>

@@ -34,8 +34,8 @@ export default class UserRecommendation extends React.Component<UserRecommendati
                 <div className="recommendation-tile" key={this.props.key}>
 
                     <div className="recommendation-avatar">
-                        <img src={`http://avatars.io/twitter/${this.props.screenName}`}
-                             alt={this.props.screenName} width="80px" height="80px"/>
+                        <img src={`https://twitter.com/${this.props.screenName}/profile_image?size=original`}
+                             alt={this.props.screenName} width="100px" height="100px"/>
                     </div>
 
                     <div className="recommendation-body">

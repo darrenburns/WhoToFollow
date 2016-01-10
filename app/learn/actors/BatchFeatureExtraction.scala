@@ -58,9 +58,11 @@ class BatchFeatureExtraction @Inject()
       // Check to see when we last looked at this users timeline
       latestUserChecks.get(screenName) match {
         case Some(lastChecked) =>
-          // If we haven't looked at timeline in at least 2 hours then check again
-          if (lastChecked < DateTime.now - 2.hours){
+          // If we haven't looked at timeline in at least 6 hours then check again
+          if (lastChecked < DateTime.now - 6.hours){
             analyseUserTimeline(screenName)
+          } else {
+            Logger.debug(s"User '$screenName' has been checked within the past 2 hours - ignoring request.")
           }
         case None =>
           // We have never seen this user before so we want to analyse their timeline

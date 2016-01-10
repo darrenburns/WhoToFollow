@@ -1,4 +1,5 @@
 @text-colour: #878787;
+@subtext-colour: #b4b4b4;
 @blue: #0b97c2;
 
 /* Variables used for panels, lists etc. */
@@ -71,7 +72,6 @@ p {
 
   .recommendation-tile {
     width: 100%;
-    padding: 10px;
     height: 100px;
     display: flex;
     background: white;
@@ -80,12 +80,12 @@ p {
     color: @text-colour;
 
     .recommendation-body {
+      padding: 10px;
       display: flex;
       flex-flow: column nowrap;
       align-items: flex-start;
       justify-content: space-between;
       flex: 1 1 auto;
-      padding: 10px;
       font-size: 1.2em;
 
       .recommendation-topline {
@@ -197,7 +197,10 @@ p {
     justify-content: space-around;
     align-items: center;
     flex-flow: row wrap;
+    padding: 10px;
+
     .panel;
+    box-shadow: none;
     border-left: 0;
     border-right: 0;
 
@@ -208,6 +211,51 @@ p {
 
   .user-preview-body {
     padding: 10px;
+  }
+
+}
+
+/* Tweet component styles */
+.tweet-list {
+
+  .panel;
+
+  .tweet {
+
+    display: flex;
+
+    .tweet-sidebar {
+      flex-basis: 16%;
+      width: 85px;
+      padding: 10px;
+
+      display: flex;
+      flex-flow: column nowrap;
+      align-items: center;
+      justify-content: space-around;
+
+      background-color: @panel-secondary-background;
+      border-right: @panel-border;
+
+      & > span {
+        display: flex;
+        align-items: center;
+      }
+    }
+
+    .tweet-body {
+      flex-basis: 84%;
+      padding: 10px;
+
+      .tweet-subtext {
+        color: @subtext-colour;
+      }
+    }
+
+  }
+
+  .tweet:not(:first-child) {
+    border-top: @panel-border;
   }
 
 }

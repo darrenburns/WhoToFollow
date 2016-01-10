@@ -9,8 +9,9 @@ module Twitter {
         text: string
         username: string
         screenname: string
-        date: Date
+        date: number
         retweets: number
+        likes: number
         avatar: string  // The URL for the user's avatar
     }
 

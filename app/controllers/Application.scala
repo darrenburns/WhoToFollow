@@ -1,10 +1,13 @@
 package controllers
 
+import java.util.concurrent.TimeUnit
+
 import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
 import com.google.inject.Inject
 import com.google.inject.name.Named
+import com.github.nscala_time.time.Imports._
 import hooks.Twitter
 import learn.actors.TweetStreamActor.TweetBatch
 import persist.actors.LabelStore.Vote
@@ -30,8 +33,9 @@ object Application {
       "text" -> status.getText,
       "username" -> status.getUser.getName,
       "screenname" -> status.getUser.getScreenName,
-      "date" -> status.getCreatedAt,
+      "date" -> new DateTime(status.getCreatedAt).getMillis,
       "retweets" -> status.getRetweetCount,
+      "likes" -> status.getFavoriteCount,
       "avatar" -> status.getUser.getProfileImageURL
     )
   }
@@ -49,7 +53,7 @@ class Application @Inject()
 
   import Application._
 
-  implicit val timeout = Timeout(10 seconds)
+  implicit val timeout = Timeout(10, TimeUnit.SECONDS)
 
   /**
     * Display the index static file which contains the mount point for the frontend React app.
