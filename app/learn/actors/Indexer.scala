@@ -39,11 +39,14 @@ class Indexer @Inject()
   override def receive = {
     case TweetBatch(batch) =>
       batch.foreach(status => {
+
+        val tweet = if (status.isRetweet) status.getRetweetedStatus else status
+
         // Converting user Twitter IDs to integers
-        val longUserNo = status.getUser.getId.toString
+        val longUserNo = tweet.getUser.getId.toString
 
         // Build the TREC doc
-        val trecStatus = s"<DOC><DOCNO>$longUserNo</DOCNO>${status.getText}</DOC>"
+        val trecStatus = s"<DOC><DOCNO>$longUserNo</DOCNO>${tweet.getText}</DOC>"
         val doc = new TaggedDocument(IOUtils.toInputStream(trecStatus, "UTF-8"),
           new util.HashMap[String, String](), tokeniser)
 
@@ -54,7 +57,7 @@ class Indexer @Inject()
           case None =>
             // First time we've seen this user
             // Store the metadata in the metaindex
-            val user = status.getUser
+            val user = tweet.getUser
             doc.setProperty("username", user.getScreenName)
             doc.setProperty("name", user.getName)
             // Index user for the first time

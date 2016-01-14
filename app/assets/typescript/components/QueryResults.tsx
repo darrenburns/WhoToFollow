@@ -127,30 +127,45 @@ const QueryResults = React.createClass({
             );
         }, this);
         let spinner = <CircularProgress mode="indeterminate" />;
-        let noResultsMessage = <Paper zDepth={1}><p>Your query returned no results.</p></Paper>;
+        let queryResultMessage = <h2 className="padded-top-header">Terrier suggests <strong>{queryResults.size}</strong> users for '<span className="query-text">{this.props.params.query}</span>'.</h2>;
+        if (this.state.queryComplete && queryResults.length === 0) {
+            queryResultMessage = <h2 className="padded-top-header">There were no results for the query '<span className="query-text">{this.props.params.query}</span>'.</h2>;
+        }
         return (
             <Row>
                 <Col sm="100%">
                     <Row>
                         <Col sm="100%">
-                            <h2 className="padded-top-header">Terrier suggests <strong>{queryResults.length}</strong> users for '<span className="query-text">{this.props.params.query}</span>'.</h2>
+                            {queryResultMessage}
                         </Col>
                     </Row>
                     <Row>
                         <Col sm="45%">
-                            {queryResults.length > 0 ?
+                            {queryResults.size > 0 ?
                                 <div className="recommendations">
                                     {queryResults}
                                 </div>
                                 :
-                                (this.state.queryComplete ?
-                                    noResultsMessage :
-                                    spinner)}
+                                (!this.state.queryComplete ?
+                                    spinner :
+                                    null)}
 
                         </Col>
                         <Col sm="55%">
                             {/* The TwitterUserPreview pane will be loaded in here */}
                             {this.props.children}
+                            {  /* Display instructions if results have been returned */
+                                queryResults.size > 0 && this.state.queryComplete ?
+                                    <div className="rec-list-instruction-pane">
+                                        <p>
+                                            To view a user's profile, select their
+                                            screen name from the list of recommendations
+                                            on the left.
+                                        </p>
+                                    </div>
+                                    :
+                                    null
+                                }
                         </Col>
                     </Row>
                 </Col>

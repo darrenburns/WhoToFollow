@@ -52,8 +52,8 @@ export default class UserRecommendation extends React.Component<UserRecommendati
 
                         <div className="recommendation-bottomline">
                             <Sparklines data={correctlyOrderedHist} limit={50} width={150} height={50}>
-                                <SparklinesLine style={{ strokeWidth: 1, stroke: "#41c3f9", fill: "none" }} />
-                                <SparklinesSpots style={{ fill: "#41c3f9" }} />
+                                <SparklinesLine style={{ strokeWidth: 1, stroke: "#0b97c2", fill: "#0b97c2", fillOpacity: ".5"}} />
+                                <SparklinesSpots />
                             </Sparklines>
                             <span className="recommendation-score">
                                 {`${this.props.score.toFixed(2)}`}

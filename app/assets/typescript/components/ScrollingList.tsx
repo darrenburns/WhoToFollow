@@ -1,5 +1,6 @@
 import * as React from 'react';
 import * as moment from 'moment';
+import {Link} from 'react-router';
 import {VelocityTransitionGroup, velocityHelpers} from 'velocity-react';
 import 'velocity-animate/velocity.ui';
 import {RecentQuery} from "./Home";
@@ -89,7 +90,12 @@ export class ScrollingList extends React.Component<ScrollingListProps, Scrolling
         };
 
         let rows: Array<JSX.Element> = this.state.items.map((rq: RecentQuery, idx: number) =>
-            <ScrollingListItem key={rq.id + ":" + rq.timestamp.toString()} text={rq.query} subtext={moment(rq.timestamp).fromNow()} />);
+            <ScrollingListItem key={rq.id + ":" + rq.timestamp.toString()}
+                               text={rq.query}
+                               subtext={moment(rq.timestamp).fromNow()}
+                               link={`/query/${rq.query}`}
+            />
+        );
 
         return (
             <VelocityTransitionGroup component="div" className="scrolling-list" enter={enterAnimation} leave={leaveAnimation}>
@@ -101,9 +107,10 @@ export class ScrollingList extends React.Component<ScrollingListProps, Scrolling
 }
 
 interface ScrollingListItemProps {
-    key?: any
-    text: string
-    subtext: string
+    key?: any;
+    text: string;
+    subtext?: string;
+    link?: string;
 }
 
 export class ScrollingListItem extends React.Component<ScrollingListItemProps, any> {
@@ -115,7 +122,9 @@ export class ScrollingListItem extends React.Component<ScrollingListItemProps, a
     render() {
         return (
             <div className="scrolling-list-item" key={this.props.key}>
-                <span className="scrolling-list-item-text">{this.props.text}</span>
+                <Link to={this.props.link}>
+                    <span className="scrolling-list-item-text">{this.props.text}</span>
+                </Link>
                 <span className="scrolling-list-item-subtext">{this.props.subtext}</span>
             </div>
         )
