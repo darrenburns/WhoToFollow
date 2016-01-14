@@ -178,7 +178,7 @@ export default class TwitterUserPreviewPane extends
                         {
                             this.state.timeline.map((status: Twitter.Status) =>
                                 <Tweet key={status.id} status={status} query={this.props.params.query}
-                                       colour={this.state.profileColour} />)
+                                       colour={this.state.profileColour === "FFFFFF" ? "0b97c2" : this.state.profileColour} />)
                         }
                     </div>
                 </div>
