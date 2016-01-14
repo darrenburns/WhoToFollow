@@ -128,7 +128,7 @@ const QueryResults = React.createClass({
         }, this);
         let spinner = <CircularProgress mode="indeterminate" />;
         let queryResultMessage = <h2 className="padded-top-header">Terrier suggests <strong>{queryResults.size}</strong> users for '<span className="query-text">{this.props.params.query}</span>'.</h2>;
-        if (this.state.queryComplete && queryResults.length === 0) {
+        if (this.state.queryComplete && queryResults.size === 0) {
             queryResultMessage = <h2 className="padded-top-header">There were no results for the query '<span className="query-text">{this.props.params.query}</span>'.</h2>;
         }
         return (
