@@ -11,6 +11,7 @@ import org.apache.spark.streaming.dstream.{DStream, ReceiverInputDStream}
 import persist.actors.RedisWriter.{ProcessedTweetTuples, TweetFeatureBatch}
 import play.api.{Configuration, Logger}
 import twitter4j.Status
+import utils.QualityAnalyser
 
 
 object FeatureExtraction {
@@ -101,7 +102,9 @@ class FeatureExtraction @Inject()
 
 
   private def mapToWindowedFeatureStream(stream: ReceiverInputDStream[Status], windowSize: Int): DStream[TweetFeatures]
-    = stream.map(getStatusFeatures).window(Seconds(windowSize), Seconds(windowSize))
+    = stream.map(getStatusFeatures)  // Convert status to features
+        .filter(QualityAnalyser.isStatusHighQuality)  // Filter out those which don't meet quality criteria
+        .window(Seconds(windowSize), Seconds(windowSize))  // Convert to windowed stream
 
 }
 

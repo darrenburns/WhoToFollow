@@ -61,8 +61,6 @@ class BatchFeatureExtraction @Inject()
           // If we haven't looked at timeline in at least 6 hours then check again
           if (lastChecked < DateTime.now - 6.hours){
             analyseUserTimeline(screenName)
-          } else {
-            Logger.debug(s"User '$screenName' has been checked within the past 6 hours - ignoring request.")
           }
         case None =>
           // We have never seen this user before so we want to analyse their timeline
@@ -71,7 +69,7 @@ class BatchFeatureExtraction @Inject()
 
     case TweetBatch(tweets: List[Status]) =>
 
-      Logger.debug(">>>> Received new tweet batch from a user timeline.")
+      Logger.debug("Received new tweet batch from a user timeline.")
 
       // Filter the list so that it only contains tweets we haven't seen before
       // Futures contain Tuple of (tweetId, haveWeSeenThisTweetBefore?)
@@ -83,19 +81,14 @@ class BatchFeatureExtraction @Inject()
       // When we have results for all of the tweets
       Future.sequence(tweetAnalysisHistory) onComplete {
         case Success(seenBefore) =>
-
           // Keep only tweets we haven't seen before
           val newTweets = tweets.filter(tweet => !(seenBefore contains (tweet.getId, true)))
 
           Logger.debug(s"Batch analysing ${newTweets.size} tweets.")
           // Build a sequence of futures of tuples
           val batchTweetFuture = newTweets.map(status => {
-            // Index the tweets we haven't seen before
-            indexer ! TweetBatch(newTweets)
-
             // Mark the time that we last reviewed this user
             latestUserChecks += (status.getUser.getScreenName -> DateTime.now)
-
             // Perform feature extraction
             Future {
             (status, ExtractionUtils.getStatusFeatures(status),
@@ -109,6 +102,8 @@ class BatchFeatureExtraction @Inject()
             case Success(results) =>
               val (newlyProcessedTweets, featuresList, hashtagReports) = results.unzip3
               Logger.debug(s"Finished analysis of ${newlyProcessedTweets.size}.")
+              // Index the tweets we haven't seen before
+              indexer ! TweetBatch(newTweets)
               // Mark these tweets as processed
               redisWrite ! ProcessedTweets(newlyProcessedTweets)
               // Send the features of the tweets in this batch to Redis

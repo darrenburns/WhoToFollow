@@ -188,7 +188,7 @@ class WebSocketSupervisor @Inject()
           }
           channelManagers.get(channelName) match {
             case Some(handler) =>
-              context stop handler
+              context stop handler  // Send a stop message to the manager for the channel
               channelManagers -= channelName
             case None => Logger.error(s"Tried to stop a non-existent QueryHandler for query $channelName")
           }

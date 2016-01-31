@@ -813,6 +813,8 @@ declare namespace __MaterialUI {
         step?: number;
         value?: number;
         style?: React.CSSProperties;
+        onDragStop?: any;
+        onChange?: any;
     }
     export class Slider extends React.Component<SliderProps, {}> {
     }

@@ -55,7 +55,7 @@ const App = React.createClass<any, IAppState>({
         return (
             <Container maxWidth={1000}>
                 <AppBar
-                    title="WhoToFollow"
+                    title="Who To Follow"
                     iconElementLeft={<IconButton iconClassName="material-icons" tooltipPosition="bottom-center"
                                         tooltip="Back" onClick={this._onClickBackButton}>arrow_back</IconButton>}
                     iconElementRight={<FlatButton label={this.state.indexSize + " users indexed"}  />}

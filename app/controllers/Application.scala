@@ -100,7 +100,7 @@ class Application @Inject()
     * is sent to the store for future machine learning tasks.
     * @return An HTTP 200 response
     */
-  def voteForUser = Action(BodyParsers.parse.json) { request =>
+  def rateUser = Action(BodyParsers.parse.json) { request =>
     val json = request.body.validate[Vote]
     json.fold(
       errors => {

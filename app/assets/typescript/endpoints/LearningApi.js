@@ -4,21 +4,29 @@ var config_1 = require('../util/config');
 var LearningUtils = (function () {
     function LearningUtils() {
     }
-    LearningUtils.classifyUser = function (screenName, query, clas) {
-        var endpoint = "learning/classify";
+    LearningUtils.markUserAsRelevant = function (screenName, query, isRelevant) {
+        var endpoint = "learning/rate-user";
         var xhr = $.ajax(config_1.default.BASE_SITE_URL + endpoint, {
             method: "POST",
             data: JSON.stringify({
                 "screenName": screenName,
-                "hashtag": query,
-                "voteId": clas
+                "query": query,
+                "isRelevant": isRelevant
             }),
             contentType: "application/json"
         });
         xhr.then(function (doneResponse) {
-            console.log("Server successfully classified user.");
+            console.log("User rated.");
         }, function (failResponse) {
-            console.log("Server failed at classifying user.");
+            console.log("Failed to rate user.");
+        });
+    };
+    LearningUtils.getUserRelevance = function (screenName) {
+        var endpoint = "learning/get-user-relevance";
+        return $.get(config_1.default.BASE_SITE_URL + endpoint, {
+            data: JSON.stringify({
+                screenName: screenName
+            })
         });
     };
     return LearningUtils;

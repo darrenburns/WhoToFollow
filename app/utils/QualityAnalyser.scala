@@ -1,12 +1,23 @@
 package utils
 
+import learn.actors.FeatureExtraction.TweetFeatures
 import play.api.Play.current
+import twitter4j.Status
 
 
 object QualityAnalyser {
   lazy val dictionaryPath = current.configuration.getString("analysis.featureExtraction.dictionary")
     .getOrElse("/usr/share/dict/words")
   lazy val dictionary = scala.io.Source.fromFile(dictionaryPath).getLines.toSet
+
+  def isStatusHighQuality(features: TweetFeatures): Boolean = {
+    (features.wordCount >  0 && features.dictionaryHits/features.wordCount > 0.4) &&
+      (features.wordCount > 3) &&
+      (features.followerCount >= 50) &&
+      (features.capWordCount < features.wordCount) &&
+      (features.hashtagCount < 5)
+  }
+
 }
 
 /**
@@ -63,7 +74,7 @@ class QualityAnalyser(text: String) extends Serializable {
   def countDictionaryHits(): Int = {
     var hits = 0
     words.foreach(word => {
-      if (!word.isEmpty && dictionary.contains(word.toLowerCase)) {
+      if (!word.isEmpty && !word.startsWith("#") && !word.startsWith("@") && dictionary.contains(word.toLowerCase)) {
         hits += 1
       }
     })

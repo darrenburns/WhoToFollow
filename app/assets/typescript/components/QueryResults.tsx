@@ -3,9 +3,9 @@ import {History} from 'react-router';
 import UserRecommendation from './UserRecommendation.tsx';
 import Hashtag from './Hashtag.tsx';
 import {Row, Col} from 'elemental';
+import {velocityHelpers, VelocityComponent, VelocityTransitionGroup} from 'velocity-react';
 import {GridList, IconButton, CircularProgress, Paper, FlatButton} from 'material-ui';
 import * as Immutable from 'immutable';
-import {velocityHelpers, VelocityComponent, VelocityTransitionGroup} from 'velocity-react';
 import Configuration from '../util/config';
 import Constants from '../util/constants';
 import List = Immutable.List;
@@ -99,21 +99,6 @@ const QueryResults = React.createClass({
     },
 
     render: function() {
-
-        /*
-        Animation related stuff
-         */
-        var enterAnimation = {
-            animation: "fadeIn",
-            backwards: true
-        };
-
-        var leaveAnimation = {
-            animation: "fadeOut",
-            duration: 1500,
-            backwards: true
-        };
-
         let queryResults = this.state.queryResults.map((result: UserScore) => {
             let hist: List<number> = this.state.queryUserHistories.get(result.screenName);
             return (
@@ -127,9 +112,14 @@ const QueryResults = React.createClass({
             );
         }, this);
         let spinner = <CircularProgress mode="indeterminate" />;
-        let queryResultMessage = <h2 className="padded-top-header">Terrier suggests <strong>{queryResults.size}</strong> users for '<span className="query-text">{this.props.params.query}</span>'.</h2>;
-        if (this.state.queryComplete && queryResults.size === 0) {
-            queryResultMessage = <h2 className="padded-top-header">There were no results for the query '<span className="query-text">{this.props.params.query}</span>'.</h2>;
+        let queryResultMessage = null;
+        if (this.state.queryResults.size > 0) {
+            queryResultMessage = <h2 className="padded-top-header">Terrier suggests <strong>{queryResults.size}</strong> users for '<span className="query-text">{this.props.params.query}</span>'.</h2>;
+        } else {
+            queryResultMessage = <h2 className="padded-top-header">To begin, type a hashtag into the box above and press <kbd>Enter</kbd>.</h2>
+            if (this.state.queryComplete) {
+                queryResultMessage = <h2 className="padded-top-header">There were no results for the query '<span className="query-text">{this.props.params.query}</span>'.</h2>;
+            }
         }
         return (
             <Row>
@@ -143,7 +133,11 @@ const QueryResults = React.createClass({
                         <Col sm="45%">
                             {queryResults.size > 0 ?
                                 <div className="recommendations">
-                                    {queryResults}
+                                    {/* We mount the VelocityTransitionGroup here otherwise it will be remounted on each new user
+                                      click and therefore won't work. */}
+                                    <VelocityTransitionGroup enter={{animation: "slideRight"}} leave={{animation: "slideRight"}}>
+                                        {queryResults}
+                                    </VelocityTransitionGroup>
                                 </div>
                                 :
                                 (!this.state.queryComplete ?

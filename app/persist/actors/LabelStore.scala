@@ -24,11 +24,11 @@ object LabelStore {
     val LOW_QUALITY, HIGH_QUALITY = Value
   }
 
-  case class Vote(screenName: String, hashtag: String, voteId: Int)
+  case class Vote(screenName: String, query: String, isRelevant: Boolean)
   implicit val voteReads: Reads[Vote] = (
     (JsPath \ "screenName").read[String] and
-      (JsPath \ "hashtag").read[String] and
-      (JsPath \ "voteId").read[Int]
+      (JsPath \ "query").read[String] and
+      (JsPath \ "isRelevant").read[Boolean]
     )(Vote.apply _)
 
   lazy val db = MongoInit.db
@@ -49,19 +49,19 @@ class LabelStore @Inject() (
 
   def receive = {
 
-    case Vote(name, hashtag, vote) =>
+    case Vote(name, queryString, isRelevant) =>
       Logger.debug("LabelStore received new vote. Will now look up Redis for user features.")
       // Fetch the features for this user from Redis
       (redisReader ? UserFeatureRequest(name)) onComplete {
         case Success(features: UserFeatures) =>
           val query = MongoDBObject(
             "name" -> features.screenName,
-            "hashtag" -> hashtag
+            "query" -> queryString
           )
           val dbVote = MongoDBObject(
             "name" -> features.screenName,
-            "hashtag" -> hashtag,
-            "class" -> vote,
+            "query" -> queryString,
+            "isRelevant" -> isRelevant,
             "tweetCount" -> features.tweetCount,
             "followerCount" -> features.followerCount,
             "wordCount" -> features.wordCount,

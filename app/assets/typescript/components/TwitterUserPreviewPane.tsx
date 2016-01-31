@@ -4,8 +4,9 @@
 import * as React from 'react';
 import * as $ from 'jquery';
 import * as Immutable from 'immutable';
+import * as moment from 'moment';
 import {Container, Row, Col} from 'elemental';
-import {Avatar, Paper, RaisedButton, FlatButton, List, ListItem, ListDivider, Snackbar} from 'material-ui'
+import {Avatar, Paper, RaisedButton, FlatButton, List, ListItem, ListDivider, Snackbar, Slider, Checkbox} from 'material-ui';
 import Hashtag from './Hashtag';
 import Tweet from './Tweet'
 import Configuration from "../util/config";
@@ -26,6 +27,7 @@ interface ITwitterUserPreviewPaneState {
     profileColour?: string;
     userSocket?: WebSocket;
     latestFeaturesUpdate?: Immutable.Map<string, number>;
+    latestMedianTimeSinceHashtag?: moment.Moment;
     socketKeepAliveHandle?: number;
 }
 
@@ -44,6 +46,17 @@ export default class TwitterUserPreviewPane extends
         this._setUserTimeline(this.props.params.screenName);
         // Listen to this users channel
         this._setUserChannel(this.props.params.screenName);
+        // Set the correct default checkbox value
+        let checkbox: any = this.refs['relevance-checkbox'];
+        LearningApi.getUserRelevance(this.props.params.screenName)
+            .then(
+                doneResponse => {
+                    checkbox.setChecked(doneResponse.isChecked);
+                },
+                failResponse => {
+                    console.log("Error fetching user relevance status.")
+                }
+            )
     }
 
     componentDidUpdate(prevProps: ITwitterUserPreviewPaneProps) {
@@ -63,22 +76,44 @@ export default class TwitterUserPreviewPane extends
         window.open(`https://twitter.com/${this.props.params.screenName}`);
     };
 
-    private _classifyUser = (clazz: number): void => {
-        console.log(clazz);
-        LearningApi.classifyUser(this.props.params.screenName, this.props.params.query, clazz);
-        let snackbar: any = this.refs['snackbar'];
-        snackbar.show();
+    private _markUserRelevance = (event: any): void => {
+        let checkbox: any = this.refs['relevance-checkbox'];
+        LearningApi.markUserAsRelevant(this.props.params.screenName, this.props.params.query, checkbox.isChecked());
     };
 
     private _setUserChannel = (screenName: string): void => {
-        let ws:WebSocket = new WebSocket(`ws://localhost:9000/ws/user:${screenName}`);
+        let ws: WebSocket = new WebSocket(`ws://localhost:9000/ws/user:${screenName}`);
         ws.onmessage = (event) => {
             let update: Learning.UserFeatures = JSON.parse(event.data);
             let newFeatures = Immutable.Map<string, number>();
+            // Store the latest features in component state for display
             for (let key of Object.keys(update)) {
-                newFeatures = newFeatures.set(key, update[key]);
+                if (key !== 'hashtagTimestamps') {
+                    newFeatures = newFeatures.set(key, update[key]);
+                }
             }
-            this.setState({latestFeaturesUpdate: newFeatures});
+            // Filter out hashtags which aren't the same as the query.
+            let allTimestamps: Array<Array<any>> = update['hashtagTimestamps'];  // Array of [hashtag, timestamp]
+            let relevantTimestamps = allTimestamps.filter(elem => {
+                let hashtag: string = elem['hashtag'];
+                return hashtag.toLowerCase() === this.props.params.query.toLowerCase();
+            });
+            // Get the latest median time since mention of the hashtag
+            let median = 0;
+            let mid = Math.floor(relevantTimestamps.length / 2);
+            if (relevantTimestamps.length < 1) {
+                median = null;
+            } else {
+                if (relevantTimestamps.length % 2 === 0) {
+                    median = (relevantTimestamps[mid]['timestamp'] + relevantTimestamps[mid+1]['timestamp'])/2;
+                } else {
+                    median = relevantTimestamps[mid]['timestamp'];
+                }
+            }
+            this.setState({
+                latestFeaturesUpdate: newFeatures,
+                latestMedianTimeSinceHashtag: median === null ? null : moment(median * 1000)  // Convert to milliseconds for momentjs
+            });
         };
         if (this.state.userSocket != null) {
             this.state.userSocket.close();
@@ -126,9 +161,7 @@ export default class TwitterUserPreviewPane extends
     }
 
     render() {
-        console.log("Features size: " + this.state.latestFeaturesUpdate.size);
         let tweetsProcessed = this.state.latestFeaturesUpdate.get('tweetCount', 0);
-        console.log("In render - Got tweets processed: " + tweetsProcessed);
         let followersCount = this.state.latestFeaturesUpdate.get('followerCount', 0);
         let wordsCounted = this.state.latestFeaturesUpdate.get('wordCount', 0);
         let capitalCount = this.state.latestFeaturesUpdate.get('capitalisedCount', 0);
@@ -147,43 +180,62 @@ export default class TwitterUserPreviewPane extends
             borderTop: `3px solid #${this.state.profileColour}`
         };
 
-        return (
-
-            <div className="user-preview-pane">
-                <div className="user-cover-photo" style={coverStyles}>
-                    <img className="user-profile-image"
-                            height="100px" width="100px"
-                           src={this.state.avatarUrl}
-                           alt={this.props.params.screenName}
-                    />
-                    <div className="user-cover-names">
-                        <span className="user-profile-name">{this.state.name}</span>
-                        <br/>
-                        <span className="user-profile-screenname">@{this.props.params.screenName}</span>
-                    </div>
-                </div>
-                <div className="user-preview-features" style={profileTrimStyle}>
-                    <span className="user-preview-feature-item"><strong>{followersCount}</strong> followers</span>
-                    <span className="user-preview-feature-item"><strong>{tweetsProcessed}</strong> tweets processed</span>
-                    <span className="user-preview-feature-item"><strong>{wordsCounted}</strong> words</span>
-                    <span className="user-preview-feature-item"><strong>{hashtagCount}</strong> hashtags</span>
-                    <span className="user-preview-feature-item"><strong>{(100*capitalCount/wordsCounted).toFixed(1)}%</strong> capitalised words</span>
-                    <span className="user-preview-feature-item"><strong>{(100*dictionaryHits/wordsCounted).toFixed(1)}%</strong> spelling accuracy</span>
-                    <span className="user-preview-feature-item"><strong>{likeCount}</strong> likes from others</span>
-                    <span className="user-preview-feature-item"><strong>{retweetCount}</strong> retweets from others</span>
-                </div>
-                <div className="user-preview-body">
-                    <h3>Most Recent Tweets</h3>
-                    <div className="tweet-list">
-                        {
-                            this.state.timeline.map((status: Twitter.Status) =>
-                                <Tweet key={status.id} status={status} query={this.props.params.query}
-                                       colour={this.state.profileColour === "FFFFFF" ? "0b97c2" : this.state.profileColour} />)
+        let latestMedianText = (
+                <span className="user-preview-feature-item">
+                    {this.state.latestMedianTimeSinceHashtag === null ?
+                        "User has never used the hashtag #" + this.props.params.query :
+                        <span><strong>{(moment().diff(this.state.latestMedianTimeSinceHashtag, 'seconds')/60).toFixed(1)}</strong> median minutes since use of #{this.props.params.query}</span>
                         }
-                    </div>
-                </div>
-            </div>
+                </span>
+        );
 
+
+        return (
+                <div className="user-preview-pane">
+                    <div className="user-cover-photo" style={coverStyles}>
+                        <img className="user-profile-image"
+                                height="100px" width="100px"
+                               src={this.state.avatarUrl}
+                               alt={this.props.params.screenName}
+                        />
+                        <div className="user-cover-names">
+                            <span className="user-profile-name">{this.state.name}</span>
+                            <br/>
+                            <span className="user-profile-screenname">@{this.props.params.screenName}</span>
+                        </div>
+                    </div>
+                    <div className="user-preview-features" style={profileTrimStyle}>
+                        <span className="user-preview-feature-item"><strong>{followersCount}</strong> followers</span>
+                        <span className="user-preview-feature-item"><strong>{tweetsProcessed}</strong> tweets processed</span>
+                        <span className="user-preview-feature-item"><strong>{wordsCounted}</strong> words</span>
+                        <span className="user-preview-feature-item"><strong>{hashtagCount}</strong> hashtags</span>
+                        <span className="user-preview-feature-item"><strong>{(100*capitalCount/wordsCounted).toFixed(1)}%</strong> capitalised words</span>
+                        <span className="user-preview-feature-item"><strong>{(100*dictionaryHits/wordsCounted).toFixed(1)}%</strong> spelling accuracy</span>
+                        <span className="user-preview-feature-item"><strong>{likeCount}</strong> likes from others</span>
+                        <span className="user-preview-feature-item"><strong>{retweetCount}</strong> retweets from others</span>
+                        {latestMedianText}
+                    </div>
+
+                    <div className="user-preview-body">
+                        <div className="user-preview-body-header">
+                            <h3>Most Recent Tweets</h3>
+                            <div className="relevance-checkbox-wrapper">
+                                <Checkbox
+                                    label="Relevant?"
+                                    ref="relevance-checkbox"
+                                    onCheck={this._markUserRelevance}
+                                />
+                            </div>
+                        </div>
+                        <div className="tweet-list">
+                            {
+                                this.state.timeline.map((status: Twitter.Status) =>
+                                    <Tweet key={status.id} status={status} query={this.props.params.query}
+                                           colour={this.state.profileColour === "FFFFFF" ? "0b97c2" : this.state.profileColour} />)
+                            }
+                        </div>
+                    </div>
+            </div>
         )
     }
 
