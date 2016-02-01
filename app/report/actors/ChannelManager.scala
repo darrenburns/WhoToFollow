@@ -50,7 +50,7 @@ class ChannelManager @Inject()
 
   val resultSetSize = config.getInt("resultSetSize").getOrElse(15)
 
-  // Handle the query every x second TODO CHANGE - we dont want to rerun the Terrier query, only the model
+  // Handle the query every 5 seconds
   val tick = context.system.scheduler.schedule(Duration.Zero, 5.seconds, self, Query(queryString))
 
   Logger.info(s"ChannelManager for channel '$queryString' created")

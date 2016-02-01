@@ -133,11 +133,7 @@ const QueryResults = React.createClass({
                         <Col sm="45%">
                             {queryResults.size > 0 ?
                                 <div className="recommendations">
-                                    {/* We mount the VelocityTransitionGroup here otherwise it will be remounted on each new user
-                                      click and therefore won't work. */}
-                                    <VelocityTransitionGroup enter={{animation: "slideRight"}} leave={{animation: "slideRight"}}>
-                                        {queryResults}
-                                    </VelocityTransitionGroup>
+                                    {queryResults}
                                 </div>
                                 :
                                 (!this.state.queryComplete ?
@@ -146,8 +142,20 @@ const QueryResults = React.createClass({
 
                         </Col>
                         <Col sm="55%">
-                            {/* The TwitterUserPreview pane will be loaded in here */}
-                            {this.props.children}
+                            {/* We mount the VelocityComponent here otherwise it will be remounted on each new user
+                             click and therefore won't work. The TwitterUserPreview pane is loaded within the component */}
+                            <VelocityTransitionGroup enter={{animation: "transition.slideLeftIn", duration: 1000, delay: 500}}
+                                                     leave={{animation: "transition.slideRightOut", duration: 1000}}>
+                                {/* Return a copy of the child element so that the transition occurs */}
+                                {this.props.children
+                                    ?
+                                        React.cloneElement(this.props.children, {
+                                            key: this.props.location.pathname
+                                        })
+                                    :
+                                        null
+                                }
+                            </VelocityTransitionGroup>
                             {  /* Display instructions if results have been returned */
                                 queryResults.size > 0 && this.state.queryComplete ?
                                     <div className="rec-list-instruction-pane">

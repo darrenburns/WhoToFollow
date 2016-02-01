@@ -40,7 +40,6 @@ object RedisReader {
   }
 }
 
-@Singleton
 class RedisReader @Inject()
 (
   @Named("webSocketSupervisor") webSocketSupervisor: ActorRef

@@ -13,6 +13,7 @@ import Configuration from "../util/config";
 import Constants from "../util/constants";
 import TimelineApi from '../endpoints/TimelineApi';
 import LearningApi from '../endpoints/LearningApi';
+import Status = Twitter.Status;
 
 
 interface ITwitterUserPreviewPaneProps {
@@ -20,7 +21,7 @@ interface ITwitterUserPreviewPaneProps {
 }
 
 interface ITwitterUserPreviewPaneState {
-    timeline?: Array<Twitter.Status>;
+    timeline?: Immutable.List<Twitter.Status>;
     name?: string;
     coverPhotoUrl?: string;
     avatarUrl?: string;
@@ -37,7 +38,7 @@ export default class TwitterUserPreviewPane extends
     constructor(props: ITwitterUserPreviewPaneProps) {
         super(props);
         this.state = {
-            timeline: [],
+            timeline: Immutable.List<Twitter.Status>(),
             latestFeaturesUpdate: Immutable.Map<string, number>()
         }
     }
@@ -100,7 +101,7 @@ export default class TwitterUserPreviewPane extends
             });
             // Get the latest median time since mention of the hashtag
             let median = 0;
-            let mid = Math.floor(relevantTimestamps.length / 2);
+            let mid = Math.floor((relevantTimestamps.length - 1)/ 2);
             if (relevantTimestamps.length < 1) {
                 median = null;
             } else {
@@ -133,7 +134,7 @@ export default class TwitterUserPreviewPane extends
         let timelineXhr:JQueryXHR = TimelineApi.fetchAndAnalyse(screenName);
         timelineXhr.then(
             (results:any) => {
-                let recentTweets: Array<Twitter.Status> = results.timeline;
+                let recentTweets: Immutable.List<Twitter.Status> = results.timeline;
                 this.setState({
                     avatarUrl: results.metadata.avatarUrl,
                     name: results.metadata.name,
@@ -150,6 +151,7 @@ export default class TwitterUserPreviewPane extends
     };
 
     private _freeComponentResources(): void {
+        // Close socket for this user and prevent this client from sending more keep-alives.
         let sock: WebSocket = this.state.userSocket;
         if (sock != null) {
             sock.close();
@@ -158,18 +160,25 @@ export default class TwitterUserPreviewPane extends
         if (kah != null) {
             clearInterval(kah);
         }
+        // Clear information to prevent confusion in the time before information for the new user is fetched.
+        this.setState({
+            latestFeaturesUpdate: Immutable.Map<string, number>(),
+            timeline: Immutable.List<Status>(),
+            latestMedianTimeSinceHashtag: null,
+            name: ""
+        })
     }
 
     render() {
-        let tweetsProcessed = this.state.latestFeaturesUpdate.get('tweetCount', 0);
-        let followersCount = this.state.latestFeaturesUpdate.get('followerCount', 0);
-        let wordsCounted = this.state.latestFeaturesUpdate.get('wordCount', 0);
-        let capitalCount = this.state.latestFeaturesUpdate.get('capitalisedCount', 0);
-        let hashtagCount = this.state.latestFeaturesUpdate.get('hashtagCount', 0);
-        let retweetCount = this.state.latestFeaturesUpdate.get('retweetCount', 0);
-        let likeCount = this.state.latestFeaturesUpdate.get('likeCount', 0);
-        let dictionaryHits = this.state.latestFeaturesUpdate.get('dictionaryHits', 0);
-        let linkCount = this.state.latestFeaturesUpdate.get('linkCount', 0);
+        let tweetsProcessed = this.state.latestFeaturesUpdate.get('tweetCount', null);
+        let followersCount = this.state.latestFeaturesUpdate.get('followerCount', null);
+        let wordsCounted = this.state.latestFeaturesUpdate.get('wordCount', null);
+        let capitalCount = this.state.latestFeaturesUpdate.get('capitalisedCount', null);
+        let hashtagCount = this.state.latestFeaturesUpdate.get('hashtagCount', null);
+        let retweetCount = this.state.latestFeaturesUpdate.get('retweetCount', null);
+        let likeCount = this.state.latestFeaturesUpdate.get('likeCount', null);
+        let dictionaryHits = this.state.latestFeaturesUpdate.get('dictionaryHits', null);
+        let linkCount = this.state.latestFeaturesUpdate.get('linkCount', null);
 
         let coverStyles = {
             backgroundImage: this.state.coverPhotoUrl !== "unknown" ? `url(${this.state.coverPhotoUrl})` : null,
@@ -209,8 +218,8 @@ export default class TwitterUserPreviewPane extends
                         <span className="user-preview-feature-item"><strong>{tweetsProcessed}</strong> tweets processed</span>
                         <span className="user-preview-feature-item"><strong>{wordsCounted}</strong> words</span>
                         <span className="user-preview-feature-item"><strong>{hashtagCount}</strong> hashtags</span>
-                        <span className="user-preview-feature-item"><strong>{(100*capitalCount/wordsCounted).toFixed(1)}%</strong> capitalised words</span>
-                        <span className="user-preview-feature-item"><strong>{(100*dictionaryHits/wordsCounted).toFixed(1)}%</strong> spelling accuracy</span>
+                        <span className="user-preview-feature-item"><strong>{capitalCount && wordsCounted ? (100*capitalCount/wordsCounted).toFixed(1) + '%' : null}</strong> capitalised words</span>
+                        <span className="user-preview-feature-item"><strong>{dictionaryHits && wordsCounted ? (100*dictionaryHits/wordsCounted).toFixed(1) + '%' : null}</strong> spelling accuracy</span>
                         <span className="user-preview-feature-item"><strong>{likeCount}</strong> likes from others</span>
                         <span className="user-preview-feature-item"><strong>{retweetCount}</strong> retweets from others</span>
                         {latestMedianText}

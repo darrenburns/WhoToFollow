@@ -132,7 +132,7 @@ class Application @Inject()
     }
     // Get the metadata we stored on the user
     val metadataFuture = userMetadataReader ? UserMetadataQuery(screenName)
-    // TODO: Fix blocking here
+    // Play actions are asycnhronous by default so blocking here is fine?
     val metadata = Await.result(metadataFuture, timeout.duration).asInstanceOf[UserMetadata]
     Ok(Json.obj(
       "metadata" -> Json.toJson(metadata),
