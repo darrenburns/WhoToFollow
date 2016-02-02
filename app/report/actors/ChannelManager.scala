@@ -97,6 +97,7 @@ class ChannelManager @Inject()
         ChannelUtilities.getScreenNameFromChannelName(query) match {
           case Some(screenName) =>
             // Ask Redis for everything required and compose the futures
+            Logger.debug(s"[1] Asking RedisActor for features for user: '$screenName'.")
             redisActor ? UserFeatureRequest(screenName) onComplete {
               case Success(features: UserFeatures) =>
                 webSocketSupervisor ! features

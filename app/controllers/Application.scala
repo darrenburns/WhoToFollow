@@ -22,6 +22,7 @@ import twitter4j.Status
 
 import scala.collection.JavaConversions._
 import scala.concurrent.Await
+import scala.util.{Failure, Success}
 
 
 object Application {
@@ -121,7 +122,7 @@ class Application @Inject()
     * @return An HTTP response with a JSON object containing a list of the tweets present in the timeline
     *         of the user contained within the request parameters.
     */
-  def fetchAndAnalyseTimeline(screenName: String) = Action { request =>
+  def fetchAndAnalyseTimeline(screenName: String) = Action.async { request =>
 
     // Fetch a list of tweets from the users timeline
     val twitter = Twitter.instance
@@ -131,13 +132,12 @@ class Application @Inject()
       batchFeatureExtraction ! TweetBatch(tweets.toList)
     }
     // Get the metadata we stored on the user
-    val metadataFuture = userMetadataReader ? UserMetadataQuery(screenName)
-    // Play actions are asycnhronous by default so blocking here is fine?
-    val metadata = Await.result(metadataFuture, timeout.duration).asInstanceOf[UserMetadata]
-    Ok(Json.obj(
-      "metadata" -> Json.toJson(metadata),
+    val userMetaFuture = userMetadataReader ? UserMetadataQuery(screenName)
+    userMetaFuture.map(meta => Ok(Json.obj(
+      "metadata" -> Json.toJson(meta),
       "timeline" -> Json.toJson(tweets.toList)
-    ))
+    )))
+
   }
 
 }

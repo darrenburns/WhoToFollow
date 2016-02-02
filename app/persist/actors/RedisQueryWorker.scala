@@ -50,6 +50,7 @@ class RedisQueryWorker extends Actor {
       sender ! RecentQueries(resultBatch.toList)
 
     case UserFeatureRequest(screenName) =>
+      Logger.debug(s"[2] A worker is processing feature request for user '$screenName'.")
       val userStats = clients.withClient{client =>
         client.hgetall(s"user:$screenName:stats")
       }
