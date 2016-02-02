@@ -7,7 +7,8 @@ import com.google.inject.Inject
 import com.google.inject.name.Named
 import com.mongodb.casbah.commons.MongoDBObject
 import hooks.MongoInit
-import persist.actors.RedisReader.{UserFeatures, UserFeatureRequest}
+import learn.actors.FeatureExtraction.UserFeatures
+import persist.actors.RedisQueryWorker.UserFeatureRequest
 import play.api.Logger
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
@@ -40,7 +41,7 @@ object LabelStore {
   * Receives votes and stores them in the database
   */
 class LabelStore @Inject() (
-  @Named("redisReader") redisReader: ActorRef
+  @Named("redisActor") redisActor: ActorRef
 ) extends Actor {
 
   import LabelStore._
@@ -52,7 +53,7 @@ class LabelStore @Inject() (
     case Vote(name, queryString, isRelevant) =>
       Logger.debug("LabelStore received new vote. Will now look up Redis for user features.")
       // Fetch the features for this user from Redis
-      (redisReader ? UserFeatureRequest(name)) onComplete {
+      (redisActor ? UserFeatureRequest(name)) onComplete {
         case Success(features: UserFeatures) =>
           val query = MongoDBObject(
             "name" -> features.screenName,

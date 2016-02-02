@@ -8,7 +8,7 @@ import learn.actors.UserHashtagCounter.ActiveTwitterStream
 import learn.utility.ExtractionUtils._
 import org.apache.spark.streaming.Seconds
 import org.apache.spark.streaming.dstream.{DStream, ReceiverInputDStream}
-import persist.actors.RedisWriter.{ProcessedTweetTuples, TweetFeatureBatch}
+import persist.actors.RedisWriterWorker.{ProcessedTweetTuples, TweetFeatureBatch}
 import play.api.{Configuration, Logger}
 import twitter4j.Status
 import utils.QualityAnalyser
@@ -59,6 +59,20 @@ object FeatureExtraction {
                           dictionaryHits: Int,
                           linkCount: Int
                           )
+  case class UserFeatures(
+                           screenName: String,
+                           tweetCount: Int,
+                           followerCount: Int,
+                           wordCount: Int,
+                           // TODO                  punctuationCounts: Map[String, Int],  Temporarily disabled
+                           capitalisedCount: Int,
+                           hashtagCount: Int,
+                           retweetCount: Int,
+                           likeCount: Int,
+                           dictionaryHits: Int,
+                           linkCount: Int,
+                           hashtagTimestamps: List[(String, Double)]
+                         )
   case class CheckQuality(status: Status)
 }
 
@@ -76,7 +90,7 @@ object FeatureExtraction {
 @Singleton
 class FeatureExtraction @Inject()
 (
-  @Named("redisWriter") redisWrite: ActorRef,
+  @Named("redisActor") redisActor: ActorRef,
   configuration: Configuration
 ) extends Actor with Serializable {
 
@@ -92,9 +106,9 @@ class FeatureExtraction @Inject()
       Logger.info("FeatureExtraction starting...")
       mapToWindowedFeatureStream(stream, WindowSize).foreachRDD(features => {
         val featureSeq = features.collect
-        redisWrite ! TweetFeatureBatch(featureSeq)
+        redisActor ! TweetFeatureBatch(featureSeq)
         val processedList = featureSeq.map(f => (f.username, f.id))
-        redisWrite ! ProcessedTweetTuples(processedList)
+        redisActor ! ProcessedTweetTuples(processedList)
       })
       sender ! Ready()
       Logger.info("FeatureExtraction is ready.")

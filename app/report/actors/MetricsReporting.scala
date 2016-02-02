@@ -3,11 +3,11 @@ package report.actors
 import akka.actor.{Actor, ActorRef}
 import akka.pattern.ask
 import akka.util.Timeout
+import com.google.inject.Inject
 import com.google.inject.name.Named
-import com.google.inject.{Inject, Singleton}
 import learn.actors.Indexer.GetCollectionStats
+import persist.actors.RedisQueryWorker.GetRecentQueryList
 import play.api.Logger
-import report.actors.MetricsReporting.GetRecentQueryList
 import report.actors.WebSocketSupervisor.CollectionStats
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -17,12 +17,10 @@ import scala.util.{Failure, Success}
 
 object MetricsReporting {
   case class RecentQueries(recentQueriesList: List[String])
-  case class GetRecentQueryList()
 }
 
-@Singleton
 class MetricsReporting @Inject()
-  (@Named("redisReader") redisReader: ActorRef,
+  (@Named("redisActor") redisActor: ActorRef,
    @Named("webSocketSupervisor") webSocketSupervisor: ActorRef,
    @Named("indexer") indexer: ActorRef)
   extends Actor {
@@ -33,9 +31,9 @@ class MetricsReporting @Inject()
    Scheduled tasks
     */
   // Fetch the latest 'recent queries' list 2 seconds
-  context.system.scheduler.schedule(Duration.Zero, 2.seconds, self, GetRecentQueryList())
+  context.system.scheduler.schedule(Duration.Zero, 2.seconds, self, GetRecentQueryList)
   // Ask Redis for the latest index size every 2 seconds.
-  context.system.scheduler.schedule(Duration.Zero, 2.seconds, indexer, GetCollectionStats())
+  context.system.scheduler.schedule(Duration.Zero, 2.seconds, indexer, GetCollectionStats)
 
   /*
    Incoming messages
@@ -44,8 +42,8 @@ class MetricsReporting @Inject()
     /*
     Send the recent query list to all of the actors who are interested in it.
      */
-    case msg @ GetRecentQueryList() =>
-      (redisReader ? msg) onComplete {
+    case msg @ GetRecentQueryList =>
+      (redisActor ? msg) onComplete {
         case Success(recentQueries) => webSocketSupervisor ! recentQueries
         case Failure(error) => Logger.debug("Error: " + error)
       }

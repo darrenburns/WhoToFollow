@@ -8,9 +8,9 @@ import akka.util.Timeout
 import com.github.nscala_time.time.Imports._
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
+import learn.actors.FeatureExtraction.UserFeatures
 import org.joda.time.DateTime
-import persist.actors.RedisReader.{ExpertRating, UserFeatures}
-import persist.actors.RedisWriter.NewQuery
+import persist.actors.RedisWriterWorker.NewQuery
 import play.api.Logger
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.concurrent.InjectedActorSupport
@@ -38,14 +38,6 @@ object WebSocketSupervisor {
       })
       Json.obj("query" -> results.query, "results" -> Json.toJson(scoreJsonList))
     }
-  }
-
-  implicit val expertRatingWrites = new Writes[ExpertRating] {
-    def writes(rating: ExpertRating) = Json.obj(
-      "query" -> rating.query,
-      "username" -> rating.username,
-      "rating" -> rating.rating
-    )
   }
 
   implicit val recentQueriesWrites = new Writes[RecentQueries] {
@@ -96,7 +88,7 @@ object WebSocketSupervisor {
 class WebSocketSupervisor @Inject()
 (
   channelManagerFactory: ChannelManager.Factory,
-  @Named("redisWriter") redisWriter: ActorRef
+  @Named("redisActor") redisActor: ActorRef
 ) extends Actor with InjectedActorSupport {
 
   import WebSocketSupervisor._
@@ -138,7 +130,7 @@ class WebSocketSupervisor @Inject()
           val lowerChannel = query.toLowerCase
           val ch = if (ChannelUtilities.isQueryChannel(query)) {
             Logger.debug(s"Creating query channel for query: $query")
-            redisWriter ! NewQuery(lowerChannel, lowerChannel.hashCode, DateTime.now)
+            redisActor ! NewQuery(lowerChannel, lowerChannel.hashCode, DateTime.now)
             createChannel(lowerChannel)
           } else if (ChannelUtilities.isUserAnalysisChannel(query)) {
             createChannel(query)

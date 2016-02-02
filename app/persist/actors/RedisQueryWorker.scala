@@ -1,36 +1,19 @@
 package persist.actors
 
-import akka.actor.{Actor, ActorRef}
-import com.google.inject.name.Named
-import com.google.inject.{Inject, Singleton}
+import akka.actor.Actor
 import com.redis.RedisClient.DESC
 import hooks.RedisConnectionPool
-import org.joda.time.DateTime
+import learn.actors.FeatureExtraction.UserFeatures
 import play.api.Logger
-import report.actors.ChannelManager.GetQueryMentionCounts
-import report.actors.MetricsReporting.{GetRecentQueryList, RecentQueries}
+import report.actors.MetricsReporting.RecentQueries
 
 import scala.collection.mutable.ListBuffer
 
-object RedisReader {
-  case class QueryLeaderboard(query: String, leaderboard: List[ExpertRating])
-  case class ExpertRating(query: String, username: String, rating: Double)
-  case class UserFeatureRequest(screenName: String)
-  case class UserFeatures(
-                         screenName: String,
-                         tweetCount: Int,
-                         followerCount: Int,
-                         wordCount: Int,
-// TODO                  punctuationCounts: Map[String, Int],  Temporarily disabled
-                         capitalisedCount: Int,
-                         hashtagCount: Int,
-                         retweetCount: Int,
-                         likeCount: Int,
-                         dictionaryHits: Int,
-                         linkCount: Int,
-                         hashtagTimestamps: List[(String, Double)]
-                         )
-  case class HasStatusBeenProcessed(status: twitter4j.Status)
+object RedisQueryWorker {
+  sealed trait RedisQuery
+  case class UserFeatureRequest(screenName: String) extends RedisQuery
+  case class HasStatusBeenProcessed(status: twitter4j.Status) extends RedisQuery
+  case object GetRecentQueryList extends RedisQuery
 
   def extractFeatureCount(map: Map[String, String], featureName: String): Int = {
     map.get(featureName) match {
@@ -40,31 +23,19 @@ object RedisReader {
   }
 }
 
-class RedisReader @Inject()
-(
-  @Named("webSocketSupervisor") webSocketSupervisor: ActorRef
-) extends Actor {
+/**
+  * RedisReaders read take requests to fetch data from Redis and send that data along
+  * to wherever it's required.
+  */
+class RedisQueryWorker extends Actor {
 
-  import RedisReader._
+  import RedisQueryWorker._
 
   private val clients = RedisConnectionPool.pool
 
   override def receive = {
 
-    case GetQueryMentionCounts(query) =>
-      // i.e. ZRANGE hashtags:#query 0 20 WITHSCORES
-      val cleanQuery = if (!query.startsWith("#")) s"#$query" else query
-      val queryResult = clients.withClient{client =>
-        client.zrangeWithScore(s"hashtags:$cleanQuery", 0, 20, DESC)
-      }
-      queryResult match {
-        case Some(leaderboard) =>
-          sender ! QueryLeaderboard(query, leaderboard.map {
-            case (username, rating) => ExpertRating(query, username, rating)
-          })
-      }
-
-    case GetRecentQueryList() =>
+    case GetRecentQueryList =>
       val recentQueryResult = clients.withClient{client =>
         client.lrange("recentQueries", 0, 19)
       }

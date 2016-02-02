@@ -12,8 +12,8 @@ import hooks.Twitter
 import learn.actors.TweetStreamActor.TweetBatch
 import learn.utility.ExtractionUtils
 import org.joda.time.DateTime
-import persist.actors.RedisReader.HasStatusBeenProcessed
-import persist.actors.RedisWriter.{ProcessedTweets, TweetFeatureBatch}
+import persist.actors.RedisQueryWorker.HasStatusBeenProcessed
+import persist.actors.RedisWriterWorker.{ProcessedTweets, TweetFeatureBatch}
 import persist.actors.UserMetadataWriter.TwitterUser
 import play.api.Logger
 import twitter4j.{TwitterFactory, Status}
@@ -40,8 +40,7 @@ object BatchFeatureExtraction {
   */
 class BatchFeatureExtraction @Inject()
 (
-  @Named("redisWriter") redisWrite: ActorRef,
-  @Named("redisReader") redisRead: ActorRef,
+  @Named("redisActor") redisActor: ActorRef,
   @Named("indexer") indexer: ActorRef,
   @Named("userMetadataWriter") userMetadataWriter: ActorRef
 ) extends Actor {
@@ -75,7 +74,7 @@ class BatchFeatureExtraction @Inject()
       // Futures contain Tuple of (tweetId, haveWeSeenThisTweetBefore?)
       var tweetAnalysisHistory = scala.collection.immutable.Set.empty[Future[Any]]
       tweets.foreach(tweet => {
-        tweetAnalysisHistory += redisRead ? HasStatusBeenProcessed(tweet)
+        tweetAnalysisHistory += redisActor ? HasStatusBeenProcessed(tweet)
       })
 
       // When we have results for all of the tweets
@@ -105,13 +104,13 @@ class BatchFeatureExtraction @Inject()
               // Index the tweets we haven't seen before
               indexer ! TweetBatch(newTweets)
               // Mark these tweets as processed
-              redisWrite ! ProcessedTweets(newlyProcessedTweets)
+              redisActor ! ProcessedTweets(newlyProcessedTweets)
               // Send the features of the tweets in this batch to Redis
               Logger.debug(s"Sending feature list of size ${featuresList.size} to Redis.")
-              redisWrite ! TweetFeatureBatch(featuresList)
+              redisActor ! TweetFeatureBatch(featuresList)
               // Send the user/hashtag updates to Redis
               hashtagReports.foreach(report => {
-                redisWrite ! report
+                redisActor ! report
               })
             case Failure(error) =>
               Logger.error("Error during feature extraction. This occurred whilst extracting features from" +

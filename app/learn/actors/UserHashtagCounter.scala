@@ -8,6 +8,7 @@ import learn.actors.TweetStreamActor.Ready
 import org.apache.spark.streaming._
 import org.apache.spark.streaming.dstream.ReceiverInputDStream
 import org.slf4j.LoggerFactory
+import persist.actors.RedisWriterWorker.{UserHashtagReport, RedisWriteRequest}
 import play.api.libs.json.{Json, Writes}
 import play.api.{Configuration, Logger}
 import play.mvc.WebSocket
@@ -35,7 +36,7 @@ object UserHashtagCounter {
   case class ActivateOutputStream(out: WebSocket.Out[JsonNode])
   case class HashtagCount(hashtag: String, count: Int)
   case class UserHashtagCount(username: String, hashtag: String, count: Int)
-  case class UserHashtagReport(counts: Seq[UserHashtagCount])
+
 }
 
 /**
@@ -46,7 +47,7 @@ object UserHashtagCounter {
 @Singleton
 class UserHashtagCounter @Inject()
 (
-  @Named("redisWriter") redisWriter: ActorRef,
+  @Named("redisActor") redisActor: ActorRef,
   configuration: Configuration
 ) extends Actor {
 
@@ -82,7 +83,7 @@ class UserHashtagCounter @Inject()
     // Send reports to Redis
     hashtagCountInWindow.foreachRDD(rdd => {
       val userHashtagCounts = rdd.collect()
-      redisWriter ! UserHashtagReport(userHashtagCounts)
+      redisActor ! UserHashtagReport(userHashtagCounts)
     })
 
     Logger.debug("UserHashtagCounter ready.")

@@ -12,8 +12,9 @@ class ActorModule extends AbstractModule with AkkaGuiceSupport {
     bindActor[UserHashtagCounter]("userHashtagCounter")
     bindActor[WebSocketSupervisor]("webSocketSupervisor")
     bindActor[TweetStreamActor]("tweetStreamActor")
-    bindActor[RedisWriter]("redisWriter")
-    bindActor[RedisReader]("redisReader")
+
+    bindActor[RedisActor]("redisActor")
+
     bindActor[FeatureExtraction]("featureExtraction")
     bindActor[BatchFeatureExtraction]("batchFeatureExtraction")
     bindActor[Indexer]("indexer")

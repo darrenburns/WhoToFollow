@@ -10,7 +10,6 @@ import org.apache.commons.io.IOUtils
 import org.terrier.indexing.TaggedDocument
 import org.terrier.indexing.tokenisation.Tokeniser
 import org.terrier.realtime.memory.MemoryIndex
-import persist.actors.UserMetadataWriter.TwitterUser
 import report.actors.WebSocketSupervisor.CollectionStats
 
 import scala.collection.immutable.HashMap
@@ -21,18 +20,13 @@ object Indexer {
   var docIds = new HashMap[String, Int]()  // TwitterUserId -> TerrierDocId
   var userCount = 0
 
-  /* Receivables */
-  case class GetCollectionStats()
+  case object GetCollectionStats
 }
 
 /*
   Handles Terrier indexing of streaming tweets in real-time
  */
-class Indexer @Inject()
-(
-  @Named("redisWriter") redisWriter: ActorRef,
-  @Named("userMetadataWriter") userMetadataWriter: ActorRef
-) extends Actor {
+class Indexer extends Actor {
 
   import Indexer._
 
@@ -67,7 +61,7 @@ class Indexer @Inject()
         }
       })
 
-    case GetCollectionStats() =>
+    case GetCollectionStats =>
       sender ! CollectionStats(
         numberOfDocuments = index.getCollectionStatistics.getNumberOfDocuments
       )

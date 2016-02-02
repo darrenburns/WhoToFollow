@@ -7,8 +7,9 @@ import com.google.inject.Inject
 import com.google.inject.assistedinject.Assisted
 import com.google.inject.name.Named
 import learn.actors.BatchFeatureExtraction.FetchAndAnalyseTimeline
+import learn.actors.FeatureExtraction.UserFeatures
 import learn.actors.Indexer
-import persist.actors.RedisReader.{UserFeatureRequest, UserFeatures}
+import persist.actors.RedisQueryWorker.UserFeatureRequest
 import play.api.{Configuration, Logger}
 import query.actors.QueryService.{Query, TerrierResultSet}
 import report.actors.ChannelManager.UserTerrierScore
@@ -34,8 +35,7 @@ object ChannelManager {
  Handles the fetching of data for the given channel.
  */
 class ChannelManager @Inject()
-  (@Named("redisReader") redisReader: ActorRef,
-   @Named("redisWriter") redisWriter: ActorRef,
+  (@Named("redisActor") redisActor: ActorRef,
    @Named("webSocketSupervisor") webSocketSupervisor: ActorRef,
    @Named("batchFeatureExtraction") batchFeatureExtraction: ActorRef,
    @Named("indexer") index: ActorRef,
@@ -82,7 +82,6 @@ class ChannelManager @Inject()
               }
             })
 
-
             // Get the sequence of user -> score
             val scores = resultSet.getScores
             val queryResults = (profiles zip scores) map {
@@ -94,26 +93,11 @@ class ChannelManager @Inject()
             webSocketSupervisor ! QueryResults(queryString, queryResults)
 
         }
-//        redisReader ? GetQueryMentionCounts(query) onComplete {
-//          case Success(ql: QueryLeaderboard) =>
-//            // Get the timelines of all the users here and send them for analysis
-//            val twitter = TwitterFactory.getSingleton
-//            val analysisF = ql.leaderboard.map(r => Future {
-//              val tweets = twitter.getUserTimeline(r.username)
-//              if (tweets.nonEmpty) {
-//                Logger.debug(s"Sending batch of tweets from timeline of ${r.username}: " + tweets.size())
-//                batchFeatureExtraction ! TweetBatch(tweets.toList)
-//                index ! TweetBatch(tweets.toList)
-//              }
-//            })
-//            webSocketSupervisor ! ql
-//          case Failure(error) => Logger.error("Error retrieving latest initial query ranks.", error)
-//        }
       } else if (ChannelUtilities.isUserAnalysisChannel(query)) {
         ChannelUtilities.getScreenNameFromChannelName(query) match {
           case Some(screenName) =>
             // Ask Redis for everything required and compose the futures
-            redisReader ? UserFeatureRequest(screenName) onComplete {
+            redisActor ? UserFeatureRequest(screenName) onComplete {
               case Success(features: UserFeatures) =>
                 webSocketSupervisor ! features
               case Failure(error) => Logger.error("Error retrieving latest user features.", error)

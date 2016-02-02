@@ -1,35 +1,31 @@
 package persist.actors
 
 import akka.actor.Actor
-import com.google.inject.Singleton
 import hooks.RedisConnectionPool
 import learn.actors.FeatureExtraction.TweetFeatures
-import learn.actors.UserHashtagCounter.{UserHashtagCount, UserHashtagReport}
+import learn.actors.UserHashtagCounter.UserHashtagCount
 import org.joda.time.DateTime
-import persist.actors.RedisWriter._
+import persist.actors.RedisWriterWorker._
 import play.api.Logger
 import twitter4j.Status
 
-
-/*
- Reports can be sent here for storage in Redis.
- */
-object RedisWriter {
-  case class NewQuery(query: String, id: Int, timestamp: DateTime)
-  case class IndexSize(size: Int)
-  case class HashtagCountUpdate(results: Seq[UserHashtagCount])
-  case class TweetFeatureBatch(reports: Seq[TweetFeatures])
-  case class ProcessedTweets(tweets: Seq[twitter4j.Status])
+object RedisWriterWorker {
+  sealed trait RedisWriteRequest
+  case class NewQuery(query: String, id: Int, timestamp: DateTime) extends RedisWriteRequest
+  case class IndexSize(size: Int) extends RedisWriteRequest
+  case class HashtagCountUpdate(results: Seq[UserHashtagCount]) extends RedisWriteRequest
+  case class TweetFeatureBatch(reports: Seq[TweetFeatures]) extends RedisWriteRequest
+  case class ProcessedTweets(tweets: Seq[twitter4j.Status]) extends RedisWriteRequest
+  case class UserHashtagReport(counts: Seq[UserHashtagCount]) extends RedisWriteRequest
 
   /**
     * @param tweets A sequence of (username, tweetId) tuples. This is all the information
     *               required to tag the tweet as processed.
     */
-  case class ProcessedTweetTuples(tweets: Seq[(String, Long)])
+  case class ProcessedTweetTuples(tweets: Seq[(String, Long)]) extends RedisWriteRequest
 }
 
-@Singleton
-class RedisWriter extends Actor with Serializable {
+class RedisWriterWorker extends Actor with Serializable {
 
   private val clients = RedisConnectionPool.pool
 
