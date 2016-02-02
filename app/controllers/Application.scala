@@ -21,9 +21,7 @@ import report.actors.WebSocketSupervisor.OutputChannel
 import twitter4j.Status
 
 import scala.collection.JavaConversions._
-import scala.concurrent.Await
-import scala.util.{Failure, Success}
-
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object Application {
 
@@ -134,7 +132,7 @@ class Application @Inject()
     // Get the metadata we stored on the user
     val userMetaFuture = userMetadataReader ? UserMetadataQuery(screenName)
     userMetaFuture.map(meta => Ok(Json.obj(
-      "metadata" -> Json.toJson(meta),
+      "metadata" -> Json.toJson(meta.asInstanceOf[UserMetadata]),
       "timeline" -> Json.toJson(tweets.toList)
     )))
 
