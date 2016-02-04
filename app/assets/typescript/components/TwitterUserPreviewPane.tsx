@@ -1,23 +1,28 @@
 /// <reference path="../models/Twitter.ts" />
+/// <reference path="../models/Learning.ts" />
 
 
 import * as React from 'react';
 import * as $ from 'jquery';
 import * as Immutable from 'immutable';
 import * as moment from 'moment';
+import * as tinycolor from 'tinycolor2';
 import {Container, Row, Col} from 'elemental';
-import {Avatar, Paper, RaisedButton, FlatButton, List, ListItem, ListDivider, Snackbar, Slider, Checkbox} from 'material-ui';
+import {Snackbar} from 'material-ui';
 import Hashtag from './Hashtag';
-import Tweet from './Tweet'
+import Tweet from './Tweet';
+import Button from './Button';
 import Configuration from "../util/config";
 import Constants from "../util/constants";
 import TimelineApi from '../endpoints/TimelineApi';
 import LearningApi from '../endpoints/LearningApi';
 import Status = Twitter.Status;
+import UserFeatures = Learning.UserFeatures;
 
 
 interface ITwitterUserPreviewPaneProps {
     params: any;
+    handleFeedbackSnackbarOpen: () => void;
 }
 
 interface ITwitterUserPreviewPaneState {
@@ -47,17 +52,6 @@ export default class TwitterUserPreviewPane extends
         this._setUserTimeline(this.props.params.screenName);
         // Listen to this users channel
         this._setUserChannel(this.props.params.screenName);
-        // Set the correct default checkbox value
-        let checkbox: any = this.refs['relevance-checkbox'];
-        LearningApi.getUserRelevance(this.props.params.screenName)
-            .then(
-                doneResponse => {
-                    checkbox.setChecked(doneResponse.isChecked);
-                },
-                failResponse => {
-                    console.log("Error fetching user relevance status.")
-                }
-            )
     }
 
     componentDidUpdate(prevProps: ITwitterUserPreviewPaneProps) {
@@ -78,14 +72,19 @@ export default class TwitterUserPreviewPane extends
     };
 
     private _markUserRelevance = (event: any): void => {
-        let checkbox: any = this.refs['relevance-checkbox'];
-        LearningApi.markUserAsRelevant(this.props.params.screenName, this.props.params.query, checkbox.isChecked());
+        LearningApi.markUserAsRelevant(this.props.params.screenName, this.props.params.query, true)
+            .done(() => {
+                console.log("Marked user as relevant.")
+            })
+            .fail(() => {
+                console.log("[ERROR] Unable to mark user relevance.")
+            })
     };
 
     private _setUserChannel = (screenName: string): void => {
         let ws: WebSocket = new WebSocket(`ws://localhost:9000/ws/user:${screenName}`);
         ws.onmessage = (event) => {
-            let update: Learning.UserFeatures = JSON.parse(event.data);
+            let update: UserFeatures = JSON.parse(event.data);
             let newFeatures = Immutable.Map<string, number>();
             // Store the latest features in component state for display
             for (let key of Object.keys(update)) {
@@ -144,13 +143,13 @@ export default class TwitterUserPreviewPane extends
                 })
             },
             (failResponse:any) => {
-                console.log("An error occurred fetching the user timeline." + failResponse);
+                console.log("An error occurred fetching the user timeline.");
             }
         );
 
     };
 
-    private _freeComponentResources(): void {
+    private _freeComponentResources = (): void => {
         // Close socket for this user and prevent this client from sending more keep-alives.
         let sock: WebSocket = this.state.userSocket;
         if (sock != null) {
@@ -167,7 +166,7 @@ export default class TwitterUserPreviewPane extends
             latestMedianTimeSinceHashtag: null,
             name: ""
         })
-    }
+    };
 
     render() {
         let tweetsProcessed = this.state.latestFeaturesUpdate.get('tweetCount', null);
@@ -198,7 +197,6 @@ export default class TwitterUserPreviewPane extends
                 </span>
         );
 
-
         return (
                 <div className="user-preview-pane">
                     <div className="user-cover-photo" style={coverStyles}>
@@ -218,8 +216,8 @@ export default class TwitterUserPreviewPane extends
                         <span className="user-preview-feature-item"><strong>{tweetsProcessed}</strong> tweets processed</span>
                         <span className="user-preview-feature-item"><strong>{wordsCounted}</strong> words</span>
                         <span className="user-preview-feature-item"><strong>{hashtagCount}</strong> hashtags</span>
-                        <span className="user-preview-feature-item"><strong>{capitalCount && wordsCounted ? (100*capitalCount/wordsCounted).toFixed(1) + '%' : null}</strong> capitalised words</span>
-                        <span className="user-preview-feature-item"><strong>{dictionaryHits && wordsCounted ? (100*dictionaryHits/wordsCounted).toFixed(1) + '%' : null}</strong> spelling accuracy</span>
+                        <span className="user-preview-feature-item"><strong>{capitalCount !== null && wordsCounted !== null ? (100*capitalCount/wordsCounted).toFixed(1) + '%' : null}</strong> capitalised words</span>
+                        <span className="user-preview-feature-item"><strong>{dictionaryHits !== null && wordsCounted !== null ? (100*dictionaryHits/wordsCounted).toFixed(1) + '%' : null}</strong> spelling accuracy</span>
                         <span className="user-preview-feature-item"><strong>{likeCount}</strong> likes from others</span>
                         <span className="user-preview-feature-item"><strong>{retweetCount}</strong> retweets from others</span>
                         {latestMedianText}
@@ -229,11 +227,12 @@ export default class TwitterUserPreviewPane extends
                         <div className="user-preview-body-header">
                             <h3>Most Recent Tweets</h3>
                             <div className="relevance-checkbox-wrapper">
-                                <Checkbox
-                                    label="Relevant?"
-                                    ref="relevance-checkbox"
-                                    onCheck={this._markUserRelevance}
-                                />
+                                <Button label="Mark User Relevant"
+                                        doneLabel="Thanks!"
+                                        colour={tinycolor(this.state.profileColour).isLight()
+                                            ? "#454545" : "#FFFFFF"}
+                                        backgroundColour={`#${this.state.profileColour}`}
+                                        onClick={this._markUserRelevance} />
                             </div>
                         </div>
                         <div className="tweet-list">

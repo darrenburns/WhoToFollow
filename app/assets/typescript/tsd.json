@@ -9,10 +9,10 @@
       "commit": "e5a27ea95e47b95333784f1f0d590127b4e39a89"
     },
     "material-ui/material-ui.d.ts": {
-      "commit": "e5a27ea95e47b95333784f1f0d590127b4e39a89"
+      "commit": "e69fe60f2d6377ea4fae539493997b098f52cad1"
     },
     "react/react.d.ts": {
-      "commit": "e5a27ea95e47b95333784f1f0d590127b4e39a89"
+      "commit": "e69fe60f2d6377ea4fae539493997b098f52cad1"
     },
     "react-router/react-router.d.ts": {
       "commit": "e5a27ea95e47b95333784f1f0d590127b4e39a89"
@@ -28,6 +28,9 @@
     },
     "moment/moment.d.ts": {
       "commit": "81b951f1ac437d1eb5ff5171a0bfa6c467634b13"
+    },
+    "tinycolor/tinycolor.d.ts": {
+      "commit": "e69fe60f2d6377ea4fae539493997b098f52cad1"
     }
   }
 }

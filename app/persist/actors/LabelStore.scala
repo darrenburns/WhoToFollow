@@ -1,10 +1,13 @@
 package persist.actors
 
+import java.util.Date
+
 import akka.actor.{Actor, ActorRef}
 import akka.pattern.ask
 import akka.util.Timeout
 import com.google.inject.Inject
 import com.google.inject.name.Named
+import com.mongodb.WriteResult
 import com.mongodb.casbah.commons.MongoDBObject
 import hooks.MongoInit
 import learn.actors.FeatureExtraction.UserFeatures
@@ -20,20 +23,20 @@ import scala.util.{Failure, Success}
 
 object LabelStore {
 
-  object VoteType extends Enumeration {
-    type VoteType = Value
-    val LOW_QUALITY, HIGH_QUALITY = Value
-  }
-
-  case class Vote(screenName: String, query: String, isRelevant: Boolean)
-  implicit val voteReads: Reads[Vote] = (
+  implicit val voteReads: Reads[UserRelevance] = (
     (JsPath \ "screenName").read[String] and
       (JsPath \ "query").read[String] and
       (JsPath \ "isRelevant").read[Boolean]
-    )(Vote.apply _)
+    )(UserRelevance.apply _)
 
   lazy val db = MongoInit.db
   lazy val collection = db("labels")
+
+  sealed trait LabelStoreResponse
+  case class UserRelevance(screenName: String, query: String, isRelevant: Boolean) extends LabelStoreResponse
+  case object NoUserRelevanceDataOnRecord extends LabelStoreResponse
+
+  case class GetUserRelevance(screenName: String, query: String)
 }
 
 
@@ -49,37 +52,54 @@ class LabelStore @Inject() (
   implicit val timeout = Timeout(20 seconds)
 
   def receive = {
+    case UserRelevance(name, queryString, isRelevant) =>
+      voteForUser(name, queryString, isRelevant)
+    case GetUserRelevance(screenName, query) =>
+      sender ! getUserRelevance(screenName, query)
+  }
 
-    case Vote(name, queryString, isRelevant) =>
-      Logger.debug("LabelStore received new vote. Will now look up Redis for user features.")
-      // Fetch the features for this user from Redis
-      (redisActor ? UserFeatureRequest(name)) onComplete {
-        case Success(features: UserFeatures) =>
-          val query = MongoDBObject(
-            "name" -> features.screenName,
-            "query" -> queryString
-          )
-          val dbVote = MongoDBObject(
-            "name" -> features.screenName,
-            "query" -> queryString,
-            "isRelevant" -> isRelevant,
-            "tweetCount" -> features.tweetCount,
-            "followerCount" -> features.followerCount,
-            "wordCount" -> features.wordCount,
-            "capitalisedCount" -> features.capitalisedCount,
-            "hashtagCount" -> features.hashtagCount,
-            "retweetCount" -> features.retweetCount,
-            "likeCount" -> features.likeCount,
-            "dictionaryHits" -> features.dictionaryHits,
-            "linkCount" -> features.linkCount
-          )
-          Logger.debug("Features found for user. Saving features and classification in database.")
-          collection.update(query, dbVote, upsert=true)
-          sender ! Success
-        case Failure(t) =>
-          Logger.debug(s"Failed to fetch user features for '$name' from Redis. Error: $t")
-          sender ! Failure
-      }
+  private def voteForUser(screenName: String, queryString: String, isRelevant: Boolean): Unit = {
+    // Fetch the features for this user from Redis
+    (redisActor ? UserFeatureRequest(screenName)) onComplete {
+      case Success(features: UserFeatures) =>
+        val dbVote = MongoDBObject(
+          "timestamp" -> new Date(),
+          "name" -> features.screenName,
+          "query" -> queryString,
+          "isRelevant" -> isRelevant,
+          "tweetCount" -> features.tweetCount,
+          "followerCount" -> features.followerCount,
+          "wordCount" -> features.wordCount,
+          "capitalisedCount" -> features.capitalisedCount,
+          "hashtagCount" -> features.hashtagCount,
+          "retweetCount" -> features.retweetCount,
+          "likeCount" -> features.likeCount,
+          "dictionaryHits" -> features.dictionaryHits,
+          "linkCount" -> features.linkCount
+        )
+        Logger.debug(s"Saving classification: ($screenName, $queryString, isRelevant: $isRelevant).")
+        collection.insert(dbVote)
+        sender ! Success  // TODO: Currently assuming success instead of matching on WriteResult
+      case Failure(t) =>
+        Logger.debug(s"Failed to fetch user features for '$screenName' from Redis. Error: $t")
+        sender ! Failure
+    }
+
+  }
+
+  private def getUserRelevance(screenName: String, query: String): LabelStoreResponse = {
+    val queryObject = MongoDBObject("name" -> screenName, "query" -> query)
+    collection.findOne(queryObject) match {
+      case Some(userRelevanceObj: collection.T) =>
+        val rel = userRelevanceObj.toMap
+        UserRelevance(
+          screenName = rel.get("name").asInstanceOf[String],
+          query = rel.get("query").asInstanceOf[String],
+          isRelevant = rel.get("isRelevant").asInstanceOf[Boolean]
+        )
+      case None =>
+        NoUserRelevanceDataOnRecord
+    }
   }
 
 }

@@ -20,7 +20,7 @@ object UserMetadataReader {
       obj.getAsOrElse[String]("name", "unknown"),
       obj.getAsOrElse[String]("avatarUrl", "unknown"),
       obj.getAsOrElse[String]("coverUrl", "unknown"),
-      obj.getAsOrElse[String]("profileColour", "#EFEFEF")
+      obj.getAsOrElse[String]("profileColour", "#0b97c2")
     )
   }
 

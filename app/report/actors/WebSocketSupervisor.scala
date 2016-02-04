@@ -10,6 +10,7 @@ import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
 import learn.actors.FeatureExtraction.UserFeatures
 import org.joda.time.DateTime
+import persist.actors.LabelStore.{UserRelevance, LabelStoreResponse}
 import persist.actors.RedisWriterWorker.NewQuery
 import play.api.Logger
 import play.api.libs.concurrent.Execution.Implicits.defaultContext

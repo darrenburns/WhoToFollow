@@ -10,7 +10,7 @@ import com.google.inject.Inject
 import com.google.inject.name.Named
 import hooks.Twitter
 import learn.actors.TweetStreamActor.TweetBatch
-import persist.actors.LabelStore.Vote
+import persist.actors.LabelStore.{NoUserRelevanceDataOnRecord, LabelStoreResponse, GetUserRelevance, UserRelevance}
 import persist.actors.UserMetadataReader.UserMetadata
 import persist.actors.UserMetadataWriter.UserMetadataQuery
 import play.api.Logger
@@ -52,6 +52,12 @@ object Application {
         // Otherwise just write JSON for the status
         statusJson
       }
+    }
+  }
+
+  implicit val userRelevanceWrites = new Writes[UserRelevance] {
+    def writes(rel: UserRelevance) = {
+      Json.obj("screenName" -> rel.screenName, "query" -> rel.query, "isRelevant" -> rel.isRelevant)
     }
   }
 
@@ -100,7 +106,7 @@ class Application @Inject()
     * @return An HTTP 200 response
     */
   def rateUser = Action(BodyParsers.parse.json) { request =>
-    val json = request.body.validate[Vote]
+    val json = request.body.validate[UserRelevance]
     json.fold(
       errors => {
         BadRequest
@@ -114,7 +120,6 @@ class Application @Inject()
   }
 
   /**
-    * Receives a GET request which contains the Twitter screen name (e.g. @darren) of the use
     * whose timeline we are to return and also analyse.
     *
     * @return An HTTP response with a JSON object containing a list of the tweets present in the timeline
@@ -136,6 +141,13 @@ class Application @Inject()
       "timeline" -> Json.toJson(tweets.toList)
     )))
 
+  }
+
+  def getUserRelevance(screenName: String, query: String) = Action.async {
+    (labelStore ? GetUserRelevance(screenName, query)).map {
+      case userRel @ UserRelevance(_, _, _) => Ok(Json.toJson(userRel))
+      case NoUserRelevanceDataOnRecord => NoContent
+    }
   }
 
 }

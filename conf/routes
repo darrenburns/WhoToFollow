@@ -7,6 +7,7 @@ GET     /                                           controllers.Application.inde
 GET     /ws/:channelName                            controllers.Application.getChannel(channelName: String)
 GET     /learning/timeline/:screenName              controllers.Application.fetchAndAnalyseTimeline(screenName: String)
 POST    /learning/rate-user                         controllers.Application.rateUser
+GET     /learning/get-user-relevance                controllers.Application.getUserRelevance(screenName: String, query: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)

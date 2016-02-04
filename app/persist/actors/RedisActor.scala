@@ -8,6 +8,8 @@ import persist.actors.RedisWriterWorker.RedisWriteRequest
 
 /**
   * Routes Redis related tasks to load-balanced pools of workers.
+  *
+  * See 'Akka Routers' for more information.
   */
 class RedisActor extends Actor {
 
