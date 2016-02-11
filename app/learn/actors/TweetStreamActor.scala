@@ -28,7 +28,7 @@ class TweetStreamActor @Inject()
 (
    @Named("userHashtagCounter") userHashtagCounter: ActorRef,
    @Named("featureExtraction") featureExtraction: ActorRef,
-   @Named("indexer") indexer: ActorRef
+   @Named(Indexer.name) indexer: ActorRef
 )
   extends Actor with TwitterAuth {
 

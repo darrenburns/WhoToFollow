@@ -3,18 +3,22 @@ package learn.actors
 import java.util
 
 import akka.actor.{Actor, ActorRef}
+import channels.actors.MetricsReporting
+import channels.actors.MetricsReporting.CollectionStats
 import com.google.inject.Inject
 import com.google.inject.name.Named
+import di.NamedActor
 import learn.actors.TweetStreamActor.TweetBatch
 import org.apache.commons.io.IOUtils
 import org.terrier.indexing.TaggedDocument
 import org.terrier.indexing.tokenisation.Tokeniser
 import org.terrier.realtime.memory.MemoryIndex
-import report.actors.WebSocketSupervisor.CollectionStats
 
 import scala.collection.immutable.HashMap
 
-object Indexer {
+object Indexer extends NamedActor {
+  final val name = "Indexer"
+
   val index = new MemoryIndex()
   val tokeniser = Tokeniser.getTokeniser
   var docIds = new HashMap[String, Int]()  // TwitterUserId -> TerrierDocId
@@ -26,7 +30,9 @@ object Indexer {
 /*
   Handles Terrier indexing of streaming tweets in real-time
  */
-class Indexer extends Actor {
+class Indexer @Inject() (
+  @Named(MetricsReporting.name) metricsReporting: ActorRef
+) extends Actor {
 
   import Indexer._
 
@@ -61,10 +67,9 @@ class Indexer extends Actor {
         }
       })
 
-    case GetCollectionStats =>
-      sender ! CollectionStats(
-        numberOfDocuments = index.getCollectionStatistics.getNumberOfDocuments
-      )
-    }
+    case GetCollectionStats => metricsReporting ! getCollectionStats
+  }
+
+  def getCollectionStats = CollectionStats(index.getCollectionStatistics.getNumberOfDocuments)
 
 }

@@ -5,19 +5,23 @@ import java.util.concurrent.TimeUnit
 import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
+import channels.actors.ChannelMessages.CreateChannel
+import channels.actors.MetricsReporting.GetMetricsChannel
+import channels.actors.{MetricsReporting, UserChannelSupervisor, QuerySupervisor}
 import com.github.nscala_time.time.Imports._
 import com.google.inject.Inject
 import com.google.inject.name.Named
 import hooks.Twitter
+import learn.actors.BatchFeatureExtraction
 import learn.actors.TweetStreamActor.TweetBatch
-import persist.actors.LabelStore.{NoUserRelevanceDataOnRecord, LabelStoreResponse, GetUserRelevance, UserRelevance}
+import persist.actors.LabelStore.{GetUserRelevance, NoUserRelevanceDataOnRecord, UserRelevance}
 import persist.actors.UserMetadataReader.UserMetadata
 import persist.actors.UserMetadataWriter.UserMetadataQuery
 import play.api.Logger
 import play.api.libs.iteratee.{Enumerator, Iteratee}
 import play.api.libs.json.{JsValue, Json, Writes}
 import play.api.mvc._
-import report.actors.WebSocketSupervisor.OutputChannel
+import query.actors.QueryService.Query
 import twitter4j.Status
 
 import scala.collection.JavaConversions._
@@ -65,12 +69,13 @@ object Application {
 
 class Application @Inject()
 (
-  @Named("webSocketSupervisor") webSocketSupervisor: ActorRef,
+  @Named(UserChannelSupervisor.name) userChannelSupervisor: ActorRef,
+  @Named(QuerySupervisor.name) querySupervisor: ActorRef,
+  @Named(MetricsReporting.name) metricsReporting: ActorRef,
   @Named("labelStore") labelStore: ActorRef,
-  @Named("batchFeatureExtraction") batchFeatureExtraction: ActorRef,
+  @Named(BatchFeatureExtraction.name) batchFeatureExtraction: ActorRef,
   @Named("userMetadataReader") userMetadataReader: ActorRef
 ) extends Controller {
-
 
   import Application._
 
@@ -88,17 +93,26 @@ class Application @Inject()
 
   /**
     * Receives a GET request containing a query. This method will request that the WSS creates
-    * a new channel named after the query. We can also create a channel which can be used to
-    * update user features in realtime, or for updating the number of indexed documents on the
-    * homepage.
+    * a new channel named after the query.
     */
-  def getChannel(name: String) = WebSocket.tryAccept[JsValue] { request =>
-      // Ask the WebSocketSupervisor for the requested channel.
-      // It will create it if it doesn't already exist.
-      val future = (webSocketSupervisor ? OutputChannel(name))
-                      .mapTo[Either[Result, (Iteratee[JsValue, _], Enumerator[JsValue])]]
-      future
-    }
+  def getQueryChannel(queryString: String) = WebSocket.tryAccept[JsValue] { request =>
+      (querySupervisor ? CreateChannel(queryString))
+        .mapTo[Either[Result, (Iteratee[JsValue, _], Enumerator[JsValue])]]
+  }
+
+  /**
+    * Receives a GET request containing a screenName. This method will upgrade the connection
+    * to WebSocket which handles sending the latest user features to the client.
+    */
+  def getUserChannel(screenName: String) = WebSocket.tryAccept[JsValue] { request =>
+    (userChannelSupervisor ? CreateChannel(screenName))
+      .mapTo[Either[Result, (Iteratee[JsValue, _], Enumerator[JsValue])]]
+  }
+
+  def getMetricsChannel = WebSocket.tryAccept[JsValue] { request =>
+    (metricsReporting ? GetMetricsChannel)
+      .mapTo[Either[Result, (Iteratee[JsValue, _], Enumerator[JsValue])]]
+  }
 
   /**
     * Receives a POST request containing a Vote object which
@@ -135,9 +149,8 @@ class Application @Inject()
       batchFeatureExtraction ! TweetBatch(tweets.toList)
     }
     // Get the metadata we stored on the user
-    val userMetaFuture = userMetadataReader ? UserMetadataQuery(screenName)
-    userMetaFuture.map(meta => Ok(Json.obj(
-      "metadata" -> Json.toJson(meta.asInstanceOf[UserMetadata]),
+    (userMetadataReader ? UserMetadataQuery(screenName)).mapTo[UserMetadata].map(meta => Ok(Json.obj(
+      "metadata" -> Json.toJson(meta),
       "timeline" -> Json.toJson(tweets.toList)
     )))
 

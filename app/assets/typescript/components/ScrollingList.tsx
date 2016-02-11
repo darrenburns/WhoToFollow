@@ -3,7 +3,7 @@ import * as moment from 'moment';
 import {Link} from 'react-router';
 import {VelocityTransitionGroup, velocityHelpers} from 'velocity-react';
 import 'velocity-animate/velocity.ui';
-import {RecentQuery} from "./Home";
+import {RecentQuery} from "./App";
 
 
 interface ScrollingListState {

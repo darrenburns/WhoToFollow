@@ -2,30 +2,33 @@ package learn.actors
 
 import java.util.concurrent.TimeUnit
 
-import com.github.nscala_time.time.Imports._
-import akka.actor.{PoisonPill, Actor, ActorRef}
+import akka.actor.{Actor, ActorRef}
 import akka.pattern.ask
 import akka.util.Timeout
-import com.google.inject.Inject
+import com.github.nscala_time.time.Imports._
 import com.google.inject.name.Named
+import com.google.inject.{Inject, Singleton}
+import di.NamedActor
 import hooks.Twitter
 import learn.actors.TweetStreamActor.TweetBatch
 import learn.utility.ExtractionUtils
 import org.joda.time.DateTime
+import persist.actors.RedisActor
 import persist.actors.RedisQueryWorker.HasStatusBeenProcessed
 import persist.actors.RedisWriterWorker.{ProcessedTweets, TweetFeatureBatch}
 import persist.actors.UserMetadataWriter.TwitterUser
 import play.api.Logger
-import twitter4j.{TwitterFactory, Status}
+import twitter4j.Status
 
-import scala.collection.immutable.HashMap
 import scala.collection.JavaConversions._
+import scala.collection.immutable.HashMap
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
-import scala.concurrent.ExecutionContext.Implicits.global
 
 
-object BatchFeatureExtraction {
+object BatchFeatureExtraction extends NamedActor {
+  override final val name = "BatchFeatureExtraction"
   case class FetchAndAnalyseTimeline(screenName: String)
 }
 
@@ -38,10 +41,11 @@ object BatchFeatureExtraction {
   * timeline, since they will generally be small and so don't warrant distributing across
   * Spark workers with SparkContext's parallelize() method.
   */
+@Singleton
 class BatchFeatureExtraction @Inject()
 (
-  @Named("redisActor") redisActor: ActorRef,
-  @Named("indexer") indexer: ActorRef,
+  @Named(RedisActor.name) redisActor: ActorRef,
+  @Named(Indexer.name) indexer: ActorRef,
   @Named("userMetadataWriter") userMetadataWriter: ActorRef
 ) extends Actor {
 
@@ -80,6 +84,9 @@ class BatchFeatureExtraction @Inject()
       // When we have results for all of the tweets
       Future.sequence(tweetAnalysisHistory) onComplete {
         case Success(seenBefore) =>
+
+          Logger.debug(">>>> RECEIVED RESPONSE FROM REDIS ACTOR (HasStatusBeenProcessed)")
+
           // Keep only tweets we haven't seen before
           val newTweets = tweets.filter(tweet => !(seenBefore contains (tweet.getId, true)))
 

@@ -8,6 +8,7 @@ import learn.actors.UserHashtagCounter.ActiveTwitterStream
 import learn.utility.ExtractionUtils._
 import org.apache.spark.streaming.Seconds
 import org.apache.spark.streaming.dstream.{DStream, ReceiverInputDStream}
+import persist.actors.RedisActor
 import persist.actors.RedisWriterWorker.{ProcessedTweetTuples, TweetFeatureBatch}
 import play.api.{Configuration, Logger}
 import twitter4j.Status
@@ -90,7 +91,7 @@ object FeatureExtraction {
 @Singleton
 class FeatureExtraction @Inject()
 (
-  @Named("redisActor") redisActor: ActorRef,
+  @Named(RedisActor.name) redisActor: ActorRef,
   configuration: Configuration
 ) extends Actor with Serializable {
 

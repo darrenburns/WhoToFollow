@@ -54,7 +54,7 @@ const QueryResults = React.createClass({
     },
 
     _setQueryChannel(query: string): void {
-        let querySocket = new WebSocket(`ws://localhost:9000/ws/${this.props.params.query}`);
+        let querySocket = new WebSocket(`ws://localhost:9000/ws/query/${this.props.params.query}`);
         querySocket.onmessage = event => {
             let recs: Array<UserScore> = JSON.parse(event.data).results;
             let history: Map<string, List<number>> = this.state.queryUserHistories;

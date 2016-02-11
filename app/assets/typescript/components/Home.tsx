@@ -1,5 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import * as Immutable from 'immutable';
 import {Container, Row, Col} from 'elemental';
 import Tweet from './Tweet.tsx';
 import UserRecommendation from './UserRecommendation.tsx';
@@ -10,52 +11,24 @@ import {List, ListDivider, Paper, Card, CardText} from 'material-ui';
 import {Route, Router, Link, History} from 'react-router';
 import config from '../util/config';
 import constants from '../util/constants';
-
-
-export interface RecentQuery {
-    query: string
-    id: number
-    timestamp: number
-}
+import {RecentQuery} from "./App";
 
 
 interface HomeState {
     currentQuery: string
-    recentQueries: Array<string>
-    recentQueriesSocket: WebSocket
 }
 
-const Home = React.createClass<any, HomeState>({
+interface HomeProps {
+    recentQueries: Immutable.List<RecentQuery>
+}
+
+const Home = React.createClass<HomeProps, HomeState>({
 
     mixins: [History],
 
     getInitialState() {
         return {
             currentQuery: '',
-            recentQueries: [],
-            recentQueriesSocket: null
-        }
-    },
-
-    componentWillMount() {
-        let ws: WebSocket = new WebSocket(`ws://localhost:9000/ws/default:recent-queries`);
-        ws.onmessage = event => {
-            let data = JSON.parse(event.data);
-            if (data.hasOwnProperty("query")) {
-                this.setState({recentQueries: [data].concat(this.state.recentQueries).slice(0, 5)})
-            }
-        };
-        if (this.state.recentQueriesSocket != null) {
-            this.state.recentQueriesSocket.close();
-        }
-        this.setState({
-            recentQueriesSocket: ws
-        });
-    },
-
-    componentWillUnmount() {
-        if (this.state.recentQueriesSocket != null) {
-            this.state.recentQueriesSocket.close();
         }
     },
 
@@ -77,6 +50,7 @@ const Home = React.createClass<any, HomeState>({
     },
 
     render: function() {
+        console.log("Home.tsx, this.props.recentQueries = " + this.props.recentQueries);
         return (
             <div>
                 <Row>
@@ -89,7 +63,7 @@ const Home = React.createClass<any, HomeState>({
                     </Col>
                     <Col lg="50%">
                         <h3 className="padded-top-header">Recent Searches</h3>
-                        <ScrollingList duration={500} numItemsToShow={4} items={this.state.recentQueries} />
+                        <ScrollingList duration={500} numItemsToShow={4} items={this.props.recentQueries} />
                     </Col>
                 </Row>
                 {this.props.children}

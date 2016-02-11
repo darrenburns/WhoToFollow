@@ -4,7 +4,9 @@
 
 # Home page
 GET     /                                           controllers.Application.index
-GET     /ws/:channelName                            controllers.Application.getChannel(channelName: String)
+GET     /ws/query/:queryString                      controllers.Application.getQueryChannel(queryString: String)
+GET     /ws/user/:screenName                        controllers.Application.getUserChannel(screenName: String)
+GET     /ws/main/                                   controllers.Application.getMetricsChannel
 GET     /learning/timeline/:screenName              controllers.Application.fetchAndAnalyseTimeline(screenName: String)
 POST    /learning/rate-user                         controllers.Application.rateUser
 GET     /learning/get-user-relevance                controllers.Application.getUserRelevance(screenName: String, query: String)

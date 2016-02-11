@@ -1,4 +1,4 @@
-package report.utility
+package channels.utility
 
 sealed trait ClientWebSocketMessage { def messageType: String }
 

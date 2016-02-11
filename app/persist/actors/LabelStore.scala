@@ -5,13 +5,13 @@ import java.util.Date
 import akka.actor.{Actor, ActorRef}
 import akka.pattern.ask
 import akka.util.Timeout
-import com.google.inject.Inject
+import com.google.inject.{Singleton, Inject}
 import com.google.inject.name.Named
 import com.mongodb.WriteResult
 import com.mongodb.casbah.commons.MongoDBObject
 import hooks.MongoInit
 import learn.actors.FeatureExtraction.UserFeatures
-import persist.actors.RedisQueryWorker.UserFeatureRequest
+import persist.actors.RedisQueryWorker.GetUserFeatures
 import play.api.Logger
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
@@ -43,8 +43,9 @@ object LabelStore {
 /**
   * Receives votes and stores them in the database
   */
+@Singleton
 class LabelStore @Inject() (
-  @Named("redisActor") redisActor: ActorRef
+  @Named(RedisActor.name) redisActor: ActorRef
 ) extends Actor {
 
   import LabelStore._
@@ -60,7 +61,7 @@ class LabelStore @Inject() (
 
   private def voteForUser(screenName: String, queryString: String, isRelevant: Boolean): Unit = {
     // Fetch the features for this user from Redis
-    (redisActor ? UserFeatureRequest(screenName)) onComplete {
+    (redisActor ? GetUserFeatures(screenName)) onComplete {
       case Success(features: UserFeatures) =>
         val dbVote = MongoDBObject(
           "timestamp" -> new Date(),

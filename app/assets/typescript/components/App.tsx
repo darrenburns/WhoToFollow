@@ -1,5 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import * as Immutable from 'immutable';
 import {Container, Row, Col} from 'elemental';
 import {History, Route, Router, Link} from 'react-router';
 import Home from './Home.tsx';
@@ -11,8 +12,15 @@ import TwitterUserPreviewPane from "./TwitterUserPreviewPane";
 
 injectTapEventPlugin();
 
+export interface RecentQuery {
+    query: string
+    id: number
+    timestamp: number
+}
+
 interface IAppState {
-    indexSizeSocket?: WebSocket
+    metricsSocket?: WebSocket
+    recentQueries?: Immutable.List<RecentQuery>
     indexSize?: number
 }
 
@@ -22,28 +30,40 @@ const App = React.createClass<any, IAppState>({
 
     getInitialState() {
         return {
-            indexSizeSocket: null,
-            indexSize: 0
+            metricsSocket: null,
+            indexSize: 0,
+            recentQueries: Immutable.List<RecentQuery>()
         }
     },
 
 
     componentDidMount() {
-        let ws: WebSocket = new WebSocket(`ws://localhost:9000/ws/default:index-size`);
+        let ws: WebSocket = new WebSocket(`ws://localhost:9000/ws/main/`);
+
+        // Register event listener on WebSocket
         ws.onmessage = event => {
-            this.setState({indexSize: JSON.parse(event.data).indexSize});
+            let eventData = JSON.parse(event.data);
+            if (eventData.hasOwnProperty('numDocs')) {
+                this.setState({indexSize: eventData.numDocs});
+            }
+            if (eventData.hasOwnProperty('recentQueries')) {
+                this.setState({recentQueries: eventData.recentQueries});
+            }
+            if (eventData.hasOwnProperty('query')) {
+                this.setState({recentQueries: [eventData.query].concat(this.state.recentQueries).slice(0, 5)});
+            }
         };
-        if (this.state.indexSizeSocket != null) {
-            this.state.indexSizeSocket.close();
+        if (this.state.metricsSocket != null) {
+            this.state.metricsSocket.close();
         }
         this.setState({
-            indexSizeSocket: ws
+            metricsSocket: ws
         });
     },
 
     componentWillUnmount() {
-        if (this.state.indexSizeSocket != null) {
-            this.state.indexSizeSocket.close();
+        if (this.state.metricsSocket != null) {
+            this.state.metricsSocket.close();
         }
     },
 
@@ -60,7 +80,9 @@ const App = React.createClass<any, IAppState>({
                                         tooltip="Back" onClick={this._onClickBackButton}>arrow_back</IconButton>}
                     iconElementRight={<FlatButton label={this.state.indexSize + " users indexed"}  />}
                 />
-                {this.props.children}
+                {this.props.children && React.cloneElement(this.props.children, {
+                    recentQueries: this.state.recentQueries
+                    })}
             </Container>
         )
     }

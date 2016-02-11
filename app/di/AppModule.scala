@@ -1,4 +1,4 @@
-package modules
+package di
 
 import com.google.inject.AbstractModule
 import hooks.{ApplicationShutdown, ApplicationPreStart}

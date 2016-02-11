@@ -8,6 +8,7 @@ import learn.actors.TweetStreamActor.Ready
 import org.apache.spark.streaming._
 import org.apache.spark.streaming.dstream.ReceiverInputDStream
 import org.slf4j.LoggerFactory
+import persist.actors.RedisActor
 import persist.actors.RedisWriterWorker.{UserHashtagReport, RedisWriteRequest}
 import play.api.libs.json.{Json, Writes}
 import play.api.{Configuration, Logger}
@@ -47,7 +48,7 @@ object UserHashtagCounter {
 @Singleton
 class UserHashtagCounter @Inject()
 (
-  @Named("redisActor") redisActor: ActorRef,
+  @Named(RedisActor.name) redisActor: ActorRef,
   configuration: Configuration
 ) extends Actor {
 

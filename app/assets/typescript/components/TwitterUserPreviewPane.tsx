@@ -82,7 +82,7 @@ export default class TwitterUserPreviewPane extends
     };
 
     private _setUserChannel = (screenName: string): void => {
-        let ws: WebSocket = new WebSocket(`ws://localhost:9000/ws/user:${screenName}`);
+        let ws: WebSocket = new WebSocket(`ws://localhost:9000/ws/user/${screenName}`);
         ws.onmessage = (event) => {
             let update: UserFeatures = JSON.parse(event.data);
             let newFeatures = Immutable.Map<string, number>();

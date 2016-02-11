@@ -1,4 +1,4 @@
-package report.utility
+package channels.utility
 
 /**
   * Object contains utility methods for dealing with channels. Mostly deals with management of channel names,
