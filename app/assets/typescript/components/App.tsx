@@ -20,7 +20,7 @@ export interface RecentQuery {
 
 interface IAppState {
     metricsSocket?: WebSocket
-    recentQueries?: Immutable.List<RecentQuery>
+    recentQueries?: Array<RecentQuery>
     indexSize?: number
 }
 
@@ -32,7 +32,7 @@ const App = React.createClass<any, IAppState>({
         return {
             metricsSocket: null,
             indexSize: 0,
-            recentQueries: Immutable.List<RecentQuery>()
+            recentQueries: Array<RecentQuery>()
         }
     },
 
@@ -46,11 +46,12 @@ const App = React.createClass<any, IAppState>({
             if (eventData.hasOwnProperty('numDocs')) {
                 this.setState({indexSize: eventData.numDocs});
             }
-            if (eventData.hasOwnProperty('recentQueries')) {
-                this.setState({recentQueries: eventData.recentQueries});
-            }
+            // FIXME: Handle this correctly - queries in this event don't have exact same format
+            //if (eventData.hasOwnProperty('recentQueries')) {
+            //    this.setState({recentQueries: eventData.recentQueries});
+            //}
             if (eventData.hasOwnProperty('query')) {
-                this.setState({recentQueries: [eventData.query].concat(this.state.recentQueries).slice(0, 5)});
+                this.setState({recentQueries: [eventData].concat(this.state.recentQueries).slice(0, 5)});
             }
         };
         if (this.state.metricsSocket != null) {

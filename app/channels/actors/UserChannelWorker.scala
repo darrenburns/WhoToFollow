@@ -74,10 +74,10 @@ class UserChannelWorker @Inject() (
   val pushTick =
     context.system.scheduler.schedule(Duration.Zero, FiniteDuration(2, TimeUnit.SECONDS), self, PushLatestUserFeatures)
   val expiryTick =
-    context.system.scheduler.schedule(Duration.Zero, FiniteDuration(20, TimeUnit.SECONDS), self, CheckExpired)
+    context.system.scheduler.schedule(Duration.Zero, FiniteDuration(30, TimeUnit.SECONDS), self, CheckExpired)
 
   override def receive = {
-    case KeepAlive => latestKeepAlive = DateTime.now
+    case KeepAlive => handleKeepAlive()
     case PushLatestUserFeatures => pushLatest()
     case CheckExpired => if (hasExpired) suicideAndCleanup(userChannelSupervisor)
     case features: UserFeatures => channel push Json.toJson(features)

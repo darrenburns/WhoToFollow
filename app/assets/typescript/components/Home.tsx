@@ -50,7 +50,6 @@ const Home = React.createClass<HomeProps, HomeState>({
     },
 
     render: function() {
-        console.log("Home.tsx, this.props.recentQueries = " + this.props.recentQueries);
         return (
             <div>
                 <Row>

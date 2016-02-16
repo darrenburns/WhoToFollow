@@ -35,10 +35,11 @@ class UserChannelSupervisor @Inject() (
     Features for users are first sent here and then passed on to the correct actor
     in order to prevent bugs relating the changing sender refs.
      */
-    case userFeatures: UserFeatures =>
+    case userFeatures @ UserFeatures(screenName,_,_,_,_,_,_,_,_,_,_) =>
       Logger.debug("UserChannelSupervisor sending UserFeatures to relevant worker.")
-      channels.get(userFeatures.screenName) match {
+      channels.get(screenName) match {
         case Some(meta) => meta.actor ! userFeatures
+        case None => Logger.debug(s"Channel for user '$screenName' could not be found.")
       }
   }
 

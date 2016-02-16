@@ -17,6 +17,7 @@ import Constants from "../util/constants";
 import TimelineApi from '../endpoints/TimelineApi';
 import LearningApi from '../endpoints/LearningApi';
 import Status = Twitter.Status;
+import ChannelUtility from '../util/ChannelUtility';
 import UserFeatures = Learning.UserFeatures;
 
 
@@ -82,6 +83,10 @@ export default class TwitterUserPreviewPane extends
     };
 
     private _setUserChannel = (screenName: string): void => {
+        // Ensure we clean up any existing WebSocket handles
+        if (this.state.userSocket != null) {
+            this.state.userSocket.close();
+        }
         let ws: WebSocket = new WebSocket(`ws://localhost:9000/ws/user/${screenName}`);
         ws.onmessage = (event) => {
             let update: UserFeatures = JSON.parse(event.data);
@@ -115,16 +120,10 @@ export default class TwitterUserPreviewPane extends
                 latestMedianTimeSinceHashtag: median === null ? null : moment(median * 1000)  // Convert to milliseconds for momentjs
             });
         };
-        if (this.state.userSocket != null) {
-            this.state.userSocket.close();
-        }
+        let keepAlive = ChannelUtility.buildKeepAlive(this.props.params.screenName);
+        ws.send(keepAlive);
         let keepAliveHandle = setInterval(() => {
-            if (this.props.params.screenName !== '') {
-                this.state.userSocket.send(JSON.stringify({
-                    "channel": `user:${this.props.params.screenName}`,
-                    "request": Constants.KEEP_ALIVE_STRING
-                }))
-            }
+            ws.send(keepAlive)
         }, Configuration.KEEP_ALIVE_FREQUENCY);
         this.setState({socketKeepAliveHandle: keepAliveHandle, userSocket: ws});
     };

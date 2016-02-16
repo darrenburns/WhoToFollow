@@ -35,7 +35,7 @@ export default class Tweet extends React.Component<ITweetProps, any> {
         return (
             <div className="tweet">
                 <div className="tweet-sidebar-left">
-                    <img src={TwitterUtility.getProfilePictureUrl(screenName, "normal")} alt={screenName} width="48px" height="48px"/>
+                    <img src={TwitterUtility.getProfilePictureUrl(screenName, "bigger")} alt={screenName} width="48px" height="48px"/>
                 </div>
                 <div className="tweet-body">
                     <strong>{username}</strong> - <span style={{color: `#${this.props.colour}`}}>@{screenName}</span>

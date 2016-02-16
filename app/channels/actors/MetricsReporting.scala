@@ -11,6 +11,7 @@ import learn.actors.Indexer
 import learn.actors.Indexer.GetCollectionStats
 import persist.actors.RedisActor
 import persist.actors.RedisQueryWorker.GetRecentQueryList
+import persist.actors.RedisWriterWorker.NewQuery
 import play.api.Logger
 import play.api.libs.iteratee.{Concurrent, Iteratee}
 import play.api.libs.json.{Writes, Json, JsObject, JsValue}
@@ -25,6 +26,14 @@ object MetricsReporting extends NamedActor {
   case class RecentQueries(recentQueriesList: List[String])
   case class CollectionStats(numberOfDocuments: Int)
   case object GetMetricsChannel
+
+  implicit val newQueryWrites = new Writes[NewQuery] {
+    def writes(nq: NewQuery) = Json.obj(
+      "query" -> nq.query,
+      "id" -> nq.id,
+      "timestamp" -> nq.timestamp.getMillis
+    )
+  }
 
   implicit val collectionStatsWrites = new Writes[CollectionStats] {
     def writes(stats: CollectionStats) = Json.obj(
@@ -62,6 +71,7 @@ class MetricsReporting @Inject() (
     })
     case recentQueries @ RecentQueries(_) => channelMeta.channel push Json.toJson(recentQueries)
     case stats @ CollectionStats(_) => channelMeta.channel push Json.toJson(stats)
+    case query @ NewQuery(_,_,_) => channelMeta.channel push Json.toJson(query)
   }
 
   private def getMetricsChannelMeta = channelMeta

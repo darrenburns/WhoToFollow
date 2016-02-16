@@ -22,15 +22,6 @@ object WebSocketSupervisor {
     val DeadChannelTimeout = 30
   }
 
-
-  implicit val newQueryWrites = new Writes[NewQuery] {
-    def writes(nq: NewQuery) = Json.obj(
-      "query" -> nq.query,
-      "id" -> nq.id,
-      "timestamp" -> nq.timestamp.getMillis
-    )
-  }
-
   case class OutputChannel(name: String)
   case class CheckForDeadChannels()
   case class ChannelTriple(in: Iteratee[JsObject, Unit], out: Enumerator[JsValue],

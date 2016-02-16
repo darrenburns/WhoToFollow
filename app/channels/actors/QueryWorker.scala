@@ -60,7 +60,7 @@ class QueryWorker @Inject() (
   val fetchTick = context.system.scheduler
     .schedule(Duration.Zero, FiniteDuration(4, TimeUnit.SECONDS), self, FetchLatestQueryResults)
   val expiryTick = context.system.scheduler
-    .schedule(Duration.Zero, FiniteDuration(60, TimeUnit.SECONDS), self, CheckExpired)
+    .schedule(Duration.Zero, FiniteDuration(30, TimeUnit.SECONDS), self, CheckExpired)
 
 
   override def receive = LoggingReceive {
