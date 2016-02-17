@@ -19,6 +19,7 @@ import LearningApi from '../endpoints/LearningApi';
 import Status = Twitter.Status;
 import ChannelUtility from '../util/ChannelUtility';
 import UserFeatures = Learning.UserFeatures;
+import Logger from "../util/Logger";
 
 
 interface ITwitterUserPreviewPaneProps {
@@ -120,12 +121,17 @@ export default class TwitterUserPreviewPane extends
                 latestMedianTimeSinceHashtag: median === null ? null : moment(median * 1000)  // Convert to milliseconds for momentjs
             });
         };
-        let keepAlive = ChannelUtility.buildKeepAlive(this.props.params.screenName);
-        ws.send(keepAlive);
-        let keepAliveHandle = setInterval(() => {
-            ws.send(keepAlive)
-        }, Configuration.KEEP_ALIVE_FREQUENCY);
-        this.setState({socketKeepAliveHandle: keepAliveHandle, userSocket: ws});
+        // Wait for WS handshake to complete before scheduling keep-alives
+        ws.onopen = (event) => {
+            let keepAlive = ChannelUtility.buildKeepAlive(this.props.params.screenName);
+            Logger.info(`Sending keep alive for user channel "${screenName}".`, "KEEP-ALIVE");
+            ws.send(keepAlive);
+            let keepAliveHandle = setInterval(() => {
+                Logger.info(`Sending keep alive for user channel "${screenName}".`, "KEEP-ALIVE");
+                ws.send(keepAlive);
+            }, Configuration.KEEP_ALIVE_FREQUENCY);
+            this.setState({socketKeepAliveHandle: keepAliveHandle, userSocket: ws});
+        }
     };
 
     private _setUserTimeline = (screenName: string): void => {

@@ -10,12 +10,14 @@ import Configuration from '../util/config';
 import Constants from '../util/constants';
 import List = Immutable.List;
 import Map = Immutable.Map;
+import ChannelUtility from "../util/ChannelUtility";
+import Logger from "../util/Logger";
 
 
 interface UserScore {
-    screenName: string,
-    name: string,
-    score: number
+    screenName: string;
+    name: string;
+    score: number;
 }
 
 const QueryResults = React.createClass({
@@ -73,20 +75,20 @@ const QueryResults = React.createClass({
                 queryUserHistories: history
             });
         };
-        // Continuously send Keep-Alives to inform server that we still want recs and stats
-        let keepAliveTrigger = setInterval(() => {
-            console.log(`Sending keep alive for query channel ${query}`);
-            if (this.props.params.query !== '' && this.state.querySocket) {
-                this.state.querySocket.send(JSON.stringify({
-                    "channel": this.props.params.query,
-                    "request": Constants.KEEP_ALIVE_STRING
-                }))
-            }
-        }, Configuration.KEEP_ALIVE_FREQUENCY);
-        this.setState({
-            querySocket: querySocket,
-            keepAlive: keepAliveTrigger
-        });
+        // Schedule keep-alives only after handshake complete
+        querySocket.onopen = (event) => {
+            // Continuously send Keep-Alives to inform server that we still want recs and stats
+            let keepAlive = ChannelUtility.buildKeepAlive(this.props.params.query);
+            querySocket.send(keepAlive);
+            let keepAliveTrigger = setInterval(() => {
+                Logger.info(`Sending keep-alive to query channel ${query}`, "KEEP-ALIVE");
+                querySocket.send(keepAlive);
+            }, Configuration.KEEP_ALIVE_FREQUENCY);
+            this.setState({
+                querySocket: querySocket,
+                keepAlive: keepAliveTrigger
+            });
+        }
     },
 
     _freeComponentResources(): void {
