@@ -2,8 +2,7 @@ package channels.actors
 
 import java.util.concurrent.TimeUnit
 
-import akka.actor.{Actor, ActorRef, PoisonPill}
-import akka.pattern.ask
+import akka.actor.{Actor, ActorRef}
 import akka.util.Timeout
 import com.google.inject.Inject
 import com.google.inject.assistedinject.Assisted
@@ -11,14 +10,13 @@ import com.google.inject.name.Named
 import learn.actors.FeatureExtraction.UserFeatures
 import org.joda.time.DateTime
 import persist.actors.RedisActor
-import persist.actors.RedisQueryWorker.{SendUserFeaturesToChannel, GetUserFeatures}
+import persist.actors.RedisQueryWorker.SendUserFeaturesToChannel
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.iteratee.Concurrent
 import play.api.libs.json.{JsValue, Json, Writes}
 import play.api.{Configuration, Logger}
 
 import scala.concurrent.duration.{Duration, FiniteDuration}
-import scala.util.{Failure, Success}
 
 
 object UserChannelWorker {

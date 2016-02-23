@@ -6,12 +6,12 @@ import com.google.inject.{Inject, Singleton}
 import com.mongodb.casbah.MongoClient
 import com.redis.RedisClientPool
 import org.apache.spark.SparkConf
-import org.apache.spark.streaming.{Seconds, StreamingContext}
+import org.apache.spark.streaming.{Milliseconds, Seconds, StreamingContext}
 import twitter4j.TwitterFactory
 
 
 object SparkInit {
-  val conf = new SparkConf().setMaster("local[2]").setAppName("WTFContext")
+  val conf = new SparkConf().setMaster("local[*]").setAppName("WTFContext")
   lazy val ssc = new StreamingContext(conf, Seconds(1))
 }
 

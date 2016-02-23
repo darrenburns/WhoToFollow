@@ -17,6 +17,7 @@ libraryDependencies ++= Seq(
   "net.debasishg" %% "redisclient" % "3.0",
   "com.github.nscala-time" %% "nscala-time" % "2.4.0",
   "org.mongodb" %% "casbah" % "3.0.0",
+  "com.typesafe.akka" % "akka-actor_2.10" % "2.3.13",
   "net.sf.jazzy" % "jazzy" % "0.5.2-rtext-1.4.1-2"
 )
 
