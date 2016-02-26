@@ -58,7 +58,7 @@ class QueryWorker @Inject() (
   override var latestKeepAlive = DateTime.now()
 
   val fetchTick = context.system.scheduler
-    .schedule(Duration.Zero, FiniteDuration(4, TimeUnit.SECONDS), self, FetchLatestQueryResults)
+    .schedule(Duration.Zero, FiniteDuration(500, TimeUnit.MILLISECONDS), self, FetchLatestQueryResults)
   val expiryTick = context.system.scheduler
     .schedule(Duration.Zero, FiniteDuration(30, TimeUnit.SECONDS), self, CheckExpired)
 

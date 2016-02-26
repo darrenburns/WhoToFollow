@@ -17,9 +17,13 @@ libraryDependencies ++= Seq(
   "net.debasishg" %% "redisclient" % "3.0",
   "com.github.nscala-time" %% "nscala-time" % "2.4.0",
   "org.mongodb" %% "casbah" % "3.0.0",
-  "com.typesafe.akka" % "akka-actor_2.10" % "2.3.13",
-  "net.sf.jazzy" % "jazzy" % "0.5.2-rtext-1.4.1-2"
+  "com.typesafe.akka" % "akka-testkit_2.10" % "2.3.13",
+  "net.sf.jazzy" % "jazzy" % "0.5.2-rtext-1.4.1-2",
+  "org.scalatest" % "scalatest_2.10" % "3.0.0-M15",
+  "org.spire-math" %% "jawn-parser" % "0.8.3",
+  "org.spire-math" %% "jawn-ast" % "0.8.3"
 )
+
 
 dependencyOverrides ++= Set(
   "com.fasterxml.jackson.core" % "jackson-databind" % "2.4.4",

@@ -62,7 +62,7 @@ class MetricsReporting @Inject() (
   val channelMeta = createMetricsChannel()
 
   context.system.scheduler.schedule(Duration.Zero, 2.seconds, redisActor, GetRecentQueryList)
-  context.system.scheduler.schedule(Duration.Zero, 2.seconds, indexer, GetCollectionStats)
+  context.system.scheduler.schedule(Duration.Zero, 500.millis, indexer, GetCollectionStats)
 
   override def receive = {
     case GetMetricsChannel => sender ! (getMetricsChannelMeta match {

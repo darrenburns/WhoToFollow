@@ -9,7 +9,6 @@ import hooks.SparkInit
 import learn.actors.TweetStreamActor.{Ready, TweetBatch}
 import learn.actors.UserHashtagCounter.ActiveTwitterStream
 import org.apache.spark.streaming.dstream.ReceiverInputDStream
-import org.apache.spark.streaming.dstream.ReceiverInputDStream
 import org.apache.spark.streaming.twitter.TwitterUtils
 import play.api.{Configuration, Logger}
 import twitter4j.Status
@@ -50,14 +49,6 @@ class TweetStreamActor @Inject()
         checkTwitterKeys()
         TwitterUtils.createStream(SparkInit.ssc, None)
   }
-
-//  // TODO: Remove these after debug
-//  // Send batches of tweets to the indexer
-//  streamHandle.foreachRDD(batch => {
-//    indexer ! TweetBatch(batch.collect().toList)
-//  })
-//  streamHandle.context.start()
-//  streamHandle.context.awaitTermination()
 
 //   Asynchronously send status stream handle to interested actors
   val readyFuture = for {

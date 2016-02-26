@@ -42,7 +42,12 @@ class QueryService @Inject()
   See also: "The Cameo design pattern" and "anonymous actors".
   */
 
-  private def doQuery(queryString: String): TerrierResultSet = {
+  def doQuery(queryString: String): TerrierResultSet = {
+
+    if (queryString.isEmpty) {
+      TerrierResultSet(queryString, new Array[UserTerrierScore](0))
+    }
+
     // create a search manager (runs the search process over an index)
     val queryingManager = new Manager(memIndex)
 
