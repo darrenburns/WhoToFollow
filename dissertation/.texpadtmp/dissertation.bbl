@@ -1,9 +1,5 @@
 \begin{thebibliography}{1}
 
-\bibitem{DIMACS}
-{DIMACS clique benchmark instances}.
-\newblock ftp://dimacs.rutgers.edu/pub/challenge/graph/benchmarks/clique.
-
 \bibitem{ckt}
 Peter Cheeseman, Bob Kanefsky, and William~M. Taylor.
 \newblock {Where the really hard problems are}.

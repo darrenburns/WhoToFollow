@@ -3,46 +3,44 @@ Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: dissertation.aux
 The style file: plain.bst
 Database file #1: ../bib.bib
-Warning--to sort, need author or key in DIMACS
-You've used 4 entries,
+You've used 3 entries,
             2118 wiz_defined-function locations,
-            520 strings with 4447 characters,
-and the built_in function-call counts, 1338 in all, are:
-= -- 131
-> -- 33
+            516 strings with 4338 characters,
+and the built_in function-call counts, 1179 in all, are:
+= -- 116
+> -- 32
 < -- 2
-+ -- 14
++ -- 13
 - -- 10
-* -- 72
-:= -- 194
-add.period$ -- 11
-call.type$ -- 4
-change.case$ -- 17
+* -- 67
+:= -- 177
+add.period$ -- 9
+call.type$ -- 3
+change.case$ -- 14
 chr.to.int$ -- 0
-cite$ -- 5
-duplicate$ -- 64
-empty$ -- 132
+cite$ -- 3
+duplicate$ -- 57
+empty$ -- 109
 format.name$ -- 10
-if$ -- 311
+if$ -- 271
 int.to.chr$ -- 0
-int.to.str$ -- 4
+int.to.str$ -- 3
 missing$ -- 3
-newline$ -- 22
+newline$ -- 18
 num.names$ -- 6
-pop$ -- 26
+pop$ -- 18
 preamble$ -- 1
-purify$ -- 13
+purify$ -- 11
 quote$ -- 0
-skip$ -- 55
+skip$ -- 47
 stack$ -- 0
-substring$ -- 97
-swap$ -- 24
+substring$ -- 92
+swap$ -- 23
 text.length$ -- 2
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 16
-warning$ -- 1
+type$ -- 12
+warning$ -- 0
 while$ -- 11
-width$ -- 5
-write$ -- 42
-(There was 1 warning)
+width$ -- 4
+write$ -- 35
