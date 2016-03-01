@@ -56,7 +56,7 @@ class BatchFeatureExtraction @Inject()
   // Map of screenName -> (StatusId, Last time their timeline was checked)
   protected[this] var latestUserChecks: HashMap[String, (Long, DateTime)] = HashMap.empty
   var simulationTime: Option[DateTime] = None
-  var currentMaxStatusId = 0L
+  var currentMaxStatusId = 1L
 
   override def receive = {
     case FetchAndAnalyseTimeline(screenName: String) =>
