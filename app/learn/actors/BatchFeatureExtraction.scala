@@ -55,6 +55,7 @@ class BatchFeatureExtraction @Inject()
 
   // Map of screenName -> Last time their timeline was checked
   protected[this] var latestUserChecks: HashMap[String, DateTime] = HashMap.empty
+  var simulationTime = Option(DateTime)
 
   override def receive = {
     case FetchAndAnalyseTimeline(screenName: String) =>
@@ -62,8 +63,12 @@ class BatchFeatureExtraction @Inject()
       latestUserChecks.get(screenName) match {
         case Some(lastChecked) =>
           // If we haven't looked at timeline in at least 6 hours then check again
-          if (lastChecked < DateTime.now - 6.hours){
-            analyseUserTimeline(screenName)
+          simulationTime match {
+            case Some(simTime) =>
+              if (lastChecked < simTime - 6.hours) {
+                analyseUserTimeline(screenName)
+              }
+            case None => _
           }
         case None =>
           // We have never seen this user before so we want to analyse their timeline
@@ -73,6 +78,7 @@ class BatchFeatureExtraction @Inject()
     case TweetBatch(tweets: List[Status]) =>
 
       Logger.debug("Received new tweet batch from a user timeline.")
+      simulationTime = Option(new DateTime(tweets.last.getCreatedAt.getTime))
 
       // Filter the list so that it only contains tweets we haven't seen before
       // Futures contain Tuple of (tweetId, haveWeSeenThisTweetBefore?)
@@ -85,16 +91,13 @@ class BatchFeatureExtraction @Inject()
       Future.sequence(tweetAnalysisHistory) onComplete {
         case Success(seenBefore) =>
 
-          Logger.debug(">>>> RECEIVED RESPONSE FROM REDIS ACTOR (HasStatusBeenProcessed)")
-
           // Keep only tweets we haven't seen before
           val newTweets = tweets.filter(tweet => !(seenBefore contains (tweet.getId, true)))
 
-          Logger.debug(s"Batch analysing ${newTweets.size} tweets.")
           // Build a sequence of futures of tuples
           val batchTweetFuture = newTweets.map(status => {
             // Mark the time that we last reviewed this user
-            latestUserChecks += (status.getUser.getScreenName -> DateTime.now)
+            latestUserChecks += (status.getUser.getScreenName -> new DateTime(status.getCreatedAt.getTime))
             // Perform feature extraction
             Future {
             (status, ExtractionUtils.getStatusFeatures(status),

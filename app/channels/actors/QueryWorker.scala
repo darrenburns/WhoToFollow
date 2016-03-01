@@ -65,7 +65,7 @@ class QueryWorker @Inject() (
 
   override def receive = LoggingReceive {
     case FetchLatestQueryResults => pushLatest()
-    case TerrierResultSet(query, results) => channel push Json.toJson(results)
+    case TerrierResultSet(query, actualResultSize, results) => channel push Json.toJson(results)
     case KeepAlive => handleKeepAlive()
     case CheckExpired => if (hasExpired) suicideAndCleanup(querySupervisor)
   }

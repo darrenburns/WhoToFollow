@@ -45,7 +45,7 @@ class QuerySupervisor @Inject() (
         case _ => Left("Channel fetch/create error.")
       })
     case CloseChannel(channelName) => closeChannel(channelName)
-    case resultSet @ TerrierResultSet(queryString, results) =>
+    case resultSet @ TerrierResultSet(queryString, actualResultSize, results) =>
       channels.get(queryString) match {
         case Some(cMeta) => cMeta.actor forward resultSet
         case None => Logger.error("Received a ResultSet for an actor that no longer exists (it may have been " +

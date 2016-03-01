@@ -39,6 +39,7 @@ class TweetStreamActor @Inject()
   val batchSize = config.getInt("stream.sourcefile.batchSize").getOrElse(10)
   val batchDuration = config.getInt("stream.sourcefile.batchDuration").getOrElse(4)
 
+  checkTwitterKeys()
   val streamHandle: ReceiverInputDStream[Status] =
     config.getString("stream.sourcefile.path") match {
       case Some(sourceFile) =>
@@ -46,7 +47,6 @@ class TweetStreamActor @Inject()
         SparkInit.ssc.actorStream[Status](TweetStreamSimulator.props[Status](sourceFile, batchSize, batchDuration), TweetStreamSimulator.name)
       case None =>
         // If there is no file that we are using as our source, default to the Twitter sample stream
-        checkTwitterKeys()
         TwitterUtils.createStream(SparkInit.ssc, None)
   }
 

@@ -8,11 +8,10 @@ import akka.actor.{Actor, PoisonPill, Props}
 import com.google.inject.assistedinject.Assisted
 import com.google.inject.{Inject, Singleton}
 import di.NamedActor
-import jawn.ast.{JParser, JValue}
-import jawn.{AsyncParser, ParseException, Parser}
+import jawn.AsyncParser
+import jawn.ast.JParser
 import learn.actors.TweetStreamActor.TweetBatch
 import org.apache.spark.streaming.receiver.ActorHelper
-import play.api.{Configuration, Logger}
 import twitter4j.json.DataObjectFactory
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -42,17 +41,13 @@ class TweetStreamSimulator[T: ClassTag] @Inject()
   val getStatusTick = context.system.scheduler.schedule(Duration.Zero,
     FiniteDuration(batchDuration, TimeUnit.MILLISECONDS), self, TakeNextStatusBatch)
 
-  var startIdx = 0
-  Logger.info(s"[CAPTURE] Loading tweets from $sourceFile")
   val parser = JParser.async(mode = AsyncParser.UnwrapArray)
   val tweetIterator = Source.fromInputStream(gis(sourceFile)).getLines()
 
   override def receive = {
     case TakeNextStatusBatch =>
-      self ! takeNextStatusBatch(startIdx, startIdx + batchSize)
-      startIdx += 1
+      self ! takeNextStatusBatch()
     case TweetBatch(statusList) =>
-      Logger.debug("[CAPTURE] StatusList received: " + statusList)
       statusList.foreach(store(_))
       // When we finish reading the file
       if (statusList.length < batchSize) {
@@ -60,7 +55,7 @@ class TweetStreamSimulator[T: ClassTag] @Inject()
       }
   }
 
-  private def takeNextStatusBatch(startIdx: Int, endIdx: Int): TweetBatch = {
+  def takeNextStatusBatch(): TweetBatch = {
     val statusBatch = tweetIterator.take(batchSize)
     val statusList = statusBatch.map(status => {
       DataObjectFactory.createStatus(status)

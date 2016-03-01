@@ -9,13 +9,13 @@ import learn.actors.BatchFeatureExtraction.FetchAndAnalyseTimeline
 import learn.actors.{BatchFeatureExtraction, Indexer}
 import org.terrier.matching.ResultSet
 import org.terrier.querying.Manager
-import play.api.Logger
+import play.api.{Configuration, Logger}
 
 
 object QueryService extends NamedActor {
   override final val name = "QueryService"
 
-  case class TerrierResultSet(originalQuery: String, userScores: Array[UserTerrierScore])
+  case class TerrierResultSet(originalQuery: String, actualSize: Int, userScores: Array[UserTerrierScore])
   case class Query(query: String)
   case class UserTerrierScore(screenName: String, name: String, query: String, score: Double)
 }
@@ -23,10 +23,13 @@ object QueryService extends NamedActor {
 class QueryService @Inject()
 (
   @Named(QuerySupervisor.name) querySupervisor: ActorRef,
-  @Named(BatchFeatureExtraction.name) batchFeatureExtraction: ActorRef
+  @Named(BatchFeatureExtraction.name) batchFeatureExtraction: ActorRef,
+  config: Configuration
 ) extends Actor {
 
   import QueryService._
+
+  val resultSetSize = config.getInt("results.resultSize").getOrElse(20)
 
   val memIndex = Indexer.index
 
@@ -38,14 +41,14 @@ class QueryService @Inject()
 
   /* We can't reply to the `sender` here because it is unstable. Each time a QueryWorker asks QueryService
   for the latest TerrierResultSet, the `sender` ref in any executing actor is altered. Therefore we have to
-  send our response to the QuerySupervisor who can then forward it to the relvant worker actor.
+  send our response to the QuerySupervisor who can then forward it to the relevant worker actor.
   See also: "The Cameo design pattern" and "anonymous actors".
   */
 
   def doQuery(queryString: String): TerrierResultSet = {
 
     if (queryString.isEmpty) {
-      TerrierResultSet(queryString, new Array[UserTerrierScore](0))
+      TerrierResultSet(queryString, 0, new Array[UserTerrierScore](0))
     }
 
     // create a search manager (runs the search process over an index)
@@ -55,8 +58,7 @@ class QueryService @Inject()
     val srq = queryingManager.newSearchRequest("query", queryString)
     srq.setOriginalQuery(queryString)
 
-    // define a matching model, in this case use the classical BM25 retrieval model
-    srq.addMatchingModel("Matching", "BM25")
+    srq.addMatchingModel("Matching", "PL2")
 
     // Run the four stages of a Terrier search
     queryingManager.runPreProcessing(srq)
@@ -66,14 +68,18 @@ class QueryService @Inject()
 
     // Send the result set to the channel manager who will forward it through the socket to connected clients.
     val results = srq.getResultSet
+    val actualResultSize = results.getResultSize
 
-    Logger.debug(s"QueryService has obtained initial ResultSet from Terrier: ${results.getResultSize} result(s).")
+    Logger.debug(s"QueryService has obtained initial ResultSet from Terrier: $actualResultSize result(s).")
+
+    results.setExactResultSize(resultSetSize)
+    results.setResultSize(resultSetSize)
 
     val docIds = results.getDocids
     val metaIndex = Indexer.index.getMetaIndex
 
     // Get a list of usernames and screennames from the docIds
-    val profiles = docIds.map(docId => {
+    val profiles = docIds.slice(0, resultSetSize).map(docId => {
       // Get the username metadata for the current docId
       val usernameOption = Option(metaIndex.getItem("username", docId))
       val nameOption = Option(metaIndex.getItem("name", docId))
@@ -94,7 +100,7 @@ class QueryService @Inject()
         UserTerrierScore(screenName, name, queryString, score)
     }
 
-    TerrierResultSet(queryString, queryResults)
+    TerrierResultSet(queryString, actualResultSize, queryResults)
   }
 
 }
