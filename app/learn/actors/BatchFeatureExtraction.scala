@@ -71,7 +71,7 @@ class BatchFeatureExtraction @Inject()
                 analyseUserTimeline(screenName, statusId)
               }
             case None =>
-              Logger.error("Unable to determine current simulation time.")
+              Logger.error("Cannot determine current simulation time.")
           }
         case None =>
           // We have never seen this user before so we want to analyse their timeline
@@ -87,7 +87,6 @@ class BatchFeatureExtraction @Inject()
       if (latestTweet.getId > currentMaxStatusId) {
         currentMaxStatusId = latestTweet.getId
       }
-
 
       // Filter the list so that it only contains tweets we haven't seen before
       // Futures contain Tuple of (tweetId, haveWeSeenThisTweetBefore?)
@@ -105,8 +104,6 @@ class BatchFeatureExtraction @Inject()
 
           // Build a sequence of futures of tuples
           val batchTweetFuture = newTweets.map(status => {
-            // Mark the time that we last reviewed this user
-            latestUserChecks += (status.getUser.getScreenName -> (status.getId, new DateTime(status.getCreatedAt.getTime)))
             // Perform feature extraction
             Future {
             (status, ExtractionUtils.getStatusFeatures(status),
@@ -141,10 +138,19 @@ class BatchFeatureExtraction @Inject()
   }
 
   def analyseUserTimeline(screenName: String, sinceId: Long): Unit = {
+    // Update the time that we last encountered a request to analyse this user's timeline
+    simulationTime match {
+      case Some(time) => markUserLastSeen(screenName, sinceId, time)
+      case None => Logger.error("Cannot determine simulation time.")
+    }
     // Cache the user metadata
     userMetadataWriter ! TwitterUser(Twitter.instance.showUser(screenName))
     // Analyse the tweets from the user timeline
     self ! TweetBatch(Twitter.instance.getUserTimeline(screenName, new Paging(sinceId)).toList)
+  }
+
+  def markUserLastSeen(screenName: String, lastStatusId: Long, lastSeen: DateTime): Unit = {
+    latestUserChecks += (screenName -> (lastStatusId, lastSeen))
   }
 
 }

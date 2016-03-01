@@ -50,7 +50,7 @@ class TweetStreamActor @Inject()
         TwitterUtils.createStream(SparkInit.ssc, None)
   }
 
-//   Asynchronously send status stream handle to interested actors
+  // Asynchronously send status stream handle to interested actors
   val readyFuture = for {
     f1 <- userHashtagCounter ? ActiveTwitterStream(streamHandle)
     f2 <- featureExtraction ? ActiveTwitterStream(streamHandle)

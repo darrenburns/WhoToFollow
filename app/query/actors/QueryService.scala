@@ -58,7 +58,7 @@ class QueryService @Inject()
     val srq = queryingManager.newSearchRequest("query", queryString)
     srq.setOriginalQuery(queryString)
 
-    srq.addMatchingModel("Matching", "PL2")
+    srq.addMatchingModel("Matching", "BM25")
 
     // Run the four stages of a Terrier search
     queryingManager.runPreProcessing(srq)
