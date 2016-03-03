@@ -6,7 +6,8 @@ import akka.pattern.ask
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
 import hooks.SparkInit
-import learn.actors.TweetStreamActor.{Ready, TweetBatch}
+import learn.actors.BatchFeatureExtraction.SetCurrentMaxStatusId
+import learn.actors.TweetStreamActor.{PipelineActorReady, TweetBatch}
 import learn.actors.UserHashtagCounter.ActiveTwitterStream
 import org.apache.spark.streaming.dstream.ReceiverInputDStream
 import org.apache.spark.streaming.twitter.TwitterUtils
@@ -19,7 +20,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 object TweetStreamActor {
   case class TweetBatch(tweets: Seq[Status])
-  case class Ready()
+  case class PipelineActorReady()
 }
 
 @Singleton
@@ -27,6 +28,7 @@ class TweetStreamActor @Inject()
 (
    @Named("userHashtagCounter") userHashtagCounter: ActorRef,
    @Named("featureExtraction") featureExtraction: ActorRef,
+   @Named(BatchFeatureExtraction.name) batchFeatureExtraction: ActorRef,
    @Named(Indexer.name) indexer: ActorRef,
    config: Configuration
 )
@@ -60,12 +62,16 @@ class TweetStreamActor @Inject()
 
   // Register async callback to be fired when all Spark tasks are fully registered by the actors above
   readyFuture onSuccess {
-    case (f1: Ready, f2: Ready) =>
+    case (f1: PipelineActorReady, f2: PipelineActorReady) =>
       Logger.info("Spark actions registered. Starting Spark context.")
 
       // Send batches of tweets to the indexer
       streamHandle.foreachRDD(batch => {
-        indexer ! TweetBatch(batch.collect().toList)
+        val statusList = batch.collect().toList
+        indexer ! TweetBatch(statusList)
+        if (statusList.nonEmpty) {
+          batchFeatureExtraction ! SetCurrentMaxStatusId(statusList.last.getId)
+        }
       })
 
       // Actors have registered Spark actions, so we can initialise the Spark context

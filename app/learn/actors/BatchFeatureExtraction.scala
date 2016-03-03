@@ -32,6 +32,7 @@ object BatchFeatureExtraction extends NamedActor {
   case class FetchAndAnalyseTimeline(screenName: String)
   case class SetSimulationTime(newTime: DateTime)
   case object GetCurrentMaxStatusId
+  case class SetCurrentMaxStatusId(maxId: Long)
 }
 
 /**
@@ -82,17 +83,11 @@ class BatchFeatureExtraction @Inject()
       }
 
     case GetCurrentMaxStatusId => sender ! currentMaxStatusId
+    case SetCurrentMaxStatusId(maxId) => setCurrentMaxStatusId(maxId)
 
     case TweetBatch(tweets: List[Status]) =>
 
-      Logger.debug("Received new tweet batch from a user timeline.")
-      if (tweets nonEmpty) {
-        val latestTweet = tweets.last
-        simulationTime = Option(new DateTime(latestTweet.getCreatedAt.getTime))
-        if (latestTweet.getId > currentMaxStatusId) {
-          currentMaxStatusId = latestTweet.getId
-        }
-      }
+      Logger.debug("Received new tweet batch from a user timeline")
 
       // Filter the list so that it only contains tweets we haven't seen before
       // Futures contain Tuple of (tweetId, haveWeSeenThisTweetBefore?)
@@ -143,6 +138,8 @@ class BatchFeatureExtraction @Inject()
       }
   }
 
+  def setCurrentMaxStatusId(maxId: Long): Unit = currentMaxStatusId = maxId
+
   def analyseUserTimeline(screenName: String, maxId: Long): Unit = {
     simulationTime match {
       case Some(time) => markUserLastSeen(screenName, maxId, time)
@@ -152,12 +149,14 @@ class BatchFeatureExtraction @Inject()
     userMetadataWriter ! TwitterUser(Twitter.instance.showUser(screenName))
     // Analyse the tweets from the user timeline
     val paging = new Paging()
+    Logger.debug(s"[CAPTURE] Paging on maxStatusId: $currentMaxStatusId")
     paging.setMaxId(maxId)
+    paging.setCount(20)
     self ! TweetBatch(Twitter.instance.getUserTimeline(screenName, paging).toList)
   }
 
   def markUserLastSeen(screenName: String, lastStatusId: Long, lastSeen: DateTime): Unit = {
     latestUserChecks += (screenName -> (lastStatusId, lastSeen))
+    simulationTime = Option(lastSeen)
   }
-
 }

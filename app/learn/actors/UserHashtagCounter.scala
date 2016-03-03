@@ -4,7 +4,7 @@ import akka.actor.{Actor, ActorRef}
 import com.fasterxml.jackson.databind.JsonNode
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
-import learn.actors.TweetStreamActor.Ready
+import learn.actors.TweetStreamActor.PipelineActorReady
 import org.apache.spark.streaming._
 import org.apache.spark.streaming.dstream.ReceiverInputDStream
 import org.slf4j.LoggerFactory
@@ -88,7 +88,7 @@ class UserHashtagCounter @Inject()
     })
 
     Logger.debug("UserHashtagCounter ready.")
-    sender ! Ready()
+    sender ! PipelineActorReady()
 
   }
 

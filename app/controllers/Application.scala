@@ -150,6 +150,7 @@ class Application @Inject()
       case maxStatusId: Long =>
         val paging = new Paging()
         paging.setMaxId(maxStatusId)
+        paging.setCount(20)
         val tweets = twitter.getUserTimeline(screenName, paging)
         if (tweets.nonEmpty) {
           Logger.debug(s"Sending batch of tweets from timeline of $screenName: " + tweets.size())

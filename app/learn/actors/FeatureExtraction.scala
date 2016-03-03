@@ -4,7 +4,7 @@ import akka.actor.{Actor, ActorRef}
 import com.github.nscala_time.time.Imports._
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
-import learn.actors.TweetStreamActor.Ready
+import learn.actors.TweetStreamActor.PipelineActorReady
 import learn.actors.UserHashtagCounter.ActiveTwitterStream
 import learn.utility.ExtractionUtils._
 import org.apache.spark.streaming.Seconds
@@ -112,7 +112,7 @@ class FeatureExtraction @Inject()
         val processedList = featureSeq.map(f => (f.username, f.id))
         redisActor ! ProcessedTweetTuples(processedList)
       })
-      sender ! Ready()
+      sender ! PipelineActorReady()
       Logger.info("FeatureExtraction is ready.")
   }
 
