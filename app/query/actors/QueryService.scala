@@ -76,7 +76,7 @@ class QueryService @Inject()
     val metaIndex = Indexer.index.getMetaIndex
 
     // Get a list of usernames and screennames from the docIds
-    val profiles = docIds.slice(0, resultSetSize).map(docId => {
+    val profiles = docIds.map(docId => {
       // Get the username metadata for the current docId
       val usernameOption = Option(metaIndex.getItem("username", docId))
       val nameOption = Option(metaIndex.getItem("name", docId))

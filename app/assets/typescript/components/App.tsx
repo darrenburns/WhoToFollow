@@ -32,6 +32,7 @@ const App = React.createClass<any, IAppState>({
         return {
             metricsSocket: null,
             indexSize: 0,
+            numUsers: 0,
             recentQueries: Array<RecentQuery>()
         }
     },
@@ -43,8 +44,11 @@ const App = React.createClass<any, IAppState>({
         // Register event listener on WebSocket
         ws.onmessage = event => {
             let eventData = JSON.parse(event.data);
-            if (eventData.hasOwnProperty('numDocs')) {
+            if (eventData.hasOwnProperty('numDocs')) {  // This contains the exact size of the index (num users indexed)
                 this.setState({indexSize: eventData.numDocs});
+            }
+            if (eventData.hasOwnProperty('numUsersSeen')) {  // This is the total number of users processed (many are discarded without being indexed)
+                this.setState({numUsers: eventData.numUsersSeen})
             }
             // FIXME: Handle this correctly - queries in this event don't have exact same format
             //if (eventData.hasOwnProperty('recentQueries')) {
@@ -79,7 +83,7 @@ const App = React.createClass<any, IAppState>({
                     title="Who To Follow"
                     iconElementLeft={<IconButton iconClassName="material-icons" tooltipPosition="bottom-center"
                                         tooltip="Back" onClick={this._onClickBackButton}>arrow_back</IconButton>}
-                    iconElementRight={<FlatButton label={this.state.indexSize + " users indexed"}  />}
+                    iconElementRight={<FlatButton label={this.state.indexSize + " users indexed, " + (this.state.numUsers - this.state.indexSize) + " users discarded"}  />}
                 />
                 {this.props.children && React.cloneElement(this.props.children, {
                     recentQueries: this.state.recentQueries

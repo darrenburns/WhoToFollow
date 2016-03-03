@@ -1,13 +1,15 @@
 package learn.actors
 
 import akka.actor.{Actor, ActorRef}
-import akka.util.Timeout
 import akka.pattern.ask
+import akka.util.Timeout
+import channels.actors.MetricsReporting
+import channels.actors.MetricsReporting.NumberOfUsersSeen
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
 import hooks.SparkInit
 import learn.actors.BatchFeatureExtraction.SetCurrentMaxStatusId
-import learn.actors.TweetStreamActor.{PipelineActorReady, TweetBatch}
+import learn.actors.TweetStreamActor.PipelineActorReady
 import learn.actors.UserHashtagCounter.ActiveTwitterStream
 import org.apache.spark.streaming.dstream.ReceiverInputDStream
 import org.apache.spark.streaming.twitter.TwitterUtils
@@ -15,8 +17,9 @@ import play.api.{Configuration, Logger}
 import twitter4j.Status
 import utils.TwitterAuth
 
-import scala.concurrent.duration._
+import scala.collection.immutable.HashSet
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
 
 object TweetStreamActor {
   case class TweetBatch(tweets: Seq[Status])
@@ -29,6 +32,7 @@ class TweetStreamActor @Inject()
    @Named("userHashtagCounter") userHashtagCounter: ActorRef,
    @Named("featureExtraction") featureExtraction: ActorRef,
    @Named(BatchFeatureExtraction.name) batchFeatureExtraction: ActorRef,
+   @Named(MetricsReporting.name) metricsReporting: ActorRef,
    @Named(Indexer.name) indexer: ActorRef,
    config: Configuration
 )
@@ -40,6 +44,8 @@ class TweetStreamActor @Inject()
 
   val batchSize = config.getInt("stream.sourcefile.batchSize").getOrElse(10)
   val batchDuration = config.getInt("stream.sourcefile.batchDuration").getOrElse(4)
+
+  var screenNamesSeen = HashSet[String]()
 
   checkTwitterKeys()
   val streamHandle: ReceiverInputDStream[Status] =
@@ -68,7 +74,8 @@ class TweetStreamActor @Inject()
       // Send batches of tweets to the indexer
       streamHandle.foreachRDD(batch => {
         val statusList = batch.collect().toList
-        indexer ! TweetBatch(statusList)
+        screenNamesSeen = screenNamesSeen ++ statusList.map(_.getUser.getScreenName)
+        metricsReporting ! NumberOfUsersSeen(screenNamesSeen.size)
         if (statusList.nonEmpty) {
           batchFeatureExtraction ! SetCurrentMaxStatusId(statusList.last.getId)
         }

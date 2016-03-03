@@ -25,6 +25,7 @@ object MetricsReporting extends NamedActor {
   final val name = "MetricsReporting"
   case class RecentQueries(recentQueriesList: List[String])
   case class CollectionStats(numberOfDocuments: Int)
+  case class NumberOfUsersSeen(numUsers: Int)
   case object GetMetricsChannel
 
   implicit val newQueryWrites = new Writes[NewQuery] {
@@ -44,6 +45,12 @@ object MetricsReporting extends NamedActor {
   implicit val recentQueriesWrites = new Writes[RecentQueries] {
     def writes(recentQueries: RecentQueries) = Json.obj(
       "recentQueries" -> recentQueries.recentQueriesList
+    )
+  }
+
+  implicit val numberOfUsersSeenWrites = new Writes[NumberOfUsersSeen] {
+    def writes(numberOfUsersSeen: NumberOfUsersSeen) = Json.obj(
+      "numUsersSeen" -> numberOfUsersSeen.numUsers
     )
   }
 
@@ -72,6 +79,7 @@ class MetricsReporting @Inject() (
     case recentQueries @ RecentQueries(_) => channelMeta.channel push Json.toJson(recentQueries)
     case stats @ CollectionStats(_) => channelMeta.channel push Json.toJson(stats)
     case query @ NewQuery(_,_,_) => channelMeta.channel push Json.toJson(query)
+    case numUsers @ NumberOfUsersSeen(_) => channelMeta.channel push Json.toJson(numUsers)
   }
 
   private def getMetricsChannelMeta = channelMeta

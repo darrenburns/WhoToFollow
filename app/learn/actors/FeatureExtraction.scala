@@ -4,7 +4,7 @@ import akka.actor.{Actor, ActorRef}
 import com.github.nscala_time.time.Imports._
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
-import learn.actors.TweetStreamActor.PipelineActorReady
+import learn.actors.TweetStreamActor.{TweetBatch, PipelineActorReady}
 import learn.actors.UserHashtagCounter.ActiveTwitterStream
 import learn.utility.ExtractionUtils._
 import org.apache.spark.streaming.Seconds
@@ -93,6 +93,7 @@ object FeatureExtraction {
 class FeatureExtraction @Inject()
 (
   @Named(RedisActor.name) redisActor: ActorRef,
+  @Named(Indexer.name) indexer: ActorRef,
   configuration: Configuration
 ) extends Actor with Serializable {
 
@@ -107,6 +108,7 @@ class FeatureExtraction @Inject()
     case ActiveTwitterStream(stream) =>
       Logger.info("FeatureExtraction starting...")
       mapToWindowedFeatureStream(stream, WindowSize).foreachRDD(features => {
+        indexer ! TweetBatch(features.map(f => f.status).collect().toList)
         val featureSeq = features.collect
         redisActor ! TweetFeatureBatch(featureSeq)
         val processedList = featureSeq.map(f => (f.username, f.id))
@@ -121,6 +123,5 @@ class FeatureExtraction @Inject()
     = stream.map(getStatusFeatures)  // Convert status to features
         .filter(QualityAnalyser.isStatusHighQuality)  // Filter out those which don't meet quality criteria
         .window(Seconds(windowSize), Seconds(windowSize))  // Convert to windowed stream
-
 }
 

@@ -31,12 +31,13 @@
 \contentsline {subsubsection}{Google Guice}{10}
 \contentsline {subsubsection}{Redis}{10}
 \contentsline {subsubsection}{MongoDB}{10}
+\contentsline {subsubsection}{Git}{10}
 \contentsline {subsubsection}{SBT (Scala Build Tool)}{10}
-\contentsline {subsection}{\numberline {5.1.2}Client}{10}
-\contentsline {subsubsection}{TypeScript}{10}
+\contentsline {subsection}{\numberline {5.1.2}Client}{11}
+\contentsline {subsubsection}{TypeScript}{11}
 \contentsline {subsubsection}{React}{11}
 \contentsline {subsubsection}{React Router}{11}
-\contentsline {subsubsection}{Gulp}{11}
+\contentsline {subsubsection}{Build Tools}{11}
 \contentsline {section}{\numberline {5.2}The Fox Jumps Over}{11}
 \contentsline {section}{\numberline {5.3}The Lazy Dog}{12}
 \contentsline {chapter}{Appendices}{13}
