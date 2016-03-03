@@ -30,6 +30,7 @@ const QueryResults = React.createClass({
             queryResults: Immutable.List([]),
             queryComplete: false,
             keepAlive: null,
+            actualResultSize: 0,
             queryUserHistories: Immutable.Map({})
         }
     },
@@ -58,7 +59,10 @@ const QueryResults = React.createClass({
     _setQueryChannel(query: string): void {
         let querySocket = new WebSocket(`ws://localhost:9000/ws/query/${this.props.params.query}`);
         querySocket.onmessage = event => {
-            let recs: Array<UserScore> = JSON.parse(event.data);
+            console.log(event.data);
+            let recs: Array<UserScore> = JSON.parse(event.data)['results'];
+            let actualResultSize: number = JSON.parse(event.data)['totalResultSize'];
+            console.log("Recs", recs, "resultSize", actualResultSize);
             let history: Map<string, List<number>> = this.state.queryUserHistories;
             recs.forEach((rec: UserScore) => {
                 let screenName: string = rec.screenName;
@@ -71,6 +75,7 @@ const QueryResults = React.createClass({
             });
             this.setState({
                 queryComplete: true,
+                actualResultSize: actualResultSize,
                 queryResults: Immutable.List(recs),
                 queryUserHistories: history
             });
@@ -116,7 +121,7 @@ const QueryResults = React.createClass({
         let spinner = <CircularProgress mode="indeterminate" />;
         let queryResultMessage = null;
         if (this.state.queryResults.size > 0) {
-            queryResultMessage = <h2 className="padded-top-header">Terrier suggests <strong>{queryResults.size}</strong> users for '<span className="query-text">{this.props.params.query}</span>'.</h2>;
+            queryResultMessage = <h2 className="padded-top-header">Terrier suggests <strong>{this.state.actualResultSize}</strong> users for '<span className="query-text">{this.props.params.query}</span>'.</h2>;
         } else {
             queryResultMessage = <h2 className="padded-top-header">To begin, type a hashtag into the box above and press <kbd>Enter</kbd>.</h2>
             if (this.state.queryComplete) {
@@ -129,6 +134,11 @@ const QueryResults = React.createClass({
                     <Row>
                         <Col sm="100%">
                             {queryResultMessage}
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col>
+                            Showing the 20 highest ranked results.
                         </Col>
                     </Row>
                     <Row>
@@ -164,7 +174,10 @@ const QueryResults = React.createClass({
                                         <p>
                                             To view a user's profile, select their
                                             screen name from the list of recommendations
-                                            on the left.
+                                            on the left. From there, you can mark users
+                                            as relevant if you feel they are good suggestions
+                                            given your query. This will help improve the
+                                            relevance of future results!
                                         </p>
                                     </div>
                                     :

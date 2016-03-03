@@ -20,8 +20,8 @@
 \contentsline {subsection}{\numberline {4.1.5}Search Component}{7}
 \contentsline {section}{\numberline {4.2}Front-End Architecture}{7}
 \contentsline {chapter}{\numberline {5}Implementation}{8}
-\contentsline {section}{\numberline {5.1}Server}{8}
-\contentsline {subsection}{\numberline {5.1.1}Tools \& Technologies}{8}
+\contentsline {section}{\numberline {5.1}Tools \& Technologies}{8}
+\contentsline {subsection}{\numberline {5.1.1}Server}{8}
 \contentsline {subsubsection}{Scala}{8}
 \contentsline {subsubsection}{Akka}{8}
 \contentsline {subsubsection}{Terrier Information Retrieval Platform}{9}
@@ -31,13 +31,14 @@
 \contentsline {subsubsection}{Google Guice}{10}
 \contentsline {subsubsection}{Redis}{10}
 \contentsline {subsubsection}{MongoDB}{10}
-\contentsline {section}{\numberline {5.2}Client}{10}
-\contentsline {subsection}{\numberline {5.2.1}Tools \& Technologies}{10}
+\contentsline {subsubsection}{SBT (Scala Build Tool)}{10}
+\contentsline {subsection}{\numberline {5.1.2}Client}{10}
 \contentsline {subsubsection}{TypeScript}{10}
 \contentsline {subsubsection}{React}{11}
 \contentsline {subsubsection}{React Router}{11}
-\contentsline {section}{\numberline {5.3}The Fox Jumps Over}{11}
-\contentsline {section}{\numberline {5.4}The Lazy Dog}{12}
+\contentsline {subsubsection}{Gulp}{11}
+\contentsline {section}{\numberline {5.2}The Fox Jumps Over}{11}
+\contentsline {section}{\numberline {5.3}The Lazy Dog}{12}
 \contentsline {chapter}{Appendices}{13}
 \contentsline {chapter}{\numberline {A}Running the Programs}{14}
 \contentsline {chapter}{\numberline {B}Generating Random Graphs}{15}

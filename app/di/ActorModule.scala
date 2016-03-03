@@ -24,7 +24,7 @@ class ActorModule extends AbstractModule with AkkaGuiceSupport {
     bindActor[FeatureExtraction]("featureExtraction")
     bindActor[BatchFeatureExtraction](BatchFeatureExtraction.name)
     bindActor[Indexer](Indexer.name)
-    bindActor[LabelStore]("labelStore")
+    bindActor[LabelStore](LabelStore.name)
     bindActor[QueryService](QueryService.name)
     bindActor[MetricsReporting](MetricsReporting.name)
     bindActor[UserMetadataWriter]("userMetadataWriter")

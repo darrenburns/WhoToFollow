@@ -33,6 +33,13 @@ object QueryWorker {
     )
   }
 
+  implicit val terrierResultSetWrites = new Writes[TerrierResultSet] {
+    def writes(trs: TerrierResultSet) = Json.obj(
+      "totalResultSize" -> trs.actualSize,
+      "results" -> Json.toJson(trs.userScores)
+    )
+  }
+
   case class QueryResults(query: String, userScores: Array[UserTerrierScore])
   case object FetchLatestQueryResults
 
@@ -65,7 +72,7 @@ class QueryWorker @Inject() (
 
   override def receive = LoggingReceive {
     case FetchLatestQueryResults => pushLatest()
-    case TerrierResultSet(query, actualResultSize, results) => channel push Json.toJson(results)
+    case trs @ TerrierResultSet(query, actualResultSize, results) => channel push Json.toJson(trs)
     case KeepAlive => handleKeepAlive()
     case CheckExpired => if (hasExpired) suicideAndCleanup(querySupervisor)
   }

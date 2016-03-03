@@ -30,6 +30,8 @@ import scala.util.{Failure, Success}
 object BatchFeatureExtraction extends NamedActor {
   override final val name = "BatchFeatureExtraction"
   case class FetchAndAnalyseTimeline(screenName: String)
+  case class SetSimulationTime(newTime: DateTime)
+  case object GetCurrentMaxStatusId
 }
 
 /**
@@ -55,7 +57,7 @@ class BatchFeatureExtraction @Inject()
 
   // Map of screenName -> (StatusId, Last time their timeline was checked)
   protected[this] var latestUserChecks: HashMap[String, (Long, DateTime)] = HashMap.empty
-  var simulationTime: Option[DateTime] = None
+  var simulationTime: Option[DateTime] = Some(new DateTime(0, 1, 1, 0, 0, 0, DateTimeZone.UTC))
   var currentMaxStatusId = 1L
 
   override def receive = {
@@ -79,13 +81,17 @@ class BatchFeatureExtraction @Inject()
           analyseUserTimeline(screenName, currentMaxStatusId)
       }
 
+    case GetCurrentMaxStatusId => sender ! currentMaxStatusId
+
     case TweetBatch(tweets: List[Status]) =>
 
       Logger.debug("Received new tweet batch from a user timeline.")
-      val latestTweet = tweets.last
-      simulationTime = Option(new DateTime(latestTweet.getCreatedAt.getTime))
-      if (latestTweet.getId > currentMaxStatusId) {
-        currentMaxStatusId = latestTweet.getId
+      if (tweets nonEmpty) {
+        val latestTweet = tweets.last
+        simulationTime = Option(new DateTime(latestTweet.getCreatedAt.getTime))
+        if (latestTweet.getId > currentMaxStatusId) {
+          currentMaxStatusId = latestTweet.getId
+        }
       }
 
       // Filter the list so that it only contains tweets we haven't seen before
@@ -137,16 +143,17 @@ class BatchFeatureExtraction @Inject()
       }
   }
 
-  def analyseUserTimeline(screenName: String, sinceId: Long): Unit = {
-    // Update the time that we last encountered a request to analyse this user's timeline
+  def analyseUserTimeline(screenName: String, maxId: Long): Unit = {
     simulationTime match {
-      case Some(time) => markUserLastSeen(screenName, sinceId, time)
-      case None => Logger.error("Cannot determine simulation time.")
+      case Some(time) => markUserLastSeen(screenName, maxId, time)
+      case None => Logger.error("Unable to determine current simulation time.")
     }
     // Cache the user metadata
     userMetadataWriter ! TwitterUser(Twitter.instance.showUser(screenName))
     // Analyse the tweets from the user timeline
-    self ! TweetBatch(Twitter.instance.getUserTimeline(screenName, new Paging(sinceId)).toList)
+    val paging = new Paging()
+    paging.setMaxId(maxId)
+    self ! TweetBatch(Twitter.instance.getUserTimeline(screenName, paging).toList)
   }
 
   def markUserLastSeen(screenName: String, lastStatusId: Long, lastSeen: DateTime): Unit = {

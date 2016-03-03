@@ -1,6 +1,7 @@
 package learn.actors
 
 import akka.actor.{Actor, ActorRef}
+import com.github.nscala_time.time.Imports._
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
 import learn.actors.TweetStreamActor.Ready

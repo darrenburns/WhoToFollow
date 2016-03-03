@@ -3,6 +3,7 @@ package controllers
 import java.util.concurrent.TimeUnit
 
 import akka.actor.ActorRef
+import akka.actor.Status.Success
 import akka.pattern.ask
 import akka.util.Timeout
 import channels.actors.ChannelMessages.CreateChannel
@@ -13,7 +14,9 @@ import com.google.inject.Inject
 import com.google.inject.name.Named
 import hooks.Twitter
 import learn.actors.BatchFeatureExtraction
+import learn.actors.BatchFeatureExtraction.GetCurrentMaxStatusId
 import learn.actors.TweetStreamActor.TweetBatch
+import persist.actors.LabelStore
 import persist.actors.LabelStore.{GetUserRelevance, NoUserRelevanceDataOnRecord, UserRelevance}
 import persist.actors.UserMetadataReader.UserMetadata
 import persist.actors.UserMetadataWriter.UserMetadataQuery
@@ -22,7 +25,7 @@ import play.api.libs.iteratee.{Enumerator, Iteratee}
 import play.api.libs.json.{JsValue, Json, Writes}
 import play.api.mvc._
 import query.actors.QueryService.Query
-import twitter4j.Status
+import twitter4j.{Paging, Status}
 
 import scala.collection.JavaConversions._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -72,7 +75,7 @@ class Application @Inject()
   @Named(UserChannelSupervisor.name) userChannelSupervisor: ActorRef,
   @Named(QuerySupervisor.name) querySupervisor: ActorRef,
   @Named(MetricsReporting.name) metricsReporting: ActorRef,
-  @Named("labelStore") labelStore: ActorRef,
+  @Named(LabelStore.name) labelStore: ActorRef,
   @Named(BatchFeatureExtraction.name) batchFeatureExtraction: ActorRef,
   @Named("userMetadataReader") userMetadataReader: ActorRef
 ) extends Controller {
@@ -143,16 +146,22 @@ class Application @Inject()
 
     // Fetch a list of tweets from the users timeline
     val twitter = Twitter.instance
-    val tweets = twitter.getUserTimeline(screenName)
-    if (tweets.nonEmpty) {
-      Logger.debug(s"Sending batch of tweets from timeline of $screenName: " + tweets.size())
-      batchFeatureExtraction ! TweetBatch(tweets.toList)
+    (batchFeatureExtraction ? GetCurrentMaxStatusId).mapTo[Long].flatMap {
+      case maxStatusId: Long =>
+        val paging = new Paging()
+        paging.setMaxId(maxStatusId)
+        val tweets = twitter.getUserTimeline(screenName, paging)
+        if (tweets.nonEmpty) {
+          Logger.debug(s"Sending batch of tweets from timeline of $screenName: " + tweets.size())
+          batchFeatureExtraction ! TweetBatch(tweets.toList)
+        }
+        // Get the metadata we stored on the user
+        (userMetadataReader ? UserMetadataQuery(screenName)).mapTo[UserMetadata].map(meta => Ok(Json.obj(
+          "metadata" -> Json.toJson(meta),
+          "timeline" -> Json.toJson(tweets.toList)
+        )))
     }
-    // Get the metadata we stored on the user
-    (userMetadataReader ? UserMetadataQuery(screenName)).mapTo[UserMetadata].map(meta => Ok(Json.obj(
-      "metadata" -> Json.toJson(meta),
-      "timeline" -> Json.toJson(tweets.toList)
-    )))
+
 
   }
 

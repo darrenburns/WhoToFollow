@@ -72,9 +72,6 @@ class QueryService @Inject()
 
     Logger.debug(s"QueryService has obtained initial ResultSet from Terrier: $actualResultSize result(s).")
 
-    results.setExactResultSize(resultSetSize)
-    results.setResultSize(resultSetSize)
-
     val docIds = results.getDocids
     val metaIndex = Indexer.index.getMetaIndex
 

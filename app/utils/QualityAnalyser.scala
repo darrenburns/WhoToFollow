@@ -11,9 +11,9 @@ object QualityAnalyser {
   lazy val dictionary = scala.io.Source.fromFile(dictionaryPath).getLines.toSet
 
   def isStatusHighQuality(features: TweetFeatures): Boolean = {
-    (features.wordCount >  0 && features.dictionaryHits/features.wordCount > 0.4) &&
+    (features.wordCount > 0 && features.dictionaryHits/features.wordCount > 1.0) &&
       (features.wordCount > 3) &&
-      (features.followerCount >= 50) &&
+      (features.followerCount >= 300) &&
       (features.capWordCount < features.wordCount) &&
       (features.hashtagCount < 5)
   }

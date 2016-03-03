@@ -54,11 +54,23 @@ const Home = React.createClass<HomeProps, HomeState>({
             <div>
                 <Row>
                     <Col lg="50%">
-                        <h3 className="padded-top-header">Search</h3>
-                        <SearchBar placeholder="Type a query to get recommendations..."
-                                   handleChange={this.handleChange}
-                                   handleEnter={this.handleEnter}
-                                   currentQuery={this.state.currentQuery} />
+                        <Row>
+                            <Col sm="100%">
+                            <p>Enter a hashtag into the box below to begin. If users are discussing that hashtag you
+                            will see a list of suggested users. By selecting these users, you can indicate that they
+                            are relevant given your query by selecting "Mark As Relevant" on the right hand side of
+                            their profile. This will train the application to improve the relevance of future results!</p>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col sm="100%">
+                            <h3 className="padded-top-header">Search</h3>
+                            <SearchBar placeholder="Type a hashtag to get recommendations..."
+                                       handleChange={this.handleChange}
+                                       handleEnter={this.handleEnter}
+                                       currentQuery={this.state.currentQuery} />
+                            </Col>
+                        </Row>
                     </Col>
                     <Col lg="50%">
                         <h3 className="padded-top-header">Recent Searches</h3>

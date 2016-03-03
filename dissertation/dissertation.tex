@@ -129,8 +129,8 @@ Although we gain an overall more responsive experience using this architecture, 
 
 \chapter{Implementation}
 
-\section{Server}
-    \subsection{Tools \& Technologies}
+\section{Tools \& Technologies}
+    \subsection{Server}
         \subsubsection{Scala}
         The server is written using the \textit{Scala} programming language, which is a hybrid of the object-oriented and functional paradigms. Scala was chosen for its lightweight syntax and the fact that it compiles to Java Virtual Machine bytecode, allowing for clean interoperability with existing Java libraries and frameworks. In fact, a number of extremely popular Java libraries are written in Scala, including Apache Spark, Akka, and the Play Framework. Additionally, Scala provides powerful means of asynchronous programming through \code{Future}s and \code{Promise}s, and its \code{Option[T]} type and powerful pattern-matching features make \code{NullPointerException}s impossible since it explicitly requires the developer to check for the possibility that the \code{Option[T]} type contains a \code{None} value.
         
@@ -138,6 +138,8 @@ Scala also benefits from its powerful REPL (Read-Execute-Print Loop) which comes
         
         \subsubsection{Akka}
         \textit{Akka} is a framework for Scala and Java which implements the actor model. It is perhaps the most important technology used on the server and made the implementation of many of the features of the application much easier than they would have otherwise been. Akka's actor model supports passing approximately 50 million messages per second on an average machine, and around 2.5 million actors can exist per gigabyte of heap space.
+        
+        %TODO: Include Akka-TestKit
         
         %TODO: Move the following paragraph, it's definitely in the wrong place.
         Actors in Akka have a “supervision strategy” which defines what actions should be taken when an exception occurs within them. This provides the application with a high degree of fault tolerance and resilience, since even the default supervision strategy (simply restarting the actor) solved many issues that were encountered. For example, it was common for the Twitter streaming API to become unavailable and an exception was therefore thrown. The actor handling the stream was automatically restarted and the stream handle resent to all of the actors that required access to it. No explicit error handling code was required, yet the application was able to self-heal and become fully functional as soon as the streaming API became available again.
@@ -174,13 +176,14 @@ Guice was primarily used for the injection of actor references into other actors
         \textit{Redis} is an in-memory data structure storage engine which is used for storage of extracted features. By retaining its items in memory it enables highly performant read and write speeds. Its built in data structures simplified the implementation of certain features. For example, a Redis SortedSet data structure is used for the calculation of the median time since the user last made use of the query term as a hashtag. Since the application must process vastly more reads than writes for individual users, allowing Redis to perform the sorting step at write time make the system more efficient than if we were required to sort an array each time the latest results were retrieved for a user.
         
          \subsubsection{MongoDB}
-         MongoDB is a NoSQL database used for the caching certain data on users in order to reduce the number of API requests required. For example, we store the URL of the user's profile picture and timeline colour in MongoDB and check for its existence here before making an additonal API request for the information. We also store user relevance feedback in MongoDB, and use the information to write "LETOR" formatted files for input into Terrier's Learning To Rank module.
+         \textit{MongoDB} is a NoSQL database used for the caching certain data on users in order to reduce the number of API requests required. For example, we store the URL of the user's profile picture and timeline colour in MongoDB and check for its existence here before making an additonal API request for the information. We also store user relevance feedback in MongoDB, and use the information to write ``LETOR'' formatted files for input into Terrier's Learning To Rank module.
          
          NoSQL was used due to the lack of need of relational features. Each category of item stored in this database was entirely independent from the others, and thus guaranteed that relational database tools such as joins would not be necessary.
-
-\section{Client}
-
-    \subsection{Tools \& Technologies}
+         
+         \subsubsection{SBT (Scala Build Tool)}
+         \textit{SBT} is a build management system commonly used in Scala projects which is similar to popular Java build tools such as Maven and Gradle. SBT was used in the project to maintain and resolve dependencies, run tests, and to build and run the program.
+         
+    \subsection{Client}
     
         \subsubsection{TypeScript}
         The programming language used to create the front-end of the application was \textit{TypeScript}. TypeScript is a typed superset of JavaScript which provides compile-time type checking which eliminates a large number of run-time errors. The front-end was initally written in JavaScript and then migrated to TypeScript as the number of type related errors increased due to the increasing complexity of the front-end. Although the initial migration to TypeScript was extremely time consuming, the number of run-time errors encountered significantly decreased. Since TypeScript is a type checked language, we also gain the benefits of code-completion and refactoring capabilities within certain development environments. 
@@ -191,9 +194,12 @@ Guice was primarily used for the injection of actor references into other actors
         The other popular client library considered for the project was AngularJS by Google. However, Angular is framework rather than a library and as such forces the developer to write their application within its restrictions.
 
         \subsubsection{React Router}
-        The decision to make routing a concern of the front-end was driven by the existence of \textit{React Router} and the fact that the application view has a limited number of overall states. React Router
+        The decision to make routing a concern of the front-end was driven by the existence of \textit{React Router} and the fact that the application view has a limited number of overall states. Using this library allowed views to be declared hierarchically, so that only required subtrees of the view are re-rendered on a URL change.
         %TODO: Finish this
 
+        \subsubsection{Gulp}
+        \textit{Gulp} is a front-end build system which was used to speed up parts of development. Gulp tasks were defined to watch TypeScript files for changes and automatically transpile them using the "tsc" TypeScript compiler into new JavaScript files. 
+        
 
 
 

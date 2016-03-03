@@ -60,6 +60,7 @@ class Indexer @Inject() (
             val user = tweet.getUser
             doc.setProperty("username", user.getScreenName)
             doc.setProperty("name", user.getName)
+            doc.setProperty("bio", user.getDescription)
             // Index user for the first time
             index.indexDocument(doc)
             val docId = index.getCollectionStatistics.getNumberOfDocuments - 1

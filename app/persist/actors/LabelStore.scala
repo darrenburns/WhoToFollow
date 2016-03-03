@@ -9,6 +9,7 @@ import com.google.inject.{Singleton, Inject}
 import com.google.inject.name.Named
 import com.mongodb.WriteResult
 import com.mongodb.casbah.commons.MongoDBObject
+import di.NamedActor
 import hooks.MongoInit
 import learn.actors.FeatureExtraction.UserFeatures
 import persist.actors.RedisQueryWorker.GetUserFeatures
@@ -21,7 +22,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
-object LabelStore {
+object LabelStore extends NamedActor {
+
+  final val name = "LabelStore"
 
   implicit val voteReads: Reads[UserRelevance] = (
     (JsPath \ "screenName").read[String] and
@@ -37,6 +40,7 @@ object LabelStore {
   case object NoUserRelevanceDataOnRecord extends LabelStoreResponse
 
   case class GetUserRelevance(screenName: String, query: String)
+  case object GetLatestTrainingData
 }
 
 
@@ -59,7 +63,7 @@ class LabelStore @Inject() (
       sender ! getUserRelevance(screenName, query)
   }
 
-  private def voteForUser(screenName: String, queryString: String, isRelevant: Boolean): Unit = {
+  def voteForUser(screenName: String, queryString: String, isRelevant: Boolean): Unit = {
     // Fetch the features for this user from Redis
     (redisActor ? GetUserFeatures(screenName)) onComplete {
       case Success(features: UserFeatures) =>
@@ -88,7 +92,7 @@ class LabelStore @Inject() (
 
   }
 
-  private def getUserRelevance(screenName: String, query: String): LabelStoreResponse = {
+  def getUserRelevance(screenName: String, query: String): LabelStoreResponse = {
     val queryObject = MongoDBObject("name" -> screenName, "query" -> query)
     collection.findOne(queryObject) match {
       case Some(userRelevanceObj: collection.T) =>
@@ -102,5 +106,9 @@ class LabelStore @Inject() (
         NoUserRelevanceDataOnRecord
     }
   }
+//
+//  def getFeaturesAndClass(screenName: String, query: String): UserFeatures = {
+//
+//  }
 
 }
