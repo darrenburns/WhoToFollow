@@ -17,7 +17,7 @@ object QueryService extends NamedActor {
 
   case class TerrierResultSet(originalQuery: String, actualSize: Int, userScores: Array[UserTerrierScore])
   case class Query(query: String)
-  case class UserTerrierScore(screenName: String, name: String, query: String, score: Double)
+  case class UserTerrierScore(screenName: String, name: String, bio: String, query: String, score: Double)
 }
 
 class QueryService @Inject()
@@ -80,21 +80,22 @@ class QueryService @Inject()
       // Get the username metadata for the current docId
       val usernameOption = Option(metaIndex.getItem("username", docId))
       val nameOption = Option(metaIndex.getItem("name", docId))
-      (usernameOption, nameOption) match {
-        case (Some(username), Some(screenName)) =>
+      val bioOption = Option(metaIndex.getItem("bio", docId))
+      (usernameOption, nameOption, bioOption) match {
+        case (Some(username), Some(screenName), Some(bio)) =>
           batchFeatureExtraction ! FetchAndAnalyseTimeline(username)
-          (username, screenName)
-        case (None, None) =>
+          (username, screenName, bio)
+        case (None, None, None) =>
           Logger.error("USERNAME metadata not found in document.")
-          (docId.toString, docId.toString)
+          (docId.toString, docId.toString, docId.toString)
       }
     })
 
     // Get the sequence of user -> score
     val scores = results.getScores
     val queryResults = (profiles zip scores) map {
-      case ((screenName: String, name: String), score: Double) =>
-        UserTerrierScore(screenName, name, queryString, score)
+      case ((screenName: String, name: String, bio: String), score: Double) =>
+        UserTerrierScore(screenName, name, bio, queryString, score)
     }
 
     TerrierResultSet(queryString, actualResultSize, queryResults)

@@ -1,3 +1,4 @@
+"use strict";
 var $ = require('jquery');
 var config_1 = require('../util/config');
 var LearningUtils = (function () {
@@ -20,6 +21,6 @@ var LearningUtils = (function () {
         return $.get(config_1.default.BASE_SITE_URL + endpoint, { screenName: screenName, query: query });
     };
     return LearningUtils;
-})();
+}());
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = LearningUtils;

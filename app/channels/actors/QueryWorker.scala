@@ -29,7 +29,7 @@ object QueryWorker {
 
   implicit val userTerrierScoreWrites = new Writes[UserTerrierScore] {
     def writes(uts: UserTerrierScore) = Json.obj(
-      "screenName" -> uts.screenName, "name" -> uts.name, "score" -> uts.score
+      "screenName" -> uts.screenName, "name" -> uts.name, "bio" -> uts.bio, "score" -> uts.score
     )
   }
 

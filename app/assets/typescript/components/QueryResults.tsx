@@ -13,10 +13,13 @@ import Map = Immutable.Map;
 import ChannelUtility from "../util/ChannelUtility";
 import Logger from "../util/Logger";
 
+declare var require: any;
+var Shuffle = require('react-shuffle');
 
 interface UserScore {
     screenName: string;
     name: string;
+    bio: string;
     score: number;
 }
 
@@ -111,7 +114,7 @@ const QueryResults = React.createClass({
             return (
                 <UserRecommendation key={result.screenName}
                                     query={this.props.params.query}
-                                    name={result.name}
+                                    name={result.name + "-" + result.bio}
                                     screenName={result.screenName}
                                     score={result.score}
                                     userHistory={hist}
@@ -137,15 +140,12 @@ const QueryResults = React.createClass({
                         </Col>
                     </Row>
                     <Row>
-                        <Col>
-                            Showing the 20 highest ranked results.
-                        </Col>
-                    </Row>
-                    <Row>
                         <Col sm="45%">
                             {queryResults.size > 0 ?
                                 <div className="recommendations">
-                                    {queryResults}
+                                    <Shuffle duration={500} fade={false} scale={true}>
+                                        {queryResults}
+                                    </Shuffle>
                                 </div>
                                 :
                                 (!this.state.queryComplete ?
@@ -168,21 +168,16 @@ const QueryResults = React.createClass({
                                         null
                                 }
                             </VelocityTransitionGroup>
-                            {  /* Display instructions if results have been returned */
-                                queryResults.size > 0 && this.state.queryComplete ?
-                                    <div className="rec-list-instruction-pane">
-                                        <p>
-                                            To view a user's profile, select their
-                                            screen name from the list of recommendations
-                                            on the left. From there, you can mark users
-                                            as relevant if you feel they are good suggestions
-                                            given your query. This will help improve the
-                                            relevance of future results!
-                                        </p>
-                                    </div>
-                                    :
-                                    null
-                                }
+                            <div className="rec-list-instruction-pane">
+                                <p>
+                                    To view a user's profile, select their
+                                    screen name from the list of recommendations
+                                    on the left. From there, you can mark users
+                                    as relevant if you feel they are good suggestions
+                                    given your query. This will help improve the
+                                    relevance of future results!
+                                </p>
+                            </div>
                         </Col>
                     </Row>
                 </Col>

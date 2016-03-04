@@ -1,3 +1,4 @@
+"use strict";
 var Constants = (function () {
     function Constants() {
     }
@@ -7,6 +8,6 @@ var Constants = (function () {
         configurable: true
     });
     return Constants;
-})();
+}());
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = Constants;
