@@ -11,21 +11,25 @@ object ExtractionUtils {
 
   def getStatusFeatures(status: Status): TweetFeatures = {
     val qa = new QualityAnalyser(status.getText)
-    val htCount = status.getHashtagEntities.length
-    val mentionCount = status.getUserMentionEntities.length
-    val linkCount = status.getURLEntities.length
+    var s = status
+    if (status.isRetweet) {
+      s = status.getRetweetedStatus
+    }
+    val htCount = s.getHashtagEntities.length
+    val mentionCount = s.getUserMentionEntities.length
+    val linkCount = s.getURLEntities.length
     TweetFeatures(
-      status = status,
-      id = status.getId,
-      username = status.getUser.getScreenName,
-      followerCount = status.getUser.getFollowersCount,
+      status = s,
+      id = s.getId,
+      username = s.getUser.getScreenName,
+      followerCount = s.getUser.getFollowersCount,
       punctuationCounts = qa.findPunctuationCounts(),
       wordCount = qa.countWords() - htCount - mentionCount - linkCount,
       capWordCount = qa.countCapitalisedWords(),
       hashtagCount = htCount,
-      retweetCount = status.getRetweetCount,
+      retweetCount = s.getRetweetCount,
       mentionCount = mentionCount,
-      likeCount = status.getFavoriteCount,
+      likeCount = s.getFavoriteCount,
       dictionaryHits = qa.countDictionaryHits(),
       linkCount = linkCount
     )

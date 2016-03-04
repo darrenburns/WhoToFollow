@@ -71,7 +71,7 @@ class TweetStreamActor @Inject()
     case (f1: PipelineActorReady, f2: PipelineActorReady) =>
       Logger.info("Spark actions registered. Starting Spark context.")
 
-      // Send batches of tweets to the indexer
+      // Send batches of tweets to the expecting actors
       streamHandle.foreachRDD(batch => {
         val statusList = batch.collect().toList
         screenNamesSeen = screenNamesSeen ++ statusList.map(_.getUser.getScreenName)
