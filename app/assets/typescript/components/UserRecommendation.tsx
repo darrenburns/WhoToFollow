@@ -15,6 +15,7 @@ interface UserRecommendationProps {
     name: string,
     userHistory: Immutable.List<number>,
     score: number,
+    bio: string,
     params?: any
 }
 
@@ -51,13 +52,11 @@ export default class UserRecommendation extends React.Component<UserRecommendati
                                 <SparklinesSpots />
                             </Sparklines>
                             <span className="recommendation-score">
-                                Score
-                                <br/>
                                 {`${this.props.score.toFixed(2)}`}
                             </span>
                         </div>
-
                     </div>
+
                 </div>
         )
     }

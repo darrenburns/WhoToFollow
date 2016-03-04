@@ -114,7 +114,8 @@ const QueryResults = React.createClass({
             return (
                 <UserRecommendation key={result.screenName}
                                     query={this.props.params.query}
-                                    name={result.name + "-" + result.bio}
+                                    name={result.name}
+                                    bio={result.bio}
                                     screenName={result.screenName}
                                     score={result.score}
                                     userHistory={hist}
@@ -125,11 +126,8 @@ const QueryResults = React.createClass({
         let queryResultMessage = null;
         if (this.state.queryResults.size > 0) {
             queryResultMessage = <h2 className="padded-top-header">Terrier suggests <strong>{this.state.actualResultSize}</strong> users for '<span className="query-text">{this.props.params.query}</span>'.</h2>;
-        } else {
-            queryResultMessage = <h2 className="padded-top-header">To begin, type a hashtag into the box above and press <kbd>Enter</kbd>.</h2>
-            if (this.state.queryComplete) {
-                queryResultMessage = <h2 className="padded-top-header">There were no results for the query '<span className="query-text">{this.props.params.query}</span>'.</h2>;
-            }
+        } else if (this.state.queryComplete) {
+            queryResultMessage = <h2 className="padded-top-header">There were no results for the query '<span className="query-text">{this.props.params.query}</span>'.</h2>;
         }
         return (
             <Row>
