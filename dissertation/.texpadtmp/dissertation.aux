@@ -4,66 +4,96 @@
 \@writefile{lot}{\addvspace {10\p@ }}
 \@writefile{toc}{\contentsline {section}{\numberline {1.1}Goal}{1}}
 \@writefile{toc}{\contentsline {section}{\numberline {1.2}Motivation}{1}}
-\@writefile{toc}{\contentsline {section}{\numberline {1.3}Related Works}{2}}
+\@writefile{toc}{\contentsline {section}{\numberline {1.3}Related Products}{2}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {1.3.1}Twitter Search}{2}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {1.3.2}Who To Follow at Twitter}{2}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {1.3.3}Klout}{2}}
+\@writefile{toc}{\contentsline {section}{\numberline {1.4}Relevant Research}{2}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.4.1}Searching For Quality Microblog Posts}{2}}
 \@writefile{toc}{\contentsline {chapter}{\numberline {2}Requirements}{3}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\@writefile{toc}{\contentsline {chapter}{\numberline {3}User Interface}{4}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.1}Functional Requirements}{3}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.2}Non-Functional Requirements}{4}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {3}System Architecture}{5}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\@writefile{toc}{\contentsline {chapter}{\numberline {4}System Architecture}{5}}
-\@writefile{lof}{\addvspace {10\p@ }}
-\@writefile{lot}{\addvspace {10\p@ }}
-\@writefile{toc}{\contentsline {section}{\numberline {4.1}Server Architecture}{5}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.1}The Actor Model}{5}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.2}Reactive Systems}{5}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.1}Server Architecture}{5}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.1}Programming Language}{5}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.2}Concurrency Model}{5}}
+\@writefile{toc}{\contentsline {subsubsection}{The Actor Model}{5}}
+\@writefile{toc}{\contentsline {subsubsection}{Akka}{6}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.3}Reactive Systems}{6}}
 \@writefile{toc}{\contentsline {subsubsection}{Responsiveness}{6}}
-\@writefile{toc}{\contentsline {subsubsection}{Resilience}{6}}
-\@writefile{toc}{\contentsline {subsubsection}{Elasticity}{6}}
-\@writefile{toc}{\contentsline {subsubsection}{Message-Driven}{6}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.3}Feature Extraction Pipeline}{6}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.4}Channels}{6}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.5}Search Component}{7}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.2}Front-End Architecture}{7}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {5}Implementation}{8}}
+\@writefile{toc}{\contentsline {subsubsection}{Resilience}{7}}
+\@writefile{toc}{\contentsline {subsubsection}{Elasticity}{7}}
+\@writefile{toc}{\contentsline {subsubsection}{Message-Driven}{7}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.4}Dependency Injection}{7}}
+\@writefile{toc}{\contentsline {subsubsection}{Google Guice}{7}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.5}Feature Extraction and Filtering}{7}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.6}Feature Storage}{8}}
+\@writefile{toc}{\contentsline {subsubsection}{Redis}{8}}
+\@writefile{toc}{\contentsline {subsubsection}{MongoDB}{8}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.7}Indexing and Retrieval}{8}}
+\@writefile{toc}{\contentsline {subsubsection}{Terrier Information Retrieval Platform}{9}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.8}Metrics Reporting}{9}}
+\@writefile{toc}{\contentsline {subsubsection}{Play Framework}{9}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.1}{\ignorespaces The high-level architecture of the system. The ``Implementation'' chapter looks at the internal workings of each component in detail.}}{10}}
+\newlabel{architecture}{{3.1}{10}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.2}Front-End Architecture}{10}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.1}Programming Language}{10}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.2}Single-Page Application}{10}}
+\@writefile{toc}{\contentsline {subsubsection}{React Router}{11}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {4}Implementation \& Design}{12}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\@writefile{toc}{\contentsline {section}{\numberline {5.1}Tools \& Technologies}{8}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.1}Server}{8}}
-\@writefile{toc}{\contentsline {subsubsection}{Scala}{8}}
-\@writefile{toc}{\contentsline {subsubsection}{Akka}{8}}
-\@writefile{toc}{\contentsline {subsubsection}{Terrier Information Retrieval Platform}{9}}
-\@writefile{toc}{\contentsline {subsubsection}{Play Framework}{9}}
-\@writefile{toc}{\contentsline {subsubsection}{The WebSocket Protocol}{9}}
-\@writefile{toc}{\contentsline {subsubsection}{Apache Spark Streaming}{9}}
-\@writefile{toc}{\contentsline {subsubsection}{Google Guice}{10}}
-\@writefile{toc}{\contentsline {subsubsection}{Redis}{10}}
-\@writefile{toc}{\contentsline {subsubsection}{MongoDB}{10}}
-\@writefile{toc}{\contentsline {subsubsection}{Git}{10}}
-\@writefile{toc}{\contentsline {subsubsection}{SBT (Scala Build Tool)}{10}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.2}Client}{11}}
-\@writefile{toc}{\contentsline {subsubsection}{TypeScript}{11}}
-\@writefile{toc}{\contentsline {subsubsection}{React}{11}}
-\@writefile{toc}{\contentsline {subsubsection}{React Router}{11}}
-\@writefile{toc}{\contentsline {subsubsection}{Build Tools}{11}}
-\@writefile{toc}{\contentsline {section}{\numberline {5.2}The Fox Jumps Over}{11}}
-\citation{ckt}
-\citation{am97}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.1}{\ignorespaces An alternative hierarchy of the algorithms.}}{12}}
-\newlabel{uroborus}{{5.1}{12}}
-\@writefile{toc}{\contentsline {section}{\numberline {5.3}The Lazy Dog}{12}}
-\@writefile{toc}{\contentsline {chapter}{Appendices}{13}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {A}Running the Programs}{14}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.1}Server Implementation}{12}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.1}Tools \& Practices}{12}}
+\@writefile{toc}{\contentsline {subsubsection}{Git}{12}}
+\@writefile{toc}{\contentsline {subsubsection}{GitHub}{12}}
+\@writefile{toc}{\contentsline {subsubsection}{Kanban \& Trello}{12}}
+\@writefile{toc}{\contentsline {subsubsection}{SBT (Scala Build Tool)}{12}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.1}{\ignorespaces Tweets are batched temporally and sent throughout feature extraction together.}}{13}}
+\newlabel{slidingwindow}{{4.1}{13}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.2}Implementation}{13}}
+\@writefile{toc}{\contentsline {subsubsection}{Feature Extraction}{13}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.2}{\ignorespaces An example of how requests were load-balanced in order to prevent overworked actors and maximise concurrency. This is a lower level view into the inner workings of the ``Feature Storage'' component shown in Figure 3.1\hbox {}}}{14}}
+\newlabel{loadbalancing}{{4.2}{14}}
+\@writefile{toc}{\contentsline {subsubsection}{Indexing}{14}}
+\@writefile{toc}{\contentsline {subsubsection}{Retrieval}{14}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.3}{\ignorespaces \textit  {An example of the one-to-many relationship that exists between users and channels}. Users A and B both connect to a single channel after entering the same query (``superbowl''), and will receive the results it outputs. This channel will perform the exact same actions regardless of the number of users connected.}}{15}}
+\newlabel{channels}{{4.3}{15}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.2}Client Implementation}{15}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.1}Tools \& Practices}{15}}
+\@writefile{toc}{\contentsline {subsubsection}{Build Tools}{15}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.2}User Interface}{15}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {5}Evaluation}{16}}
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\@writefile{toc}{\contentsline {section}{\numberline {5.1}Experiments}{16}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.1}Investigations on Filtering Controls}{16}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.2}Investigating the Effects of Stream Replay Rate}{16}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.2}User Evaluation}{16}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.1}Usability Study}{16}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.2}Relevance Judgements}{16}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.3}Unit Testing}{17}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3.1}Server}{17}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3.2}Client}{17}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.4}Performance Testing}{17}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4.1}Server Throughput Testing}{17}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4.2}Profiling Client Side Performance}{17}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {6}Conclusions \& Future Work}{18}}
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\@writefile{toc}{\contentsline {chapter}{Appendices}{19}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {A}Running the Programs}{20}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \bibstyle{plain}
 \bibdata{bib}
-\@writefile{toc}{\contentsline {chapter}{\numberline {B}Generating Random Graphs}{15}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {B}Generating Random Graphs}{21}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{sec:randomGraph}{{B}{15}}
+\newlabel{sec:randomGraph}{{B}{21}}
 \bibcite{ckt}{1}
 \bibcite{am97}{2}
