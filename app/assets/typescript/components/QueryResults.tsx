@@ -62,10 +62,8 @@ const QueryResults = React.createClass({
     _setQueryChannel(query: string): void {
         let querySocket = new WebSocket(`ws://localhost:9000/ws/query/${this.props.params.query}`);
         querySocket.onmessage = event => {
-            console.log(event.data);
             let recs: Array<UserScore> = JSON.parse(event.data)['results'];
             let actualResultSize: number = JSON.parse(event.data)['totalResultSize'];
-            console.log("Recs", recs, "resultSize", actualResultSize);
             let history: Map<string, List<number>> = this.state.queryUserHistories;
             recs.forEach((rec: UserScore) => {
                 let screenName: string = rec.screenName;
@@ -141,9 +139,7 @@ const QueryResults = React.createClass({
                         <Col sm="45%">
                             {queryResults.size > 0 ?
                                 <div className="recommendations">
-                                    <Shuffle duration={500} fade={false} scale={true}>
-                                        {queryResults}
-                                    </Shuffle>
+                                    {queryResults}
                                 </div>
                                 :
                                 (!this.state.queryComplete ?
@@ -167,6 +163,7 @@ const QueryResults = React.createClass({
                                 }
                             </VelocityTransitionGroup>
                             <div className="rec-list-instruction-pane">
+                                {queryResults.size > 0 ?
                                 <p>
                                     To view a user's profile, select their
                                     screen name from the list of recommendations
@@ -175,6 +172,10 @@ const QueryResults = React.createClass({
                                     given your query. This will help improve the
                                     relevance of future results!
                                 </p>
+                                    :
+                                    null
+                                    }
+
                             </div>
                         </Col>
                     </Row>

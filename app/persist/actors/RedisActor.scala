@@ -27,8 +27,11 @@ class RedisActor @Inject() (
 ) extends Actor {
 
   // Define routers for load-balancing balanced requests
-  val queryWorkerPool = context.actorOf(RoundRobinPool(4).props(RedisQueryWorker.props(userChannelSupervisor, metricsReporting)), "queryWorkerPool")
-  val writingWorkerPool = context.actorOf(RoundRobinPool(4).props(Props[RedisWriterWorker]), "writingWorkerPool")
+  val queryWorkerPool = context.actorOf(RoundRobinPool(4)
+    .props(RedisQueryWorker.props(userChannelSupervisor, metricsReporting)), "queryWorkerPool")
+
+  val writingWorkerPool = context.actorOf(RoundRobinPool(4)
+    .props(Props[RedisWriterWorker]), "writingWorkerPool")
 
   def receive = LoggingReceive {
     /*
@@ -37,7 +40,6 @@ class RedisActor @Inject() (
      `sender` reference.
      */
     case query: RedisQuery =>
-      Logger.debug("RedisActor received new RedisQuery")
       queryWorkerPool forward query
     // All requests to write data to Redis are 'fire-and-forget'
     case write: RedisWriteRequest =>

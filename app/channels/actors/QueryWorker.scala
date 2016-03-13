@@ -64,6 +64,7 @@ class QueryWorker @Inject() (
   override val channelExpiry = config.getInt("channels.query.expiry").getOrElse(Defaults.Expiry)
   override var latestKeepAlive = DateTime.now()
 
+  val resultPollDuration = config.getInt("results.pollingrate").getOrElse(1000)
   val fetchTick = context.system.scheduler
     .schedule(Duration.Zero, FiniteDuration(500, TimeUnit.MILLISECONDS), self, FetchLatestQueryResults)
   val expiryTick = context.system.scheduler

@@ -6,6 +6,30 @@
 % put any packages here
 %
 
+\usepackage{listings}
+\usepackage{color}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{
+  language=Scala,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=2
+}
+
 \newcommand{\code}[1]{\texttt{#1}}
 
 \begin{document}
@@ -50,7 +74,7 @@ From a social media perspective, recommending interesting people to follow is ex
     \item \textit{``There was no useful information on Twitter.''}
 \end{enumerate}
 
-Hence, by directing users towards Twitter accounts which meet their information needs, it is hypothesised that they are less likely to quit the service. For social media platforms in particular, retaining users is of vital importance since it is directly associated with their primary source of income - advertisements.
+Hence, by directing users towards Twitter accounts which meet their information needs, it is hypothesised that they are less likely to quit the service. For social media platforms in particular, retaining users is of vital importance since it is directly associated with their primary source of income: advertisements.
 
 Although several products exist today which attempt to solve this problem, they tend to disregard the quickly evolving nature of live events by providing a static set of results. Given the rapidly evolving and sometimes fleeting nature of events, immediate consideration of new tweets may give users insight into how new ``event experts'' emerge as they become relevant, and how that relevance changes over time.
 
@@ -69,52 +93,89 @@ Klout provides a well-known system for ranking the influence of users across num
 
     \subsection{Searching For Quality Microblog Posts}
     %TODO: Discuss
-    This paper...
+    This paper examines an array of metrics for examining whether a post on a microblog is high quality or not. It introduces an array of features which can be extracted from tweets, and examines the impact of the reputation of external URLs linked to from the tweet. Many of the techniques examined in this paper are applied in the filtering stages of this project, in order to discard tweets which do not meet a threshold on the extracted features.
 
 \chapter{Requirements}
 
-Requirements were gathered during the initial meetings between the author and the project supervisor. These requirements were frequently updated as new considerations were made and new restrictions realised.
+Requirements were gathered during the initial meetings between the author and the project supervisor. These requirements were frequently updated as new considerations were made and new restrictions realised. To ensure the customer (the project supervisor) that progress was being made in satisfying these requirements, weekly status reports were produced during the implementation stage. 
 
     \section{Functional Requirements}
+    
+    Functional requirements were gathered in order to describe the specific behaviours the system may offer. In order to prioritise these requirements, the \textit{MoSCoW framework} was used. That is, requirements were categorised in terms of their importance into the sets ``must have'', ``should have'', ``could have'', ``won't have''.
+    
+    \subsection{Must Have}
+    
+    Requirements listed in this section were vital to the success of the project. Without satisfying all of these requirements, the project would be regarded as unsuccessful. 
   
-    The system itself should:
+    The system itself \textit{must have} the following capabilities:
     \begin{enumerate}
     \item Present a web-based user interface providing querying and result-viewing capabilities.
-    \item Read tweets live from the Twitter Streaming API or historical tweets from a file.
-    \item Examine a user's timeline to for additional tweets.
+    \item Read tweets live from the Twitter Streaming API.
     \item Extract the following features from incoming tweets:
         \begin{enumerate}
         \item The length of the tweet.
         \item The number of correctly spelled words in the tweet.
         \item The number of capitalised words in the tweet.
         \item The hashtags used in the tweet.
-        \item Counts for several punctuation marks used within the tweet.
         \item The number of ``likes'' the tweet had at the time it was processed. 
         \item The number of retweets the tweet had at the time it was processed.
         \item The number of URLs the tweet contains.
-        \item The reputation of the URLs the tweet contains.
         \item The number of users mentioned in the tweet.
-        \item The sentiment of the tweet (e.g. number of positive or negative emoticons used).
         \end{enumerate} 
     \item Filter out Twitter users who post low quality tweets.
-    \item Store tweet features and relevance judgements for evaluation purposes.
-    \item Index tweets and relevant metadata so that they can be quickly retrieved given a user query.
-    \item Alter its behaviour according to options defined in a configuration file.
-    \item Provide users with visual feedback to inform them of the current status of the system.
+   \item Index tweets and relevant metadata so that they can be quickly retrieved given a user query.
     \end{enumerate}
 
-    Additionally, users of the application should be able to:
+    Additionally, users of the application \textit{must} be able to:
     \begin{enumerate}
     \item Input an event identifying ``hashtag'' into the system.
     \item View the results of the query as they update in real-time.
-    \item View the timeline of Twitter accounts suggested by the application, without leaving the application.
-    \item Provide the system with feedback in order to evaluate and improve the relevance of future results.
-
+    \item View the timeline of Twitter accounts suggested by the application, without leaving the application.   
     \end{enumerate}
+    
+        \subsection{Should Have}
+        
+        ``Should have'' requirements were considered important for the project, however they are not given the same level of importance as ``must have'' requirements. The exclusion of some of these requirements would not result in an unsuccessful project.
+        
+        The system \textit{should have} the following capabilities:
+        
+        \begin{enumerate}
+        \item Read historical tweets from a file to improve evaluation capabilities.
+        \item When reading tweets from a file, any user timelines viewed should be a snapshot of their timeline corresponding to the time the tweets in the file were sampled from.
+        \item Alter its behaviour according to options defined in a configuration file.
+        \item Allow users to provide feedback in order to evaluate and improve the relevance of future results.
+        \item Provide users with visual feedback to inform them of the current status of the system.
+        \item Store tweet features and relevance judgements for evaluation purposes.
+        \item Examine a user's timeline to for additional tweets that can be used as evidence for their relevance.
+        \end{enumerate}
+
+        \subsection{Could Have}
+        ``Could have'' requirements are those that were not considered important, but could improve some aspect of the project such as result relevance or user experience.
+        
+        The system \textit{could have} the following capabilities:
+        
+        \begin{enumerate}
+        \item Show users any new queries as soon as they are entered in order to encourage interaction.
+        \item The reputation of the URLs the tweet contains.
+        \item The sentiment of the tweet (e.g. number of positive or negative emoticons used).
+        \item Show how user relevance changes over time.
+        \item Counts for several punctuation marks used within the tweet. Research has suggested that this may be an indicator of microblog post quality. %TODO: Ref
+        \end{enumerate}
+        
+        \subsection{Won't Have}
+        ``Won't have'' requirements are those which the student and project supervisor agreed should not be implemented.
+        
+        The system \textit{won't have} the following capabilities:
+        \begin{enumerate}
+        \item Each query should result in a live stream of relevant tweets being displayed alongside the suggested results for that query. This feature was not implemented due to the restriction imposed by Twitter that each application can only have a single stream open.
+        \item Provide the ability to ``follow'' users when providing relevance feedback
+        \end{enumerate}
+
+
 
     \section{Non-Functional Requirements}
     
-    The system should:
+    In addition to the functional requirements defined in the previous section, as set of non-functional requirements were agreed on. These requirements describe criteria on how the system should be judged, rather than examining the behaviour it offers. The application was implemented and designed taking these requirements into account as much as possible.
     
     \begin{enumerate}
     \item Support multiple users concurrently without there being a noticeable impact on performance.
@@ -140,15 +201,15 @@ On the server side the architecture consists of multiple different components ea
 
     
     \subsection{Programming Language}
-            The server is written using the \textit{Scala} programming language, which is a hybrid of the object-oriented and functional paradigms. Scala was chosen for its lightweight syntax and the fact that it compiles to Java Virtual Machine bytecode, allowing for clean interoperability with existing Java libraries and frameworks. In fact, a number of extremely popular Java libraries are written in Scala, including Apache Spark, Akka, and the Play Framework. Additionally, Scala provides powerful means of asynchronous programming through \code{Future}s and \code{Promise}s, and its \code{Option[T]} type and powerful pattern-matching features make \code{NullPointerException}s impossible since it explicitly requires the developer to check for the possibility that the \code{Option[T]} type contains a \code{None} value.
-        
-Scala also benefits from its powerful REPL (Read-Execute-Print Loop) which comes bundled with the Scala compiler. This allows developers to immediately evaluate expressions and see the results. Existing code can even be loaded into the REPL so that the effects of performing actions on user defined objects can be examined.
+            The server is written using the \textit{Scala} programming language, which is a hybrid of the object-oriented and functional paradigms. Scala was chosen for its lightweight syntax and the fact that it compiles to Java Virtual Machine bytecode, allowing for clean interoperability with existing Java libraries and frameworks. In fact, a number of extremely popular Java libraries are written in Scala, including Apache Spark, Akka, and the Play Framework. Additionally, Scala provides powerful means of asynchronous programming through \code{Future}s and \code{Promise}s, and its \code{Option[T]} type and powerful pattern-matching features make \code{NullPointerException}s impossible since it explicitly requires the developer to check for the possibility that the \code{Option[T]} type contains a \code{None} value. Scala also benefits from its powerful REPL (Read-Execute-Print Loop) which comes bundled with the Scala compiler. This allows developers to immediately evaluate expressions and see the results. Existing code can even be loaded into the REPL so that the effects of performing actions on user defined objects can be examined.
+            
+        Other languages examined in the initial investigations were Python, NodeJS, and Java. Python was ruled out due to its poor support for concurrency, and its dynamic typing would likely have caused difficulty as the complexity of the project source code increased. NodeJS was considered for its renowned support for real-time web applications. However, the ecosystem surrounding the language has not expanded into the field of processing data streams. As with Python, NodeJS is dynamically typed, and this also factored into the decision to rule it out. Finally, Java was considered due to its unmatched ecosystem of libraries and frameworks and its type system. Java however often requires extra boilerplate code in comparison to Scala. Additionally, Java libraries make excessive use of \code{null} values, which greatly increase the possibility of run-time failure.
 
     \subsection{Concurrency Model}
     
+    The real-time nature of the application means that if performance is poor then it will immediately impact user experience. Should feature extraction for a user timeline take longer than expected, then a user will have to wait until the system gets around to processing that user. As such, high levels of concurrency were deemed vital in order to meet user requests in a timely manner. To accommodate such a requirement, the system was designed using the \textit{Actor model}.
     
     \subsubsection{The Actor Model}
-The real-time nature of the application means that if performance is poor then it will immediately impact user experience. Should feature extraction for a user timeline take longer than expected, then a user will have to wait until the system gets around to processing that user. As such, high levels of concurrency were deemed vital in order to meet user requests in a timely manner. To accommodate such a requirement, the system was designed using the \textit{Actor model}.
 
 Actor systems provide an alternative means of concurrency that avoid the pitfalls of typical synchronisation methods such as the use of shared mutable state and locks. The actor model of concurrency was first popularised by the Erlang programming language, and has increased in popularity in recent years with the release of applications such as WhatsApp which use the model extensively. An actor system consists of a set of actors. Actors are entities capable of performing some computation on a thread in response to messages. Actors also have the ability to create new “child” actors, and to send messages to other actors in the system, who will then react in their own way depending on the information contained within that message. By communicating between actors solely through asynchronous \textit{immutable} message passing, we guarantee that the computations performed by a single actor cannot result in issues such as thread interference.
 
@@ -159,7 +220,7 @@ Actor systems provide an alternative means of concurrency that avoid the pitfall
         %TODO: Reword this para and Include Akka-TestKit details
         
         %TODO: Move the following paragraph, it's definitely in the wrong place.
-        Despite being primarily used for its concurrency model, Akka provided a number of features ``out-of-the-box'' which satisfied several project requirements. Actors in Akka have a “supervision strategy” which defines what actions should be taken when an exception occurs within them. This allows the system to meet the high degrees of fault tolerance and resilience required. The default supervision strategy (simply restarting the actor when an exception occurs) solved many issues that were encountered. For example, it was common for the Twitter streaming API to become unavailable and an exception was therefore thrown. The actor handling the stream was automatically restarted and the stream handle resent to all of the actors that required access to it. No explicit error handling code was required, yet the application was able to self-heal and become fully functional as soon as the streaming API became available again.
+        Despite being primarily used for its concurrency model, Akka provided a number of features ``out-of-the-box'' which satisfied several project requirements. Actors in Akka have a ``supervision strategy'' which defines what actions should be taken when an exception occurs within them. This allows the system to meet the high degrees of fault tolerance and resilience required. The default supervision strategy (simply restarting the actor when an exception occurs) solved many issues that were encountered. For example, it was common for the Twitter streaming API to become unavailable and an exception was therefore thrown. The actor handling the stream was automatically restarted and the stream handle resent to all of the actors that required access to it. No explicit error handling code was required, yet the application was able to self-heal and become fully functional as soon as the streaming API became available again.
 
         \subsection{Reactive Systems}
         The architecture of the system is implemented to conform to many of the tenets described in the ``Reactive Manifesto''. That is, the system architecture is designed to be responsive, resilient, elastic, and message-driven.
@@ -219,7 +280,7 @@ Both the feature extraction and filtering components may receive tweets from oth
             Both indexing and retrieval capabilities are provided by the \textit{Terrier Information Retrieval Platform}. Terrier's \code{MemoryIndex} allowed an index to be maintained online, and thus was the technology which enabled results to be displayed and updated in real-time.
        
         \subsection{Metrics Reporting}
-        Throughout different stages of the pipeline, different metrics can be collected. These metrics are both logged and sent to the user in real-time to provide insight into the operation of the system.
+        Throughout different stages of the pipeline, different metrics can be collected. These metrics are both logged and sent to the user in real-time to provide insight into the operation of the system. This is important as it ensures the user that the system is working as expected. If a large period of time passes and no new users have appeared in the stream of results they are viewing, they might think that something has went wrong. By keeping them constantly updated on the number of users the system has seen, they are ensured that it is working as expected.
         
         Numerous different technologies were examined for providing this functionality, including the \textit{Comet model} in HTTP 1.X, the WebSocket protocol, and using the persistent connection and multiplexing capabilities of HTTP 2.0.
         
@@ -248,7 +309,7 @@ Both the feature extraction and filtering components may receive tweets from oth
     \section{Front-End Architecture}
     
         \subsection{Programming Language}
-        The programming language used to create the front-end of the application was \textit{TypeScript}. TypeScript is a typed superset of JavaScript which provides compile-time type checking which eliminates a large number of run-time errors. Existing JavaScript libraries can be used from within TypeScript by including a ``type definitions'' file in the project. The purpose of such files is to provide a mapping from the non-typed JavaScript constructs to their corresponding types.
+        The programming language used to create the front-end of the application was \textit{TypeScript}. TypeScript is a typed superset of JavaScript which provides compile-time type checking which eliminates a large number of run-time errors. Existing JavaScript libraries can be used from within TypeScript by including a ``type definitions'' file in the project. The purpose of such files is to provide a mapping from the non-typed JavaScript constructs to their corresponding TypeScript types.
         
         The front-end was initally written in JavaScript and then migrated to TypeScript as the number of type related errors began to increase due to the increasing complexity of the front-end. Although the initial migration to TypeScript was extremely time consuming, the number of run-time errors encountered significantly decreased. Since TypeScript is a type checked language, we also gain the benefits of code-completion and refactoring capabilities within certain integrated development environments.
     
@@ -259,6 +320,8 @@ Both the feature extraction and filtering components may receive tweets from oth
 This approach provides the benefit of reducing the number of requests made to the server, and greatly improves the responsiveness of the front-end. 
 
 Although we gain an overall more responsive experience using this architecture, it does have some associated flaws. The initial page load is often slower, since the client contains more code than it otherwise would if rendering and routing was managed on the server. Additionally, the improvement in page load times can place a burden on the server, since it has to ensure that the data will be available when a user requests it. If the data is not available when required by the user, it may prove irritating as they wait on certain portions of the interface to update.
+
+    \section{Component-Based Design}
 
         \textit{React} is a JavaScript library developed by Facebook for constructing user interfaces in a component-based fashion. There is an abundance of modern libraries and frameworks for developing user interfaces. React was chosen primarily for its enforcement of the idea of ``separation of concerns'' and its renowned performance.
         
@@ -277,8 +340,6 @@ Although we gain an overall more responsive experience using this architecture, 
 
 
 \chapter{Implementation \& Design}
-
-%TODO: Discuss how mongo was tried for storing tweet features but proved to be a huge bottleneck. How moving towards an in-memory solution solved this issue....
                     
 
 \section{Server Implementation}
@@ -291,7 +352,10 @@ Although we gain an overall more responsive experience using this architecture, 
              \subsubsection{GitHub}
              The project is also linked to a remote repository hosted on \textit{GitHub}.
              
-             \subsubsection{Kanban \& Trello}
+             \subsubsection{Agile Software Development}
+             The \textit{Agile} software development process was followed throughout the lifetime of the project. Although there was an initial requirements gathering stage, these requirements frequently changed, and the product itself changed as a result.
+             
+             \subsection{Kanban \& Trello}
              Project task management was done using the ``Kanban'' system, where projects are represented as a set of named lists and cards. \textit{Trello} is an online platform which implements this system, and was used extensively throughout all stages of the project.
          
              \subsubsection{SBT (Scala Build Tool)}
@@ -299,11 +363,10 @@ Although we gain an overall more responsive experience using this architecture, 
 
     
 % Each subsection should be modelled around one of the components mentioned in the requirements section. 
-    \subsection{Implementation}
     
-    \subsubsection{Feature Extraction}
+    \subsection{Feature Extraction}
         
-        Spark Streaming provides us with a \code{DStream[Status]} (discretised stream) representing the incoming stream of tweets. The tweet stream was mapped to a ``windowed'' tweet stream. This allows us to view the stream through a ``sliding window'', and perform operations on these individual windows of tweets. The tweets in each window are batched and sent through the rest of the pipeline together. The width of the sliding window is defined temporally, as is shown in Figure \ref{slidingwindow}.
+        Spark Streaming provides us with a \code{ReceiverInputDStream[Status]} (discretised stream) representing the incoming stream of tweets. The tweet stream was mapped to a ``windowed'' tweet stream. This allows us to view the stream through a ``sliding window'', and perform operations on these individual windows of tweets. The tweets in each window are batched and sent through the rest of the pipeline together. The width of the sliding window is defined temporally, as is shown in Figure \ref{slidingwindow}.
         
 \begin{figure}
 \centering
@@ -312,11 +375,11 @@ Although we gain an overall more responsive experience using this architecture, 
 \label{slidingwindow}
 \end{figure}
 
-        The \code{FeatureExtraction} actor maps our windowed stream of tweets into a windowed stream of tweet features, which is immediately filtered to discard those tweets which do not meet the threshold quality criteria. These features are then sent to Redis for future storage, and the original status is sent to the indexing actor for storage in a Terrier \code{MemoryIndex}.
+        The \code{FeatureExtraction} actor maps our windowed stream of tweets into a windowed stream of tweet features, which is immediately filtered to discard those tweets which do not meet the threshold quality criteria. These features are then sent to Redis for storage, and the original status is sent to the indexing actor for storage in a Terrier \code{MemoryIndex}.
         %TODO: The following paragraph holds for now, but if I implement the 'trending' thing then it will no longer be relevant.
                 Treating the stream as a time-based sliding window also allows us to answer questions such as \textit{``which users have most frequently used hashtag H within the past N minutes?''}. Despite the application having the ability to answer such questions, this feature remains unused in the current iteration and remains solely as a potential area for future expansion. 
         
-        In early iterations of the project features were stored in MongoDB. However, this proved to be a bottleneck on performance, since the implementation was unable to keep up with the rate at which new features were calculated. There are several reasons which explain why this situation occurred:
+        In early iterations of the project, features were stored in MongoDB. However, this proved to be a bottleneck on performance, since the implementation was unable to keep up with the rate at which new features were calculated. There are several reasons which explain why this situation occurred:
         
         \begin{itemize}
         \item MongoDB persists data on disk, resulting in slow read/write times compared to in-memory solutions.
@@ -340,24 +403,70 @@ Although we gain an overall more responsive experience using this architecture, 
 \label{loadbalancing}
 \end{figure}
         
+        Akka made implementation of this load balancing simple since it provides extensive built-in support for such tasks, including protocols much more advanced than the Round-Robin method used in this component. The code for implementing a worker pool was a single line, as can be seen in the code for creating the \code{WriteWorkerPool} shown below.
+        
+        \begin{lstlisting}
+          val writingWorkerPool = context.actorOf(RoundRobinPool(4)
+                .props(Props[RedisWriterWorker]), "writingWorkerPool")
+        \end{lstlisting}
+
         
         After implementing the feature storage component using these techniques, it was found that it no longer restricted overall system performance.
 
-        \subsubsection{Indexing}
+        \subsection{Indexing}
         %TODO: Should I go into details on what indexing is and show how the tweets are stored?
         Tweets received at the indexing component are stored in a Terrier \code{MemoryIndex}. Each document stored in the index consists of one or more tweet from a single Twitter user. If a tweet appears in the stream authored by a user that we have not seen before then we store the author's username, screen name, and profile biography in a Terrier metadata index so that it can be quickly retrieved in the case that the document is returned in response to a query.        
         
-        \subsubsection{Retrieval}
+        \subsection{Retrieval}
         %TODO: This was previously in the architecture section but its actually an implementation detail of the "Search Component" described in the architecture section. It has to be completely reworded.
         
         %TODO: Discuss keep-alive implementation
         To maximise performance, it was important to ensure that two users entering the same query does not result in the system computing the same stream of results twice. The traditional means of preventing this is through caching query results. Unfortunately, caching is not as practical in a system that is performing real-time indexing and providing results as a stream, since the results of a query change so frequently.
         
-        To get around this limitation, we map each new query to a ``channel'', that the results of that query are forwarded through. When a user inputs a query to the system, they are connected to a channel and will see the same stream of results for that query as any other user who has entered the query. Figure \ref{channels} gives a simplified example of what the clients/channels relationship may look when the system is running.
+        To get around this limitation, we map each new query to a ``channel'', that the results of that query are forwarded through. When a user inputs a query to the system, they are connected to a channel and will see the same stream of results for that query as any other user who has entered the query. If the channel corresponding to their query does not already exist, then it is created. Figure \ref{channels} gives a simplified example of what the clients/channels relationship may look when the system is running.
+        
+        When a channel is created, it registers a scheduled message to poll Terrier for the latest result set in a configurable interval. The code below shows how the polling rate was read from a dependency injected configuration file in a way that avoids \code{null} values, and then used to schedule the channel's work.
+        
+        \begin{lstlisting}
+          // Read the polling duration from the config file  
+          val resultPollDuration = config.getInt("results.pollingrate").getOrElse(1000)
+          
+          // Schedule the requests for the latest query results
+          val fetchTick = context.system.scheduler
+                .schedule(Duration.Zero, FiniteDuration(resultPollDuration, TimeUnit.MILLISECONDS), self, FetchLatestQueryResults)
+           
+        \end{lstlisting}
+
+        Through repeated polling, the result sets obtained from Terrier were transformed into a stream of results sent to clients.
+        
+        Channels will remain open for a query for as long as at least one user is connected to the result stream. In order to determine whether any user is interested in the channel, connected users automatically send special ``keep-alive'' messages that the server interprets as a user expressing a desire to keep the channel open. Each open channel monitors the timestamp associated with the latest keep-alive receieved, and will free its associated resources if the latest keep-alive is ever older than some configurable threshold. In this way we ensure that a channel is never closed while a user is viewing a stream of results. Using this technique also allows us to close result streams when they are no longer required and therefore prevents resource leaks.
+        
+    \subsection{Metrics Reporting}
+    This component is implemented as a single actor which can receive data from any other component in the system. By sending information to this actor, and specifying how it should translate this information (e.g. a Scala case class) to JSON, it allows any component to communicate with the client. The code below provides an example of how messages received at this actor are examined using Scala's pattern matching and simply forwarded through a channel which all users are connected to by default.
+    
+    \begin{lstlisting}
+      override def receive = {
+        case numUsers @ NumberOfUsersSeen(_) => 
+            channelMeta.channel push Json.toJson(numUsers)
+        ...
+      }
+    \end{lstlisting}
+
+The code which maps user-defined Scala types to valid JSON relies on the Play Framework's ``Writes'' converters. The converter for the example above is shown below:
+
+    \begin{lstlisting}
+      implicit val numberOfUsersSeenWrites = new Writes[NumberOfUsersSeen] {
+        def writes(numberOfUsersSeen: NumberOfUsersSeen) = Json.obj(
+            "numUsersSeen" -> numberOfUsersSeen.numUsers
+        )
+      }
+    \end{lstlisting}
+
+    
         
 \begin{figure}
 \centering
-\includegraphics[width=250px, height=156px]{channels.pdf}
+\includegraphics[scale=0.75]{channels.pdf}
 \caption{\textit{An example of the one-to-many relationship that exists between users and channels}. Users A and B both connect to a single channel after entering the same query (``superbowl''), and will receive the results it outputs. This channel will perform the exact same actions regardless of the number of users connected.}
 \label{channels}
 \end{figure}        
@@ -367,15 +476,26 @@ Although we gain an overall more responsive experience using this architecture, 
         \subsection{Tools \& Practices}
            %TODO: Add testing framework information
 
-        \subsubsection{Build Tools}
+        \subsubsection{Gulp}
         \textit{Gulp} is a front-end build system which was used to speed up parts of development. Gulp tasks were defined to watch TypeScript files for changes and automatically transpile them into new JavaScript files using the ``tsc'' TypeScript compiler.
         
+        \subsubsection{Node Package Manager}
         \textit{Node Package Manager} (NPM) was used to manage front-end dependencies. By specifying these dependencies in a \code{package.json} file, developers can simply run \code{npm install} to fetch all of the requirements for the application. NPM was used in conjunction with the \textit{TypeScript Definition Manager} which fetches TypeScript type declaration files.
         \subsection{User Interface}
         %TODO: Remember to discuss responsive design, animations used for specific reasons
-        The user interface was one of the most heavily iterated upon aspects of the application. React made this easy due to components...
+        The user interface was one of the most heavily iterated upon aspects of the application. Using a component-based user interface framework allowed components to be iterated on in isolation, and so changing the UI could be done gradually to allow for progress on other features.
         
-
+        \subsection{Searching}
+        TODO Entering a query opens a new channel and schedules a keep-alive to be...
+        
+        \subsection{Query Results}
+        TODO Discuss presentation of query results - single page to encourage users to view lower ranked profiles. Also shows more clearly changes in rankings, since users can never 'fall off' the first page. Spark lines showing changes in individual users gives insight into changes in user relevance which doesnt fit the typical trend.
+        
+        \subsection{Recent Queries}
+        TODO Discuss animation
+        
+        \subsection{Previewing Twitter Users}
+        TODO Discuss layout, reason for animation, flexbox usage, usage of profile colours - how relevance marking button colours work (tinycolor)... 
         
         
 \chapter{Evaluation}
@@ -387,34 +507,51 @@ Although we gain an overall more responsive experience using this architecture, 
     How does filtering affect relevance judgements, percentage of users filtered, etc. Even just applying a restriction that users have a spelling accuracy gt 0.5 meant discarding like 90 pc of users.
     
     \subsection{Investigating the Effects of Stream Replay Rate}
-    Reading batches of tweets from the stream not only impacts system performance but also poses large usability questions
+    The rate at which tweets are read when using a source file has a direct effect on system performance and usability. An investigation was conducted into the performance and usability impact of altering the stream replay rate.
 
 \section{User Evaluation}
 
     In addition to weekly feedback from the project supervisor, a user evaluation study was conducted in the final weeks of the project.
 
+    \subsection{Questionnaires}
+    Pre and post evaluation questionnaire results discussion..
+
     \subsection{Usability Study}
-    Computer usability questionnaire, think-aloud during evaluation to determine issues encountered.
+    Computer usability questionnaire, think-aloud during evaluation to determine issues encountered...
     
     \subsection{Relevance Judgements}
     What users thought of results, did they make relevance judgements often?
 
-\section{Unit Testing}
+\section{Behaviour Testing}
     %TODO: Change section title to include behavioural tests if Jest is used.
     \subsection{Server}
-    Discuss server side testing i.e. the Akka Testkit stuff
+    Testing on the server...
     
     \subsection{Client}
-        Discuss testing on the front-end.
+        The front-end of the application was tested using the \textit{Jest} testing and mocking library...
+        
+        
+\section{Integration Testing}
+    In addition to tests which ensure that components behave as expected, tests were also written to ensure that they work correctly within their intended environment. In the context of actor systems, this is done by testing how actors respond to \textit{stimulus} from a \textit{probe}. Since actors perform computation in response to messages, we can probe their behaviour by sending them test messages and ensuring that they respond as expected.
+    
+    As an example of how integration testing was useful: When a \code{SparkContext} has been started, it is illegal to attempt to register additional actions on the data. Since the system registers Spark actions in asynchronous calls, it is a possibility that the \code{SparkContext} is started before all actions are registered. To avoid this scenario, any actor registering Spark actions must inform its parent when it has done so. The parent will wait for all child actors to make this confirmation before starting the context. Integration testing is used to ensure that all actors which register Spark actions correctly inform their parent when this registration is complete, and thus avoids a runtime \code{IllegalStateException}.
+    
+    
 
 \section{Performance Testing}
+
+    \subsection{Actor Message Response Time Testing}
 
     \subsection{Server Throughput Testing}
     %TODO: Use BlazeMeter.
 
     %TODO: Use Chrome devtools for paint regions, profiling 'jank' etc.
     \subsection{Profiling Client Side Performance}
-    Use Chrome devtools and painting and profiling info here... Read that article one front end performance profiling and use some of the techniques in here.      
+    
+    
+    765 rules (95\%) of CSS not used by the current page.
+    
+    Use Chrome devtools and painting and profiling info here... Read the Google Developers tutorial again.
         
     
     
@@ -424,8 +561,12 @@ Although we gain an overall more responsive experience using this architecture, 
 \chapter{Conclusions \& Future Work}
 
     %TODO: Acknowledgements
+    
+    %TODO: Not all requirements were met - some features required weren't extracted for example.
 
     %TODO: Machine learning approach for user filtering rather than heuristic filters
+    
+    %TODO: Feeding evaluation results into learning to rank technique
 
 %%%%%%%%%%%%%%%%
 %              %

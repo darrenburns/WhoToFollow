@@ -48,7 +48,7 @@ class QueryService @Inject()
   def doQuery(queryString: String): TerrierResultSet = {
 
     if (queryString.isEmpty) {
-      TerrierResultSet(queryString, 0, new Array[UserTerrierScore](0))
+      return TerrierResultSet(queryString, 0, new Array[UserTerrierScore](0))
     }
 
     // create a search manager (runs the search process over an index)
