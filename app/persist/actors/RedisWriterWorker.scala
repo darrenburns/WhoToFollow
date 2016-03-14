@@ -3,7 +3,7 @@ package persist.actors
 import akka.actor.Actor
 import hooks.RedisConnectionPool
 import learn.actors.FeatureExtraction.TweetFeatures
-import learn.actors.UserHashtagCounter.UserHashtagCount
+import learn.utility.ExtractionUtils.UserHashtagCount
 import org.joda.time.DateTime
 import persist.actors.RedisWriterWorker._
 import play.api.Logger

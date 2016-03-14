@@ -9,13 +9,7 @@ import channels.actors._
 
 class ActorModule extends AbstractModule with AkkaGuiceSupport {
   def configure() {
-    /*
-    1) No implementation for channels.actors.GenericChannel$Factory was bound.
-  while locating channels.actors.GenericChannel$Factory
-    for parameter 0 at channels.actors.UserChannelSupervisor.<init>(UserChannelSupervisor.scala:17)
-  while locating channels.actors.UserChannelSupervisor
-     */
-    bindActor[UserHashtagCounter]("userHashtagCounter")
+    bindActor[HashtagCounter](HashtagCounter.name)
     bindActor[WebSocketSupervisor]("webSocketSupervisor")
     bindActor[TweetStreamActor]("tweetStreamActor")
     bindActor[UserChannelSupervisor](UserChannelSupervisor.name)

@@ -10,7 +10,7 @@ import com.google.inject.{Inject, Singleton}
 import hooks.SparkInit
 import learn.actors.BatchFeatureExtraction.SetCurrentMaxStatusId
 import learn.actors.TweetStreamActor.PipelineActorReady
-import learn.actors.UserHashtagCounter.ActiveTwitterStream
+import learn.actors.HashtagCounter.ActiveTwitterStream
 import org.apache.spark.streaming.dstream.ReceiverInputDStream
 import org.apache.spark.streaming.twitter.TwitterUtils
 import play.api.{Configuration, Logger}
@@ -29,12 +29,12 @@ object TweetStreamActor {
 @Singleton
 class TweetStreamActor @Inject()
 (
-   @Named("userHashtagCounter") userHashtagCounter: ActorRef,
-   @Named("featureExtraction") featureExtraction: ActorRef,
-   @Named(BatchFeatureExtraction.name) batchFeatureExtraction: ActorRef,
-   @Named(MetricsReporting.name) metricsReporting: ActorRef,
-   @Named(Indexer.name) indexer: ActorRef,
-   config: Configuration
+  @Named(HashtagCounter.name) hashtagCounter: ActorRef,
+  @Named("featureExtraction") featureExtraction: ActorRef,
+  @Named(BatchFeatureExtraction.name) batchFeatureExtraction: ActorRef,
+  @Named(MetricsReporting.name) metricsReporting: ActorRef,
+  @Named(Indexer.name) indexer: ActorRef,
+  config: Configuration
 )
   extends Actor with TwitterAuth {
 
@@ -60,7 +60,7 @@ class TweetStreamActor @Inject()
 
   // Asynchronously send status stream handle to interested actors
   val readyFuture = for {
-    f1 <- userHashtagCounter ? ActiveTwitterStream(streamHandle)
+    f1 <- hashtagCounter ? ActiveTwitterStream(streamHandle)
     f2 <- featureExtraction ? ActiveTwitterStream(streamHandle)
   } yield (f1, f2)
 

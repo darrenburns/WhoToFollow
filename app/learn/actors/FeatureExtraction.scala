@@ -5,7 +5,7 @@ import com.github.nscala_time.time.Imports._
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
 import learn.actors.TweetStreamActor.{TweetBatch, PipelineActorReady}
-import learn.actors.UserHashtagCounter.ActiveTwitterStream
+import learn.actors.HashtagCounter.ActiveTwitterStream
 import learn.utility.ExtractionUtils._
 import org.apache.spark.streaming.Seconds
 import org.apache.spark.streaming.dstream.{DStream, ReceiverInputDStream}

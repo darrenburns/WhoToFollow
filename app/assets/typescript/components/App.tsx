@@ -18,6 +18,11 @@ export interface RecentQuery {
     timestamp: number
 }
 
+export interface HashtagCount {
+    hashtag: string
+    count: number
+}
+
 interface IAppState {
     metricsSocket?: WebSocket
     recentQueries?: Array<RecentQuery>
@@ -33,6 +38,7 @@ const App = React.createClass<any, IAppState>({
             metricsSocket: null,
             indexSize: 0,
             numUsers: 0,
+            trendingHashtags: Array<HashtagCount>(),
             recentQueries: Array<RecentQuery>()
         }
     },
@@ -56,6 +62,9 @@ const App = React.createClass<any, IAppState>({
             //}
             if (eventData.hasOwnProperty('query')) {
                 this.setState({recentQueries: [eventData].concat(this.state.recentQueries).slice(0, 5)});
+            }
+            if (eventData.hasOwnProperty('trendingHashtags')) {
+                this.setState({trendingHashtags: eventData.trendingHashtags});
             }
         };
         if (this.state.metricsSocket != null) {
@@ -86,7 +95,8 @@ const App = React.createClass<any, IAppState>({
                     iconElementRight={<FlatButton label={this.state.indexSize + " users indexed, " + (this.state.numUsers - this.state.indexSize) + " users discarded"}  />}
                 />
                 {this.props.children && React.cloneElement(this.props.children, {
-                    recentQueries: this.state.recentQueries
+                    recentQueries: this.state.recentQueries,
+                    trendingHashtags: this.state.trendingHashtags
                     })}
             </Container>
         )

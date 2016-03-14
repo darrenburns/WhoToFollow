@@ -7,6 +7,7 @@ import channels.actors.MetricsReporting.GetMetricsChannel
 import com.google.inject.{Singleton, Inject}
 import com.google.inject.name.Named
 import di.NamedActor
+import learn.actors.HashtagCounter.HashtagCount
 import learn.actors.Indexer
 import learn.actors.Indexer.GetCollectionStats
 import persist.actors.RedisActor
@@ -26,6 +27,7 @@ object MetricsReporting extends NamedActor {
   case class RecentQueries(recentQueriesList: List[String])
   case class CollectionStats(numberOfDocuments: Int)
   case class NumberOfUsersSeen(numUsers: Int)
+  case class TrendingHashtags(counts: List[HashtagCount])
   case object GetMetricsChannel
 
   implicit val newQueryWrites = new Writes[NewQuery] {
@@ -54,6 +56,20 @@ object MetricsReporting extends NamedActor {
     )
   }
 
+  implicit val hashtagCountWrites = new Writes[HashtagCount] {
+    def writes(hashtagCount: HashtagCount) = Json.obj(
+      "hashtag" -> hashtagCount.hashtag,
+      "count" -> hashtagCount.count
+    )
+  }
+
+  implicit val trendingHashtagsWrites = new Writes[TrendingHashtags] {
+    def writes(trendingHashtags: TrendingHashtags) = Json.obj(
+      "trendingHashtags" -> trendingHashtags.counts
+    )
+  }
+
+
 }
 
 @Singleton
@@ -80,6 +96,9 @@ class MetricsReporting @Inject() (
     case stats @ CollectionStats(_) => channelMeta.channel push Json.toJson(stats)
     case query @ NewQuery(_,_,_) => channelMeta.channel push Json.toJson(query)
     case numUsers @ NumberOfUsersSeen(_) => channelMeta.channel push Json.toJson(numUsers)
+    case trendingHashtags @ TrendingHashtags(_) =>
+      Logger.debug("Pushing hashtag counts")
+      channelMeta.channel push Json.toJson(trendingHashtags)
   }
 
   private def getMetricsChannelMeta = channelMeta

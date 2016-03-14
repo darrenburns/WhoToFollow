@@ -6,7 +6,7 @@ import akka.testkit.{TestActorRef, TestProbe, TestKit}
 import hooks.SparkInit
 import learn.actors.{TweetStreamSimulator, FeatureExtraction}
 import learn.actors.TweetStreamActor.PipelineActorReady
-import learn.actors.UserHashtagCounter.ActiveTwitterStream
+import learn.actors.HashtagCounter.ActiveTwitterStream
 import org.apache.spark.streaming.twitter.TwitterUtils
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner

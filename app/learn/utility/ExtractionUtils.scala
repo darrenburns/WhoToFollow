@@ -1,13 +1,14 @@
 package learn.utility
 
 import learn.actors.FeatureExtraction.TweetFeatures
-import learn.actors.UserHashtagCounter.UserHashtagCount
 import persist.actors.RedisWriterWorker.UserHashtagReport
 import twitter4j.Status
 import utils.QualityAnalyser
 
 
 object ExtractionUtils {
+
+  case class UserHashtagCount(username: String, hashtag: String, count: Int)
 
   def getStatusFeatures(status: Status): TweetFeatures = {
     val qa = new QualityAnalyser(status.getText)

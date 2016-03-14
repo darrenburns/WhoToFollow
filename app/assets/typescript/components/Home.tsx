@@ -11,7 +11,7 @@ import {List, ListDivider, Paper, Card, CardText} from 'material-ui';
 import {Route, Router, Link, History} from 'react-router';
 import config from '../util/config';
 import constants from '../util/constants';
-import {RecentQuery} from "./App";
+import {RecentQuery, HashtagCount} from "./App";
 
 
 interface HomeState {
@@ -20,6 +20,7 @@ interface HomeState {
 
 interface HomeProps {
     recentQueries: Immutable.List<RecentQuery>
+    trendingHashtags: Immutable.List<HashtagCount>
 }
 
 const Home = React.createClass<HomeProps, HomeState>({
@@ -53,13 +54,13 @@ const Home = React.createClass<HomeProps, HomeState>({
         return (
             <div>
                 <Row>
-                    <Col lg="50%">
+                    <Col lg="40%">
                         <Row>
                             <Col sm="100%">
                             <p>Enter a hashtag into the box below to begin. If users are discussing that hashtag you
                             will see a list of suggested users. By selecting these users, you can indicate that they
                             are relevant given your query by selecting "Mark As Relevant" on the right hand side of
-                            their profile. This will train the application to improve the relevance of future results!</p>
+                            their profile.</p>
                             </Col>
                         </Row>
                         <Row>
@@ -72,9 +73,24 @@ const Home = React.createClass<HomeProps, HomeState>({
                             </Col>
                         </Row>
                     </Col>
-                    <Col lg="50%">
+                    <Col lg="30%">
                         <h3 className="padded-top-header">Recent Searches</h3>
                         <ScrollingList duration={500} numItemsToShow={4} items={this.props.recentQueries} />
+                    </Col>
+                    <Col lg="30%">
+                        <h3 className="padded-top-header">Trending</h3>
+                        <div className="scrolling-list">
+                        {
+                            this.props.trendingHashtags.map((trending: HashtagCount) =>
+                                    <div className="scrolling-list-item" key={trending.hashtag}>
+                                        <Link to={`/query/${trending.hashtag}`}>
+                                            <span className="scrolling-list-item-text">#{trending.hashtag}</span>
+                                        </Link>
+                                        <span className="scrolling-list-item-subtext">{trending.count} times</span>
+                                    </div>
+                            )
+                        }
+                        </div>
                     </Col>
                 </Row>
                 {this.props.children}
