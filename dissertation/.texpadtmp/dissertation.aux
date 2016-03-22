@@ -35,7 +35,7 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.1.4}Dependency Injection}{8}}
 \@writefile{toc}{\contentsline {subsubsection}{Google Guice}{8}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.1.5}Feature Extraction and Filtering}{9}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.6}Feature Storage}{9}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.6}Persistence}{9}}
 \@writefile{toc}{\contentsline {subsubsection}{Redis}{9}}
 \@writefile{toc}{\contentsline {subsubsection}{MongoDB}{9}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.1.7}Indexing and Retrieval}{10}}
@@ -47,7 +47,7 @@
 \@writefile{toc}{\contentsline {section}{\numberline {3.2}Front-End Architecture}{11}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.2.1}Programming Language}{11}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.2.2}Single-Page Application}{12}}
-\@writefile{toc}{\contentsline {section}{\numberline {3.3}Component-Based Design}{12}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.3}Component-Based Design}{12}}
 \@writefile{toc}{\contentsline {subsubsection}{React Router}{12}}
 \@writefile{toc}{\contentsline {chapter}{\numberline {4}Implementation \& Design}{13}}
 \@writefile{lof}{\addvspace {10\p@ }}
@@ -57,57 +57,83 @@
 \@writefile{toc}{\contentsline {subsubsection}{Git}{13}}
 \@writefile{toc}{\contentsline {subsubsection}{GitHub}{13}}
 \@writefile{toc}{\contentsline {subsubsection}{Agile Software Development}{13}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.2}Kanban \& Trello}{13}}
+\@writefile{toc}{\contentsline {subsubsection}{Kanban \& Trello}{13}}
 \@writefile{lof}{\contentsline {figure}{\numberline {4.1}{\ignorespaces Tweets are batched temporally and sent throughout feature extraction together.}}{14}}
 \newlabel{slidingwindow}{{4.1}{14}}
 \@writefile{toc}{\contentsline {subsubsection}{SBT (Scala Build Tool)}{14}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.3}Feature Extraction}{14}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.2}Feature Extraction}{14}}
 \@writefile{lof}{\contentsline {figure}{\numberline {4.2}{\ignorespaces An example of how requests were load-balanced in order to prevent overworked actors and maximise concurrency. This is a lower level view into the inner workings of the ``Feature Storage'' component shown in Figure 3.1\hbox {}}}{15}}
 \newlabel{loadbalancing}{{4.2}{15}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.4}Indexing}{15}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.5}Retrieval}{15}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.6}Metrics Reporting}{16}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {4.1}Creating an actor pool to reduce the work required by any single actor.}{15}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.3}Batched Feature Extraction}{15}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {4.2}Check asynchronously whether a status has already been processed.}{16}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {4.3}Composing Futures unto a single future and registering the onComplete callback.}{16}}
 \@writefile{lof}{\contentsline {figure}{\numberline {4.3}{\ignorespaces \textit  {An example of the one-to-many relationship that exists between users and channels}. Users A and B both connect to a single channel after entering the same query (``superbowl''), and will receive the results it outputs. This channel will perform the exact same actions regardless of the number of users connected.}}{17}}
 \newlabel{channels}{{4.3}{17}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.2}Client Implementation}{17}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.1}Tools \& Practices}{17}}
-\@writefile{toc}{\contentsline {subsubsection}{Gulp}{17}}
-\@writefile{toc}{\contentsline {subsubsection}{Node Package Manager}{17}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.2}User Interface}{17}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.3}Searching}{18}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.4}Query Results}{18}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.5}Recent Queries}{18}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.6}Previewing Twitter Users}{18}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {5}Evaluation}{19}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.4}Indexing}{17}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.5}Retrieval}{17}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {4.4}Reading configuration from a file and scheduling the updates of results.}{17}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.6}Metrics Reporting}{18}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {4.5}Forwarding new messages through the WebSocket to connected clients.}{18}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {4.6}Code for conversion of the NumberOfUsersSeen Scala case class to JSON format.}{18}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.7}Real-time Trending Hashtags}{18}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.4}{\ignorespaces Example of how a tweet stream is mapped to a stream of pairs in the initial step of the real-time hashtag counting process.}}{19}}
+\newlabel{mappingstep}{{4.4}{19}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {4.7}Counting the hashtags used within a temporal window.}{19}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.5}{\ignorespaces The trending hashtags component. This screenshot was taken during the 2016 BRIT awards and the Kids Choice Awards.}}{20}}
+\newlabel{trending}{{4.5}{20}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.2}Client Implementation}{20}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.1}Tools \& Practices}{20}}
+\@writefile{toc}{\contentsline {subsubsection}{LESS}{20}}
+\@writefile{toc}{\contentsline {subsubsection}{CSS Flexbox}{20}}
+\@writefile{toc}{\contentsline {subsubsection}{CommonJS Modules}{20}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.6}{\ignorespaces An early user interface prototype.}}{21}}
+\newlabel{initialui}{{4.6}{21}}
+\@writefile{toc}{\contentsline {subsubsection}{Gulp}{21}}
+\@writefile{toc}{\contentsline {subsubsection}{Node Package Manager}{21}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.2}User Interface}{21}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.7}{\ignorespaces The final iteration of the user interface.}}{22}}
+\newlabel{finalscreenshot}{{4.7}{22}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.3}Searching}{22}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {4.8}Definition of the hierarchy of React component and how they map to the URL.}{22}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.8}{\ignorespaces An example of the display of suggested users.}}{23}}
+\newlabel{queryresults}{{4.8}{23}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {4.9}The method called by React when a new component mounts.}{23}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.4}Query Results}{23}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.5}Encouraging Interaction}{23}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.9}{\ignorespaces The preview of a user's Twitter profile that is shown when a suggestion is selected.}}{24}}
+\newlabel{userpreview}{{4.9}{24}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.6}Previewing Twitter Users}{24}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {5}Evaluation}{25}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\@writefile{toc}{\contentsline {section}{\numberline {5.1}Experiments}{19}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.1}Investigations on Filtering Controls}{19}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.2}Investigating the Effects of Stream Replay Rate}{19}}
-\@writefile{toc}{\contentsline {section}{\numberline {5.2}User Evaluation}{19}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.1}Questionnaires}{19}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.2}Usability Study}{19}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.3}Relevance Judgements}{20}}
-\@writefile{toc}{\contentsline {section}{\numberline {5.3}Behaviour Testing}{20}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.3.1}Server}{20}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.3.2}Client}{20}}
-\@writefile{toc}{\contentsline {section}{\numberline {5.4}Integration Testing}{20}}
-\@writefile{toc}{\contentsline {section}{\numberline {5.5}Performance Testing}{20}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.5.1}Actor Message Response Time Testing}{20}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.5.2}Server Throughput Testing}{20}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.5.3}Profiling Client Side Performance}{20}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {6}Conclusions \& Future Work}{21}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.1}Experiments}{25}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.1}Investigations on Filtering Controls}{25}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.2}Investigating the Effects of Stream Replay Rate}{25}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.2}User Evaluation}{25}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.1}Questionnaires}{25}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.2}Usability Study}{25}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.3}Relevance Judgements}{26}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.3}Behaviour Testing}{26}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3.1}Server}{26}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3.2}Client}{26}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.4}Integration Testing}{26}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.5}Performance Testing}{26}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5.1}Actor Message Response Time Testing}{26}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5.2}Server Throughput Testing}{26}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5.3}Profiling Client Side Performance}{26}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {6}Conclusions \& Future Work}{27}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\@writefile{toc}{\contentsline {chapter}{Appendices}{22}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {A}Running the Programs}{23}}
+\@writefile{toc}{\contentsline {chapter}{Appendices}{28}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {A}Running the Programs}{29}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \bibstyle{plain}
 \bibdata{bib}
-\@writefile{toc}{\contentsline {chapter}{\numberline {B}Generating Random Graphs}{24}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {B}Generating Random Graphs}{30}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{sec:randomGraph}{{B}{24}}
+\newlabel{sec:randomGraph}{{B}{30}}
 \bibcite{ckt}{1}
 \bibcite{am97}{2}

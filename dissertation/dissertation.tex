@@ -59,7 +59,7 @@ abstract here....
 %TODO: Include preliminary definitions?
 
 \section{Goal}
-The aim of this project was to create an application which provides a relevant set of Twitter accounts to follow based on an input query. In particular, we are interested in recommending accounts which are relevant at the current moment in time. Therefore, a large portion of the project is concerned with providing real-time updates and corrections to recommendations based on the evidence provided via a stream of Twitter statuses.
+The aim of this project was to create an application which provides a relevant set of Twitter accounts to follow for information about events. In particular, we are interested in recommending accounts which are relevant at the current moment in time. Therefore, a large portion of the project is concerned with providing real-time updates and corrections to recommendations based on the evidence provided via a stream of Twitter statuses.
 
 
 \section{Motivation}
@@ -81,7 +81,16 @@ Although several products exist today which attempt to solve this problem, they 
 \section{Related Products}
 
 \subsection{Twitter Search}
-Twitter's existing search service allows searching for accounts based on a search query. This works similarly to traditional search engines in that the user enters a query and the service returns a list of users that may satisfy the information needs based on that query. This is very similar to the purpose of this project. However, this project displays and updates results in real-time, and new evidence is applied immediately. Therefore if a result page is left open, then the ranking of accounts will be adjusted as people start and stop discussing the query topic. This project intends to provide a live ``window'' into ongoing events, and the frequently updating nature of the displayed results reflects this.
+Twitter's existing search service allows searching for accounts based on a search query. This works similarly to traditional search engines in that the user enters a query and the service returns a list of users that may satisfy the information needs based on that query. While this service works well for suggesting users based on their \textit{long term} interests, it is not so useful for an ongoing event which may only occur for a few hours. The ``Who To Follow In Context'' project displays and updates results in real-time, and evidence from new tweets is applied immediately. Therefore if a query result page is left open, the ranking of accounts will be adjusted as people start and stop discussing the query topic, providing users with an insight into how new participants in the discussion emerge.
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.6]{twittersearch.png}
+\caption{Twitter's own search service. Searching for a hashtag appears to either disregard or give very little weight to users who use the hashtag in their tweetsl.}
+\label{twittersearch}
+\end{figure}
+
+
 
 \subsection{Who To Follow at Twitter}
 ``WhoToFollow'' was the service used at Twitter which recommended accounts to follow based on the people already followed by an account. The primary difference between this project and Twitter's initial Who To Follow system is that this project relies on information retrieval methods which rely entirely on the content of the tweets that users write, whilst Twitter relied on graph analysis, which examines interactions between users to try and identify users similar to those the author already follows. Since the initial deployment of this service in 2010, Twitter announced they are reimplementing the service using Pig and Hadoop to improve scalability, and also to apply machine learning approaches using a wider variety of signals.
@@ -108,7 +117,7 @@ Requirements were gathered during the initial meetings between the author and th
     
     Requirements listed in this section were vital to the success of the project. Without satisfying all of these requirements, the project would be regarded as unsuccessful. 
   
-    The system itself \textit{must have} the following capabilities:
+    The system \textit{must have} the following capabilities:
     \begin{enumerate}
     \item Present a web-based user interface providing querying and result-viewing capabilities.
     \item Read tweets live from the Twitter Streaming API.
@@ -125,13 +134,10 @@ Requirements were gathered during the initial meetings between the author and th
         \end{enumerate} 
     \item Filter out Twitter users who post low quality tweets.
    \item Index tweets and relevant metadata so that they can be quickly retrieved given a user query.
-    \end{enumerate}
-
-    Additionally, users of the application \textit{must} be able to:
-    \begin{enumerate}
-    \item Input an event identifying ``hashtag'' into the system.
-    \item View the results of the query as they update in real-time.
-    \item View the timeline of Twitter accounts suggested by the application, without leaving the application.   
+   
+   \item Display the results of the query as they update in real-time.
+   \item Display the timeline of Twitter accounts suggested by the application, without leaving the application. 
+   \item Retrieve user suggestions based on an event identifying ``hashtag'' query.
     \end{enumerate}
     
         \subsection{Should Have}
@@ -205,6 +211,8 @@ On the server side the architecture consists of multiple different components ea
             The server is written using the \textit{Scala} programming language, which is a hybrid of the object-oriented and functional paradigms. Scala was chosen for its lightweight syntax and the fact that it compiles to Java Virtual Machine bytecode, allowing for clean interoperability with existing Java libraries and frameworks. In fact, a number of extremely popular Java libraries are written in Scala, including Apache Spark, Akka, and the Play Framework. Additionally, Scala provides powerful means of asynchronous programming through \code{Future}s and \code{Promise}s, and its \code{Option[T]} type and powerful pattern-matching features make \code{NullPointerException}s impossible since it explicitly requires the developer to check for the possibility that the \code{Option[T]} type contains a \code{None} value. Scala also benefits from its powerful REPL (Read-Execute-Print Loop) which comes bundled with the Scala compiler. This allows developers to immediately evaluate expressions and see the results. Existing code can even be loaded into the REPL so that the effects of performing actions on user defined objects can be examined.
             
         Other languages examined in the initial investigations were Python, NodeJS, and Java. Python was ruled out due to its poor support for concurrency, and its dynamic typing would likely have caused difficulty as the complexity of the project source code increased. NodeJS was considered for its renowned support for real-time web applications. However, the ecosystem surrounding the language has not expanded into the field of processing data streams. As with Python, NodeJS is dynamically typed, and this also factored into the decision to rule it out. Finally, Java was considered due to its unmatched ecosystem of libraries and frameworks and its type system. Java however often requires extra boilerplate code in comparison to Scala. Additionally, Java libraries make excessive use of \code{null} values, which greatly increase the possibility of run-time failure.
+        
+        %TODO Compare Java and Scala code here.
 
     \subsection{Concurrency Model}
     
@@ -221,7 +229,7 @@ Actor systems provide an alternative means of concurrency that avoid the pitfall
         %TODO: Reword this para and Include Akka-TestKit details
         
         %TODO: Move the following paragraph, it's definitely in the wrong place.
-        Despite being primarily used for its concurrency model, Akka provided a number of features ``out-of-the-box'' which satisfied several project requirements. Actors in Akka have a ``supervision strategy'' which defines what actions should be taken when an exception occurs within them. This allows the system to meet the high degrees of fault tolerance and resilience required. The default supervision strategy (simply restarting the actor when an exception occurs) solved many issues that were encountered. For example, it was common for the Twitter streaming API to become unavailable and an exception was therefore thrown. The actor handling the stream was automatically restarted and the stream handle resent to all of the actors that required access to it. No explicit error handling code was required, yet the application was able to self-heal and become fully functional as soon as the streaming API became available again.
+        Despite being primarily used for its concurrency model, Akka provided a number of features ``out-of-the-box'' which satisfied several project requirements. Actors in Akka have a ``supervision strategy'' which defines what actions should be taken when an exception occurs within them. This allows the system to meet the high degrees of fault tolerance and resilience required. The default supervision strategy (simply restarting the actor when an exception occurs) solved many issues that were encountered. For example, it was common for the Twitter streaming API to become unavailable (due to network issues) and an exception was therefore thrown. The actor handling the stream was automatically restarted and the stream handle resent to all of the actors that required access to it. No explicit error handling code was required, yet the application was able to self-heal and become fully functional as soon as the streaming API became available again.
 
         \subsection{Reactive Systems}
         The architecture of the system is implemented to conform to many of the tenets described in the ``Reactive Manifesto''. That is, the system architecture is designed to be responsive, resilient, elastic, and message-driven.
@@ -259,9 +267,9 @@ Guice was primarily used for the injection of actor references into other actors
 
 Both the feature extraction and filtering components may receive tweets from other locations within the system. If the system ever deems a user to be relevant (for example, if they appear in a result stream for an open channel, or a user of the system views their profile), then the tweets present on that user’s timeline are fed back into the pipeline in order to extract further evidence in the hopes of improving the relevance of results.
 
-        \subsection{Feature Storage}
+        \subsection{Persistence}
         
-        Two different technologies provide the persistance layer for the application. Each of these provide different benefits and so the decision of which to use and where varied depending on context.
+        Two different technologies provide the persistence layer for the application. Each of these provide different benefits and so the decision of which to use and where varied depending on context.
         
         \subsubsection{Redis}
         \textit{Redis} is an in-memory data structure storage engine which is used for storage of extracted features. By keeping data in memory it enables quick reads and writes. Its built in data structures simplified the implementation of certain features. For example, a Redis SortedSet data structure is used for the calculation of the median time since the user last made use of the query term as a hashtag. Since the application must process vastly more reads than writes for individual users, allowing Redis to perform the sorting step at write time make the system more efficient than if we were required to sort an array each time the latest results were retrieved for a user.
@@ -275,7 +283,7 @@ Both the feature extraction and filtering components may receive tweets from oth
         \subsection{Indexing and Retrieval}
         After low quality tweets have been discarded, those remaining are sent to the indexer where they will be stored for efficient retrieval. 
         
-        When a query is received, the Query Service will construct a result stream between the information retrieval engine and the user who entered the query. The information retrieval engine will then be frequently polled for new results, and the new results will be sent to the user as soon as they are available.
+        When a query is received, the Query Service will construct a result stream between the information retrieval engine and the user who entered the query. The information retrieval engine will then be frequently polled for new results, and the new results will be sent to the user as soon as they are available. Any user which enters the same query thereafter will see the same stream of results.
         
             \subsubsection{Terrier Information Retrieval Platform}
             Both indexing and retrieval capabilities are provided by the \textit{Terrier Information Retrieval Platform}. Terrier's \code{MemoryIndex} allowed an index to be maintained online, and thus was the technology which enabled results to be displayed and updated in real-time.
@@ -302,10 +310,6 @@ Both the feature extraction and filtering components may receive tweets from oth
 \caption{The high-level architecture of the system. The ``Implementation'' chapter looks at the internal workings of each component in detail.}
 \label{architecture}
 \end{figure}
-
-
-
-
         
     \section{Front-End Architecture}
     
@@ -322,11 +326,11 @@ This approach provides the benefit of reducing the number of requests made to th
 
 Although we gain an overall more responsive experience using this architecture, it does have some associated flaws. The initial page load is often slower, since the client contains more code than it otherwise would if rendering and routing was managed on the server. Additionally, the improvement in page load times can place a burden on the server, since it has to ensure that the data will be available when a user requests it. If the data is not available when required by the user, it may prove irritating as they wait on certain portions of the interface to update.
 
-    \section{Component-Based Design}
+    \subsection{Component-Based Design}
 
         \textit{React} is a JavaScript library developed by Facebook for constructing user interfaces in a component-based fashion. There is an abundance of modern libraries and frameworks for developing user interfaces. React was chosen primarily for its enforcement of the idea of ``separation of concerns'' and its renowned performance.
         
-        The other popular client library considered for the project was AngularJS by Google. However, Angular is framework rather than a library and as such forces the developer to write their application within its restrictions.
+        The other popular client library considered for the project was AngularJS by Google. However, Angular is framework rather than a library and as such forces the developer to write their application within its restrictions. Additionally, Angular is well known to have considerably worse performance in comparison to React, due to it taking considerably more time to perform DOM (Document Object Model) manipulation operations.
 
         \subsubsection{React Router}
         The decision to make routing a concern of the front-end was driven by the existence of \textit{React Router} and the fact that the application view has a limited number of overall states. Using this library allowed views to be declared hierarchically, so that only required subtrees of the view are re-rendered on a URL change.
@@ -351,13 +355,15 @@ Although we gain an overall more responsive experience using this architecture, 
          \textit{Git} is a distributed version control system which was used extensively during the development of the project. A working implementation of the project was always maintained on the \code{master} branch. Features were developed on their own branches so as to not interfere with \code{master}.
          
              \subsubsection{GitHub}
-             The project is also linked to a remote repository hosted on \textit{GitHub}.
+             The project repository is also linked to a remote repository hosted on \textit{GitHub}.
              
              \subsubsection{Agile Software Development}
              The \textit{Agile} software development process was followed throughout the lifetime of the project. Although there was an initial requirements gathering stage, these requirements frequently changed, and the product itself changed as a result.
              
-             \subsection{Kanban \& Trello}
-             Project task management was done using the ``Kanban'' system, where projects are represented as a set of named lists and cards. \textit{Trello} is an online platform which implements this system, and was used extensively throughout all stages of the project.
+             %TODO: expand this
+             
+             \subsubsection{Kanban \& Trello}
+             Project task management was done using the ``Kanban'' system, where projects are represented as a set of named lists and cards. \textit{Trello} is an online platform which implements this system, and it was used extensively throughout all stages of the project.
          
              \subsubsection{SBT (Scala Build Tool)}
          \textit{SBT} is a build management system commonly used in Scala projects which is similar to popular Java build tools such as Maven and Gradle. SBT was used in the project to maintain and resolve dependencies, run tests, and to build and run the project.
@@ -376,22 +382,21 @@ Although we gain an overall more responsive experience using this architecture, 
 \label{slidingwindow}
 \end{figure}
 
-        The \code{FeatureExtraction} actor maps our windowed stream of tweets into a windowed stream of tweet features, which is immediately filtered to discard those tweets which do not meet the threshold quality criteria. These features are then sent to Redis for storage, and the original status is sent to the indexing actor for storage in a Terrier \code{MemoryIndex}.
-        %TODO: The following paragraph holds for now, but if I implement the 'trending' thing then it will no longer be relevant.
-                Treating the stream as a time-based sliding window also allows us to answer questions such as \textit{``which users have most frequently used hashtag H within the past N minutes?''}. Despite the application having the ability to answer such questions, this feature remains unused in the current iteration and remains solely as a potential area for future expansion. 
+        The \code{FeatureExtraction} actor maps our windowed stream of tweets into a windowed stream of tweet feature vectors, which is immediately filtered to discard those tweets which do not meet the threshold quality criteria. These features are then sent to Redis for storage, and the original status is sent to the indexing actor for storage in a Terrier \code{MemoryIndex}.
         
-        In early iterations of the project, features were stored in MongoDB. However, this proved to be a bottleneck on performance, since the implementation was unable to keep up with the rate at which new features were calculated. There are several reasons which explain why this situation occurred:
+        In early iterations of the project, features were stored in MongoDB. However, this proved to be a bottleneck on performance, since the implementation was unable to keep up with the rate at which new features were extracted. There are several reasons which explain why this situation occurred:
         
         \begin{itemize}
         \item MongoDB persists data on disk, resulting in slow read/write times compared to in-memory solutions.
         \item An asynchronous MongoDB driver was not used and so blocking occurred frequently.
+        \item MongoDB does not have built-in data structures that could be used to avoid additional computations.
         \item Parallel insertions were not used. The MongoDB Scala driver had no serialisation/deserialisation support and this made using the parallel insertion API overly cumbersome.
         \end{itemize}
         
         To overcome this bottleneck Redis was employed as the storage engine for features. This resulted in immediate performance improvements, but the system was still unable to store features at the rate they were being generated. Three additional steps were taken in order to ensure that features were persisted at an acceptable rate:
         
         \begin{itemize}
-        \item Connection pooling was used to ensure that the application did not have to reconnect to the Redis server on each operation.
+        \item Connection pooling was used to ensure that the application did not have to reconnect to the Redis server with each request.
         \item Requests to read and write features from Redis were partitioned by defining a \code{RedisRequest} type with two subtypes: \code{RedisReadRequest} and \code{RedisWriteRequest}. This allowed for the separation of reads and writes so that they can be processed by separate worker pools.
         \item Read and write requests were sent to a ``routing'' actor (named \code{RedisActor}) which maintains two pools of actors: one pool containing workers which deal with reading and unmarshalling data from Redis, and one containing workers which handle storing new features to Redis. These requests are distributed to workers using a Round-Robin algorithm, to ensure that the work is evenly distributed. Figure \ref{loadbalancing} shows how tasks were distributed between workers to maximise concurrency.
         \end{itemize}
@@ -406,17 +411,57 @@ Although we gain an overall more responsive experience using this architecture, 
         
         Akka made implementation of this load balancing simple since it provides extensive built-in support for such tasks, including protocols much more advanced than the Round-Robin method used in this component. The code for implementing a worker pool was a single line, as can be seen in the code for creating the \code{WriteWorkerPool} shown below.
         
-        \begin{lstlisting}
+        \begin{lstlisting}[caption=Creating an actor pool to reduce the work required by any single actor.]
           val writingWorkerPool = context.actorOf(RoundRobinPool(4)
                 .props(Props[RedisWriterWorker]), "writingWorkerPool")
         \end{lstlisting}
 
         
         After implementing the feature storage component using these techniques, it was found that it no longer restricted overall system performance.
+        
+        \subsection{Batched Feature Extraction}
+        When a user becomes relevant and is displayed on an open result stream, their latest tweets are fetched (unless their timeline has already been processed recently). As a result, the number of tweets that we must process increases. If $N$ users become relevant at once, we will typically have around $20N$ additional tweets to process on top of the tweets being processed from the stream. It is important in this case that there is no serious impact on performance.
+        
+        To minimise the disruption caused by any sudden influx of new tweets, extraction of features from tweets from a user's timeline was performed using the \code{Future} asynchronous programming abstraction provided by Scala. A \code{Future} represents a value that may become available \textit{at some point in the future}. Therefore, the value contained within a \code{Future} cannot be used until an associated computation is completed. A \textit{callback function} can be used to access the value when it is available.
+        
+        Since we want to avoid extracting features for the same tweet twice, we must check to see if the tweet has already been processed. To do this, we \textit{ask} the \code{RedisActor} if this is the case by sending it a message asynchronously. This actor has to go and do additional work to figure out how to reply, and therefore will not be able to respond immediately. Since the response is delayed, a \code{Future} is an ideal abstraction. The annotated code below shows how for each status in the batch we check if it has been processed in a non-blocking way. (Note: the \code{?} syntax is how we asynchronously send another actor a message and capture the eventual response in a \code{Future}.)
+        
+\begin{lstlisting}[caption=Check asynchronously whether a status has already been processed.]
+var tweetAnalysisHistory = 
+    scala.collection.immutable.Set.empty[Future[(Long, Boolean)]]
+// No iteration of this loop blocks waiting for a response, ensuring that
+// every ask is sent immediately rather than after the response of the 
+// previous ask
+tweets.foreach(tweet => {
+    // Add the Future representing the redisActor's eventual response to the set
+    tweetAnalysisHistory += 
+        (redisActor ? HasStatusBeenProcessed(tweet)).mapTo[(Long, Boolean)]
+})
+\end{lstlisting}
+        
+\code{tweetAnalysisHistory} is a set of \code{Future}s, each of which will eventually contain a pair of the form (TweetID, Boolean), where the boolean value is true if the tweet already been processed. Only after \textit{all} of these \code{Future}s are complete can we determine which tweets we have seen before and so will be discarded.
+
+To determine when all of the \code{Future}s in the set are complete, we can \textit{compose} them into a single combined \code{Future}. Specifically, the set of type \code{Set[Future[(Long, Boolean)]]} is mapped to the type \code{Future[Set[(Long, Boolean)]]} using the \code{Future.sequence} method. Thus, rather than writing a callback function for every status in the set (which itself is impossible since we cannot know its cardinality until run-time), we can write a single callback function to handle the case where all \code{Future}s are complete, and this gives us access to the \code{Set[(Long, Boolean)]} contained within. The code showing this process is shown below, and has been annotated with comments and types for clarity (adapted from  \code{BatchFeatureExtraction.scala}).
+
+\begin{lstlisting}[caption=Composing Futures unto a single future and registering the onComplete callback.]
+// Compose the Futures in tweetAnalysisHistory and register the
+// callback to be fired when the composed Future completes.
+Future.sequence(tweetAnalysisHistory) onComplete {
+    case Success(seenBefore: Set[(Long, Boolean)]) =>
+        // Future completed successfully, perform feature extraction
+        // Original tweet list is filtered and feature extraction occurs here.
+        ...
+    case Failure(error) =>
+        // Future unsuccessful, an actor may have missed response time guarantee
+        // Error is logged
+}
+\end{lstlisting}
+
+The feature extraction code itself (contained in the ``Success'' case of the pattern matching expression in the snippet above) is computationally expensive and as a result also relies heavily on asynchronous constructs, and uses many of the techniques described in this section.
 
         \subsection{Indexing}
         %TODO: Should I go into details on what indexing is and show how the tweets are stored?
-        Tweets received at the indexing component are stored in a Terrier \code{MemoryIndex}. Each document stored in the index consists of one or more tweet from a single Twitter user. If a tweet appears in the stream authored by a user that we have not seen before then we store the author's username, screen name, and profile biography in a Terrier metadata index so that it can be quickly retrieved in the case that the document is returned in response to a query.        
+        Tweets received at the indexing component are stored in a Terrier \code{MemoryIndex}. This is a special type of index that can be updated  online, and therefore is especially suited to this application. Each document stored in the index consists of one or more tweets from a single Twitter user. If a tweet appears in the stream authored by a user that we have not seen before then we store the author's username, screen name, and profile biography in a Terrier metadata index so that it can be quickly retrieved in the case that the document is returned in response to a query.        
         
         \subsection{Retrieval}
         %TODO: This was previously in the architecture section but its actually an implementation detail of the "Search Component" described in the architecture section. It has to be completely reworded.
@@ -426,26 +471,34 @@ Although we gain an overall more responsive experience using this architecture, 
         
         To get around this limitation, we map each new query to a ``channel'', that the results of that query are forwarded through. When a user inputs a query to the system, they are connected to a channel and will see the same stream of results for that query as any other user who has entered the query. If the channel corresponding to their query does not already exist, then it is created. Figure \ref{channels} gives a simplified example of what the clients/channels relationship may look when the system is running.
         
-        When a channel is created, it registers a scheduled message to poll Terrier for the latest result set in a configurable interval. The code below shows how the polling rate was read from a dependency injected configuration file in a way that avoids \code{null} values, and then used to schedule the channel's work.
+\begin{figure}
+\centering
+\includegraphics[scale=0.75]{channels.pdf}
+\caption{\textit{An example of the one-to-many relationship that exists between users and channels}. Users A and B both connect to a single channel after entering the same query (``superbowl''), and will receive the results it outputs. This channel will perform the exact same actions regardless of the number of users connected.}
+\label{channels}
+\end{figure}     
         
-        \begin{lstlisting}
+        When a channel is created, it registers a scheduled request to poll Terrier for the latest result set in a configurable interval. The code below shows how the polling rate was read from a dependency injected configuration file in a way that avoids \code{null} values, and then used to schedule the channel's work.
+        
+        \begin{lstlisting}[caption=Reading configuration from a file and scheduling the updates of results.]
           // Read the polling duration from the config file  
           val resultPollDuration = config.getInt("results.pollingrate").getOrElse(1000)
           
           // Schedule the requests for the latest query results
           val fetchTick = context.system.scheduler
                 .schedule(Duration.Zero, FiniteDuration(resultPollDuration, TimeUnit.MILLISECONDS), self, FetchLatestQueryResults)
-           
         \end{lstlisting}
 
-        Through repeated polling, the result sets obtained from Terrier were transformed into a stream of results sent to clients.
+        Through repeated polling, the result sets obtained from Terrier were transformed into a stream of results and sent to clients. These result sets are calculated using the BM25 weighting model, which is a popular information retrieval model known to generally give relevant results across a variety of collections. Further investigation would be required to determine the most effective retrieval technique.
         
         Channels will remain open for a query for as long as at least one user is connected to the result stream. In order to determine whether any user is interested in the channel, connected users automatically send special ``keep-alive'' messages that the server interprets as a user expressing a desire to keep the channel open. Each open channel monitors the timestamp associated with the latest keep-alive receieved, and will free its associated resources if the latest keep-alive is ever older than some configurable threshold. In this way we ensure that a channel is never closed while a user is viewing a stream of results. Using this technique also allows us to close result streams when they are no longer required and therefore prevents resource leaks.
         
+     
+        
     \subsection{Metrics Reporting}
-    This component is implemented as a single actor which can receive data from any other component in the system. By sending information to this actor, and specifying how it should translate this information (e.g. a Scala case class) to JSON, it allows any component to communicate with the client. The code below provides an example of how messages received at this actor are examined using Scala's pattern matching and simply forwarded through a channel which all users are connected to by default.
+    This component is implemented as a single actor which can receive data from any other component in the system. By sending information to this actor, and specifying how it should translate this information (e.g. a Scala case class) to JSON, it allows any component to communicate with the client. In the example shown below, the \code{MetricsReporting} actor receives a message from some other actor informing it of the number of Twitter users that have been processed, and sends this message to all connected clients.
     
-    \begin{lstlisting}
+    \begin{lstlisting}[caption=Forwarding new messages through the WebSocket to connected clients.]
       override def receive = {
         case numUsers @ NumberOfUsersSeen(_) => 
             channelMeta.channel push Json.toJson(numUsers)
@@ -455,7 +508,7 @@ Although we gain an overall more responsive experience using this architecture, 
 
 The code which maps user-defined Scala types to valid JSON relies on the Play Framework's ``Writes'' converters. The converter for the example above is shown below:
 
-    \begin{lstlisting}
+    \begin{lstlisting}[caption=Code for conversion of the NumberOfUsersSeen Scala case class to JSON format.]
       implicit val numberOfUsersSeenWrites = new Writes[NumberOfUsersSeen] {
         def writes(numberOfUsersSeen: NumberOfUsersSeen) = Json.obj(
             "numUsersSeen" -> numberOfUsersSeen.numUsers
@@ -463,40 +516,151 @@ The code which maps user-defined Scala types to valid JSON relies on the Play Fr
       }
     \end{lstlisting}
 
-    
-        
+\subsection{Real-time Trending Hashtags}
+
+One of the more interesting features to implement was the real-time hashtag usage counter. This component counts the number of occurrences of each hashtag within a configurable window of time, and updates this number as more tweets are processed. The user interface of this aspect of the system is shown in Figure \ref{trending}. The code which generates the data for this component is written using Apache Spark Streaming, and consists of several steps which in combination produce an output of \code{(hashtag, count)} pairs which are then sent to connected clients for rendering.
+
+The initial step of this process maps the incoming stream of tweets into a stream of \code{(String, Int)} tuples, where the string is the text of the hashtag and the integer is the value 1. Figure \ref{mappingstep} shows this process diagrammatically, and the code used in this mapping process is shown below.
+
+\begin{lstlisting}
+    // Map the tweets in the stream to a stream of (hashtag, 1) tuples
+    val hashtags = stream flatMap(status => {
+      status.getHashtagEntities map(hashtag => (hashtag.getText toLowerCase, 1))
+    })
+\end{lstlisting}
+
 \begin{figure}
 \centering
-\includegraphics[scale=0.75]{channels.pdf}
-\caption{\textit{An example of the one-to-many relationship that exists between users and channels}. Users A and B both connect to a single channel after entering the same query (``superbowl''), and will receive the results it outputs. This channel will perform the exact same actions regardless of the number of users connected.}
-\label{channels}
-\end{figure}        
+\includegraphics[scale=0.75]{mappingstep.pdf}
+\caption{Example of how a tweet stream is mapped to a stream of pairs in the initial step of the real-time hashtag counting process.}
+\label{mappingstep}
+\end{figure}
+               
+The new stream of tuples is then \textit{reduced} within a sliding window using the \code{reduceByKeyAndWindow} operation provided by Spark Streaming. The reduction takes place based on the key of the tuple (the first element; in this case the hashtag), and is analogous to a ``\code{GROUP BY}'' clause in SQL combined with a custom \textit{reducer function} which tells Spark how to reduce/combine two values from the stream into one. Since the stream is an array of tuples of the form \code{(<hashtag>, 1)}, after grouping by the hashtags, we want to reduce these tuples by summing their values in order to count the total number of times the hashtag has occurred in the stream (within the current window). Therefore, our reducer function is a simple addition:
+
+\begin{lstlisting}
+(p: Int, q: Int) => p + q
+\end{lstlisting}
+
+After applying this reduction, the data in the stream is now of the required form. After sorting the stream, a subset of the results are sent to the client to be displayed to connected users. The code which performs windowed reduction, sorts the results, and sends those results to all connected clients is shown below.
+
+\begin{lstlisting}[caption=Counting the hashtags used within a temporal window.]
+    // Aggregate hashtags within the window
+    val hashtagCountInWindow = hashtags
+      .reduceByKeyAndWindow(
+        (p:Int, q:Int) => p+q, Minutes(trendingHistoryMins), Seconds(reportFrequency)
+      )
+      .map{case (hashtag, count) => (count, hashtag)}  // Reverse tuples
+      .transform(_.sortByKey(ascending = false))  // Sort by counts
+      .map{case (count, hashtag) => HashtagCount(hashtag, count)}
+
+    // Send latest trending data to connected clients
+    hashtagCountInWindow foreachRDD(rdd => {
+      val hashtagCounts = rdd.collect take numberOfHashtagsToShow
+      metricsReporting ! TrendingHashtags(hashtagCounts.toList)
+    })
+
+\end{lstlisting}
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.75]{trending.png}
+\caption{The trending hashtags component. This screenshot was taken during the 2016 BRIT awards and the Kids Choice Awards.}
+\label{trending}
+\end{figure}
                           
 \section{Client Implementation}
     %TODO: Write this section - include timeline of UI development
         \subsection{Tools \& Practices}
            %TODO: Add testing framework information
+           
+        \subsubsection{LESS}
+        \textit{LESS} is a compiled superset to CSS (Cascading Style Sheets) which introduces a number of additional features including variables, nested definitions, and a module/import system.
+        
+        \subsubsection{CSS Flexbox}
+        \textit{Flexbox} is method for laying out elements on a page. The majority of user interface elements used in ``Who To Follow In Context'' are custom built rather than from an external component library, and Flexbox was used to align child elements within these components.
+
+        \subsubsection{CommonJS Modules}
+        \textit{CommonJS} introduces a module system into JavaScript/TypeScript. As a result, it avoids the need to add one script tag to our index HTML page for each TypeScript file created. During the compilation step, the dependency tree of the front-end application is scanned and bundled into a single file.
 
         \subsubsection{Gulp}
-        \textit{Gulp} is a front-end build system which was used to speed up parts of development. Gulp tasks were defined to watch TypeScript files for changes and automatically transpile them into new JavaScript files using the ``tsc'' TypeScript compiler.
+        \textit{Gulp} is a front-end build system which was used to speed up parts of development. Gulp tasks were defined to watch TypeScript files for changes and automatically transpile them into new JavaScript files using the ``tsc'' TypeScript compiler. A Gulp task was also used in order to compile LESS files to CSS so that they could be interpreted by browsers.
         
         \subsubsection{Node Package Manager}
         \textit{Node Package Manager} (NPM) was used to manage front-end dependencies. By specifying these dependencies in a \code{package.json} file, developers can simply run \code{npm install} to fetch all of the requirements for the application. NPM was used in conjunction with the \textit{TypeScript Definition Manager} which fetches TypeScript type declaration files.
+        
         \subsection{User Interface}
-        %TODO: Remember to discuss responsive design, animations used for specific reasons
+\begin{figure}
+\centering
+\includegraphics[scale=0.24]{initialui.png}
+\caption{An early user interface prototype.}
+\label{initialui}
+\end{figure} 
+        
+        %TODO: Remember to discuss responsive design, animations used for specific reasons.
+        %TODO: Show timeline of UI evolution
         The user interface was one of the most heavily iterated upon aspects of the application. Using a component-based user interface framework allowed components to be iterated on in isolation, and so changing the UI could be done gradually to allow for progress on other features.
         
+        
+\begin{figure}
+\centering
+\includegraphics[scale=0.17]{finalscreenshot.png}
+\caption{The final iteration of the user interface.}
+\label{finalscreenshot}
+\end{figure} 
+        
+        An early prototype of the user interface (show in Figure \ref{initialui} displayed the stream of incoming tweets on the left half of the window, and the recommendations for the current query on the right hand side. The ability to view user timelines was not included at this point. After multiple iterations and further refinement of the project requirements, the final version of the user interface was created (see Figure \ref{finalscreenshot}).
+        
+        
         \subsection{Searching}
-        TODO Entering a query opens a new channel and schedules a keep-alive to be...
+        %TODO: Complete
+        When a user enters a hashtag $Q$ into the search box and presses enter, an event handler is fired which changes the URL to \code{/\#/query/Q}. Since we are using React Router, the hierarchy of components mounted on the screen relates directly to the current URL. The code which defines this hierarchy of components and their associated URLs is shown below.
+        
+\begin{lstlisting}[caption=Definition of the hierarchy of React component and how they map to the URL.]
+ReactDOM.render((
+    <Router>
+        <Route component={App}>
+            <Route path="/" component={Home}>
+                <Route path="/query/:query" component={QueryResults}>
+                    <Route path="/query/:query/user/:screenName" component={TwitterUserPreviewPane} />
+                </Route>
+            </Route>
+        </Route>
+    </Router>
+), document.getElementById("wtfc-app-mount"));
+\end{lstlisting}
+         
+As a result of the code above, any requests to a URL beginning with \code{/\#/query} results in the \code{QueryResults} component and all of its parents to be mounted. Immediately as \code{QueryResults} mounts, React calls its \code{componentDidMount} method, shown below. Inside this method, we send a request to the server to start the WebSocket handshake, and the server will create the channel for this query. In addition, we register callback functions which will execute when the client receives data from the server through the connected WebSocket, and the keep-alive messages that the client will send to the server for as long as \code{QueryResults} remains mounted.
+
+\begin{lstlisting}[caption=The method called by React when a new component mounts.]
+componentDidMount: function() {
+    // Creates WebSocket, keep-alive scheduled, registers callbacks
+    this._setQueryChannel(this.props.params.query);
+},
+\end{lstlisting}
         
         \subsection{Query Results}
-        TODO Discuss presentation of query results - single page to encourage users to view lower ranked profiles. Also shows more clearly changes in rankings, since users can never 'fall off' the first page. Spark lines showing changes in individual users gives insight into changes in user relevance which doesnt fit the typical trend.
+        Query results are presented as a list on the left hand side of the display. Figure \ref{queryresults} shows how the query results are displayed. As the score for each user is re-evaluated, the ordering of the results changes. The numbers shown on the right hand side of the suggestions represent the users relevance score. The graph shown on each suggestion shows the historical changes in score for the corresponding user.
         
-        \subsection{Recent Queries}
-        TODO Discuss animation
+\begin{figure}
+\centering
+\includegraphics[scale=0.9]{queryresults.png}
+\caption{An example of the display of suggested users.}
+\label{queryresults}
+\end{figure} 
+        
+        \subsection{Encouraging Interaction}
+        At the top right hand corner of the screen we display real-time lists of the latest queries which have been entered by users of the system. We also display the most popular hashtags found within the past 10 minutes of streaming. The aim of these components is to encourage users to interact with the system by providing them with up-to-the-moment information on what is popular on Twitter and what users are currently searching for. By selecting an item in the list, it is entered as a query. It was hoped that this feature would make people more likely to interact with the system, since it may provide them with suggestions for hashtags they could search for.
         
         \subsection{Previewing Twitter Users}
-        TODO Discuss layout, reason for animation, flexbox usage, usage of profile colours - how relevance marking button colours work (tinycolor)... 
+        On selecting a suggested account, users are shown a preview of that account without having to leave the application. Figure \ref{userpreview} shows how we display the preview to users. By previewing the suggestion within the application, users can provide relevance feedback for the purposes of evaluation and improving the relevance of future query results. Any uses of the query term are highlighted to bring attention to potentially relevant tweets.
+        
+\begin{figure}
+\centering
+\includegraphics[scale=0.5]{userpreview.png}
+\caption{The preview of a user's Twitter profile that is shown when a suggestion is selected.}
+\label{userpreview}
+\end{figure}         
         
         
 \chapter{Evaluation}
@@ -515,7 +679,7 @@ The code which maps user-defined Scala types to valid JSON relies on the Play Fr
     In addition to weekly feedback from the project supervisor, a user evaluation study was conducted in the final weeks of the project.
 
     \subsection{Questionnaires}
-    Pre and post evaluation questionnaire results discussion..
+    In the evaluation phase of the project, two separate questionnaires were used. The first aimed to determine the experience that users have when they user Twitter, 
 
     \subsection{Usability Study}
     Computer usability questionnaire, think-aloud during evaluation to determine issues encountered...

@@ -55,7 +55,7 @@ class QueryService @Inject()
     val queryingManager = new Manager(memIndex)
 
     // a search request represents the search to be carried out
-    val srq = queryingManager.newSearchRequest("query", queryString)
+    val srq = queryingManager.newSearchRequest("query", "#"+queryString)
     srq.setOriginalQuery(queryString)
 
     srq.addMatchingModel("Matching", "BM25")

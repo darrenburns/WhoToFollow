@@ -25,8 +25,9 @@ object HashtagCounter extends NamedActor {
   override final val name = "HashtagCounter"
 
   object Defaults {
-    val HashtagCountWindowSize = 10  // The number of seconds between each report back to supervisor
+    val TrendingReportFrequency = 10  // The number of seconds between each trending hashtags update
     val HashtagsPerBatch = 4
+    val TrendingHistoryMinutes = 10  // The number of mins to calculate trending for
   }
 
   case class ActiveTwitterStream(dStream: ReceiverInputDStream[Status])
@@ -60,27 +61,30 @@ class HashtagCounter @Inject()
 
   def processStream(stream: ReceiverInputDStream[Status]): Unit = {
 
-    val reportFrequency = configuration.getInt("analysis.hashtagCount.windowSize")
-      .getOrElse(Defaults.HashtagCountWindowSize)
+    val reportFrequency = configuration.getInt("metrics.trendingReportFrequency")
+      .getOrElse(Defaults.TrendingReportFrequency)
+
+    val trendingHistoryMins = configuration.getInt("metrics.trendingHistoryMinutes")
+      .getOrElse(Defaults.TrendingHistoryMinutes)
 
     val numberOfHashtagsToShow = configuration.getInt("metrics.trendingHashtagsToShow")
       .getOrElse(Defaults.HashtagsPerBatch)
 
     // Map the tweets in the stream to a stream of (hashtag, 1) tuples
     val hashtags = stream flatMap(status => {
-      status.getHashtagEntities map(hashtag => (hashtag.getText toLowerCase(), 1))
+      status.getHashtagEntities map(hashtag => (hashtag.getText toLowerCase, 1))
     })
 
-    // Aggregate hashtags
+    // Aggregate hashtags within the window
     val hashtagCountInWindow = hashtags
       .reduceByKeyAndWindow(
-        (p:Int, q:Int) => p+q, Seconds(reportFrequency), Seconds(reportFrequency)
+        (p:Int, q:Int) => p+q, Minutes(trendingHistoryMins), Seconds(reportFrequency)
       )
       .map{case (hashtag, count) => (count, hashtag)}
       .transform(_.sortByKey(ascending = false))
       .map{case (count, hashtag) => HashtagCount(hashtag, count)}
 
-    // Send reports to Redis
+    // Send latest trending data to connected clients
     hashtagCountInWindow foreachRDD(rdd => {
       val hashtagCounts = rdd.collect take numberOfHashtagsToShow
       metricsReporting ! TrendingHashtags(hashtagCounts.toList)

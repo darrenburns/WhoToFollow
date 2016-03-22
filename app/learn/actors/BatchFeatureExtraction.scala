@@ -91,9 +91,9 @@ class BatchFeatureExtraction @Inject()
 
       // Filter the list so that it only contains tweets we haven't seen before
       // Futures contain Tuple of (tweetId, haveWeSeenThisTweetBefore?)
-      var tweetAnalysisHistory = scala.collection.immutable.Set.empty[Future[Any]]
+      var tweetAnalysisHistory = scala.collection.immutable.Set.empty[Future[(Long, Boolean)]]
       tweets.foreach(tweet => {
-        tweetAnalysisHistory += redisActor ? HasStatusBeenProcessed(tweet)
+        tweetAnalysisHistory += (redisActor ? HasStatusBeenProcessed(tweet)).mapTo[(Long, Boolean)]
       })
 
       // When we have results for all of the tweets
