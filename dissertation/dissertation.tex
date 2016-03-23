@@ -30,6 +30,21 @@
   tabsize=2
 }
 
+\lstdefinelanguage{Ini}
+{
+    basicstyle=\ttfamily\small,
+    columns=fullflexible,
+    morecomment=[s][\color{Orchid}\bfseries]{[}{]},
+    morecomment=[l]{\#},
+    morecomment=[l]{;},
+    commentstyle=\color{gray}\ttfamily,
+    stringstyle=\color{mauve},
+    numberstyle=\tiny\color{gray},
+    morekeywords={},
+    otherkeywords={=,:},
+    keywordstyle={\color{blue}\bfseries}
+}
+
 \newcommand{\code}[1]{\texttt{#1}}
 
 \begin{document}
@@ -81,12 +96,12 @@ Although several products exist today which attempt to solve this problem, they 
 \section{Related Products}
 
 \subsection{Twitter Search}
-Twitter's existing search service allows searching for accounts based on a search query. This works similarly to traditional search engines in that the user enters a query and the service returns a list of users that may satisfy the information needs based on that query. While this service works well for suggesting users based on their \textit{long term} interests, it is not so useful for an ongoing event which may only occur for a few hours. The ``Who To Follow In Context'' project displays and updates results in real-time, and evidence from new tweets is applied immediately. Therefore if a query result page is left open, the ranking of accounts will be adjusted as people start and stop discussing the query topic, providing users with an insight into how new participants in the discussion emerge.
+Twitter's existing search service (shown in Figure \ref{twittersearch}) allows searching for accounts based on a search query. This works similarly to traditional search engines in that the user enters a query and the service returns a list of users that may satisfy the information needs based on that query. While this service works well for suggesting users based on their \textit{long term} interests, it is not so useful for an ongoing event which may only occur for a few hours. The ``Who To Follow In Context'' project displays and updates results in real-time, and evidence from new tweets is applied immediately. Therefore if a query result page is left open, the ranking of accounts will be adjusted as people start and stop discussing the query topic, providing users with an insight into how new participants in the discussion emerge.
 
 \begin{figure}
 \centering
-\includegraphics[scale=0.6]{twittersearch.png}
-\caption{Twitter's own search service. Searching for a hashtag appears to either disregard or give very little weight to users who use the hashtag in their tweetsl.}
+\includegraphics[scale=0.4]{twittersearch.png}
+\caption{Twitter's own search service. Searching for a hashtag appears to either disregard or give very little weight to users who use the hashtag in their tweets.}
 \label{twittersearch}
 \end{figure}
 
@@ -522,7 +537,7 @@ One of the more interesting features to implement was the real-time hashtag usag
 
 The initial step of this process maps the incoming stream of tweets into a stream of \code{(String, Int)} tuples, where the string is the text of the hashtag and the integer is the value 1. Figure \ref{mappingstep} shows this process diagrammatically, and the code used in this mapping process is shown below.
 
-\begin{lstlisting}
+\begin{lstlisting}[caption=Initial mapping of tweets to hashtags pairs.]
     // Map the tweets in the stream to a stream of (hashtag, 1) tuples
     val hashtags = stream flatMap(status => {
       status.getHashtagEntities map(hashtag => (hashtag.getText toLowerCase, 1))
@@ -664,22 +679,70 @@ componentDidMount: function() {
         
         
 \chapter{Evaluation}
-%TODO: Write evaluation
+%TODO: Write an introduction to the evaluation section
 
 \section{Experiments}
     
-    \subsection{Investigations on Filtering Controls}
-    How does filtering affect relevance judgements, percentage of users filtered, etc. Even just applying a restriction that users have a spelling accuracy gt 0.5 meant discarding like 90 pc of users.
+    \subsection{Experimenting With Filtering Controls}
+    The implications of altering the threshold at which tweets are discarded during the filtering stage were examined. It was hypothesised that the ``Spelling Accuracy'' and ``Follower Count'' filters would have the largest impact on the number of users discarded. By altering this configuration, the effect of filtering on the number of users the application has to process was investigated. Using the default filtering controls shown in Table \ref{table:standardfilters}, it was found that in a sample of 15000 tweets, approximately $97\%$ of users were discarded at the filtering stage. This shows that the combination of seemingly relaxed filters can result in a large number of users being dropped and therefore massively reducing the load on the server. 
+    
+Further experiments were performed to determine the impact that the individual default filters have on the overall number of users filtered. This experiment was performed by disabling all user filtering, and examining the effects of individual filters by applying them in isolation. The determined contribution of the individual default filtering controls is shown in Table \ref{table:filteringresults}. The total percentage of users filtered is greater than 100\% because a single tweet will usually fail the checks imposed by several filters at once.
+
+%TODO: Examine the effect on the results of different filters.
+    
+\begin{table}
+    \centering
+    \begin{tabular}{| l | l |}
+    \hline
+    Filter Name & \% of Users Filtered \\ \hline
+    ALL FILTERS & 97 \\ \hline
+    Spelling Accuracy & 92  \\ \hline
+    Follower Count & 44 \\ \hline
+    Word Count & 30 \\
+    \hline
+    \end{tabular}
+    \caption{\label{table:filteringresults}The individual impact of different filtering controls. ($N=15000$).}
+\end{table}
+   
+\begin{table}
+    \centering
+    \begin{tabular}{| l | l | l |}
+    \hline
+    Filter Name & Required Value & Description\\ \hline
+    Spelling Accuracy & $>50\%$ & Tweets with 50\% or less of words spelt correctly are discarded.  \\ \hline
+    Word Count & $>3$ & Tweets with 3 or less words are discarded.  \\ \hline
+    Follower Count & $\geq300$ & Tweets with authors who have less than 300 followers are discarded. \\ \hline
+    Hashtag Count & $<5$ & Tweets with 5 or more hashtags are discarded. \\ \hline
+    Capitalised Words & N/A & Tweet entirely capitalised are discarded. \\
+    
+    \hline
+    \end{tabular}
+    \caption{\label{table:standardfilters}The default filtering controls.}
+\end{table}
+
     
     \subsection{Investigating the Effects of Stream Replay Rate}
-    The rate at which tweets are read when using a source file has a direct effect on system performance and usability. An investigation was conducted into the performance and usability impact of altering the stream replay rate.
+    The rate at which tweets are read when using a source file has a direct effect on system performance and usability. An investigation was conducted into the performance and usability impact of altering the \textit{stream replay rate}. The stream replay rate is the rate at which new tweets are read into the system from a source file. This rate is configurable using two parameters: ``BatchDuration'' and ``BatchSize''. The ``BatchDuration'' parameter defines the time between examining batches of tweets from the source. The ``BatchSize'' parameter defines the number of tweets in each of these batches. These parameters can be configured using the file entitled ``application.conf'', and are shown in Listing 5.1. Users were given the opportunity to perform tasks with the system with two different stream replay rates, and asked to provide feedback on which version they preferred.
+    
+\begin{lstlisting}[caption=Configuration of the stream replay rate in application.conf,language=Ini]
+# path to gzipped json file containing tweets which will be read
+# leave blank for live stream
+stream.sourcefile.path = "/path/to/gzipped/tweets.json.gz"
+# the number of tweets in each batch
+stream.sourcefile.batchSize = 100
+# time in milliseconds between each batch
+stream.sourcefile.batchDuration = 500
+\end{lstlisting}
+
+%TODO: Finish this
+
 
 \section{User Evaluation}
 
     In addition to weekly feedback from the project supervisor, a user evaluation study was conducted in the final weeks of the project.
 
     \subsection{Questionnaires}
-    In the evaluation phase of the project, two separate questionnaires were used. The first aimed to determine the experience that users have when they user Twitter, 
+    In the evaluation phase of the project, two separate questionnaires were used. The first aimed to determine the experiences that participants have when they use Twitter, and the second was a post-evaluation questionnaire enabling them to provide additional feedback after the think-aloud session.
 
     \subsection{Usability Study}
     Computer usability questionnaire, think-aloud during evaluation to determine issues encountered...
@@ -708,7 +771,7 @@ componentDidMount: function() {
     \subsection{Actor Message Response Time Testing}
 
     \subsection{Server Throughput Testing}
-    %TODO: Use BlazeMeter.
+    %TODO: Examine the maximum read rate that can be achieved.
 
     %TODO: Use Chrome devtools for paint regions, profiling 'jank' etc.
     \subsection{Profiling Client Side Performance}
@@ -723,15 +786,25 @@ componentDidMount: function() {
 
 
 
-\chapter{Conclusions \& Future Work}
+\chapter{Conclusion}
 
-    %TODO: Acknowledgements
     
     %TODO: Not all requirements were met - some features required weren't extracted for example.
+    \section{Reflecting on Requirements}
+    
+    \section{Future Work}
+    
+        \subsection{}
+    
+    \section{Reflection}
+    
+    
 
     %TODO: Machine learning approach for user filtering rather than heuristic filters
     
     %TODO: Feeding evaluation results into learning to rank technique
+    
+     %TODO: Acknowledgements
 
 %%%%%%%%%%%%%%%%
 %              %

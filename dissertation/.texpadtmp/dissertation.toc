@@ -5,84 +5,87 @@
 \contentsline {subsection}{\numberline {1.3.1}Twitter Search}{2}
 \contentsline {subsection}{\numberline {1.3.2}Who To Follow at Twitter}{2}
 \contentsline {subsection}{\numberline {1.3.3}Klout}{2}
-\contentsline {section}{\numberline {1.4}Relevant Research}{2}
-\contentsline {subsection}{\numberline {1.4.1}Searching For Quality Microblog Posts}{2}
-\contentsline {chapter}{\numberline {2}Requirements}{3}
-\contentsline {section}{\numberline {2.1}Functional Requirements}{3}
-\contentsline {subsection}{\numberline {2.1.1}Must Have}{3}
-\contentsline {subsection}{\numberline {2.1.2}Should Have}{4}
-\contentsline {subsection}{\numberline {2.1.3}Could Have}{4}
-\contentsline {subsection}{\numberline {2.1.4}Won't Have}{5}
-\contentsline {section}{\numberline {2.2}Non-Functional Requirements}{5}
-\contentsline {chapter}{\numberline {3}System Architecture}{6}
-\contentsline {section}{\numberline {3.1}Server Architecture}{6}
-\contentsline {subsection}{\numberline {3.1.1}Programming Language}{6}
-\contentsline {subsection}{\numberline {3.1.2}Concurrency Model}{7}
-\contentsline {subsubsection}{The Actor Model}{7}
-\contentsline {subsubsection}{Akka}{7}
-\contentsline {subsection}{\numberline {3.1.3}Reactive Systems}{7}
-\contentsline {subsubsection}{Responsiveness}{8}
-\contentsline {subsubsection}{Resilience}{8}
-\contentsline {subsubsection}{Elasticity}{8}
-\contentsline {subsubsection}{Message-Driven}{8}
-\contentsline {subsection}{\numberline {3.1.4}Dependency Injection}{8}
-\contentsline {subsubsection}{Google Guice}{8}
-\contentsline {subsection}{\numberline {3.1.5}Feature Extraction and Filtering}{9}
-\contentsline {subsection}{\numberline {3.1.6}Persistence}{9}
-\contentsline {subsubsection}{Redis}{9}
-\contentsline {subsubsection}{MongoDB}{9}
-\contentsline {subsection}{\numberline {3.1.7}Indexing and Retrieval}{10}
-\contentsline {subsubsection}{Terrier Information Retrieval Platform}{10}
-\contentsline {subsection}{\numberline {3.1.8}Metrics Reporting}{10}
-\contentsline {subsubsection}{Play Framework}{11}
-\contentsline {section}{\numberline {3.2}Front-End Architecture}{11}
-\contentsline {subsection}{\numberline {3.2.1}Programming Language}{11}
-\contentsline {subsection}{\numberline {3.2.2}Single-Page Application}{12}
-\contentsline {subsection}{\numberline {3.2.3}Component-Based Design}{12}
-\contentsline {subsubsection}{React Router}{12}
-\contentsline {chapter}{\numberline {4}Implementation \& Design}{13}
-\contentsline {section}{\numberline {4.1}Server Implementation}{13}
-\contentsline {subsection}{\numberline {4.1.1}Tools \& Practices}{13}
-\contentsline {subsubsection}{Git}{13}
-\contentsline {subsubsection}{GitHub}{13}
-\contentsline {subsubsection}{Agile Software Development}{13}
-\contentsline {subsubsection}{Kanban \& Trello}{13}
-\contentsline {subsubsection}{SBT (Scala Build Tool)}{14}
-\contentsline {subsection}{\numberline {4.1.2}Feature Extraction}{14}
-\contentsline {subsection}{\numberline {4.1.3}Batched Feature Extraction}{15}
-\contentsline {subsection}{\numberline {4.1.4}Indexing}{17}
-\contentsline {subsection}{\numberline {4.1.5}Retrieval}{17}
-\contentsline {subsection}{\numberline {4.1.6}Metrics Reporting}{18}
-\contentsline {subsection}{\numberline {4.1.7}Real-time Trending Hashtags}{18}
-\contentsline {section}{\numberline {4.2}Client Implementation}{20}
-\contentsline {subsection}{\numberline {4.2.1}Tools \& Practices}{20}
-\contentsline {subsubsection}{LESS}{20}
-\contentsline {subsubsection}{CSS Flexbox}{20}
-\contentsline {subsubsection}{CommonJS Modules}{20}
-\contentsline {subsubsection}{Gulp}{21}
-\contentsline {subsubsection}{Node Package Manager}{21}
-\contentsline {subsection}{\numberline {4.2.2}User Interface}{21}
-\contentsline {subsection}{\numberline {4.2.3}Searching}{22}
-\contentsline {subsection}{\numberline {4.2.4}Query Results}{23}
-\contentsline {subsection}{\numberline {4.2.5}Encouraging Interaction}{23}
-\contentsline {subsection}{\numberline {4.2.6}Previewing Twitter Users}{24}
-\contentsline {chapter}{\numberline {5}Evaluation}{25}
-\contentsline {section}{\numberline {5.1}Experiments}{25}
-\contentsline {subsection}{\numberline {5.1.1}Investigations on Filtering Controls}{25}
-\contentsline {subsection}{\numberline {5.1.2}Investigating the Effects of Stream Replay Rate}{25}
-\contentsline {section}{\numberline {5.2}User Evaluation}{25}
-\contentsline {subsection}{\numberline {5.2.1}Questionnaires}{25}
-\contentsline {subsection}{\numberline {5.2.2}Usability Study}{25}
-\contentsline {subsection}{\numberline {5.2.3}Relevance Judgements}{26}
-\contentsline {section}{\numberline {5.3}Behaviour Testing}{26}
-\contentsline {subsection}{\numberline {5.3.1}Server}{26}
-\contentsline {subsection}{\numberline {5.3.2}Client}{26}
-\contentsline {section}{\numberline {5.4}Integration Testing}{26}
-\contentsline {section}{\numberline {5.5}Performance Testing}{26}
-\contentsline {subsection}{\numberline {5.5.1}Actor Message Response Time Testing}{26}
-\contentsline {subsection}{\numberline {5.5.2}Server Throughput Testing}{26}
-\contentsline {subsection}{\numberline {5.5.3}Profiling Client Side Performance}{26}
-\contentsline {chapter}{\numberline {6}Conclusions \& Future Work}{27}
-\contentsline {chapter}{Appendices}{28}
-\contentsline {chapter}{\numberline {A}Running the Programs}{29}
-\contentsline {chapter}{\numberline {B}Generating Random Graphs}{30}
+\contentsline {section}{\numberline {1.4}Relevant Research}{3}
+\contentsline {subsection}{\numberline {1.4.1}Searching For Quality Microblog Posts}{3}
+\contentsline {chapter}{\numberline {2}Requirements}{4}
+\contentsline {section}{\numberline {2.1}Functional Requirements}{4}
+\contentsline {subsection}{\numberline {2.1.1}Must Have}{4}
+\contentsline {subsection}{\numberline {2.1.2}Should Have}{5}
+\contentsline {subsection}{\numberline {2.1.3}Could Have}{5}
+\contentsline {subsection}{\numberline {2.1.4}Won't Have}{6}
+\contentsline {section}{\numberline {2.2}Non-Functional Requirements}{6}
+\contentsline {chapter}{\numberline {3}System Architecture}{7}
+\contentsline {section}{\numberline {3.1}Server Architecture}{7}
+\contentsline {subsection}{\numberline {3.1.1}Programming Language}{7}
+\contentsline {subsection}{\numberline {3.1.2}Concurrency Model}{8}
+\contentsline {subsubsection}{The Actor Model}{8}
+\contentsline {subsubsection}{Akka}{8}
+\contentsline {subsection}{\numberline {3.1.3}Reactive Systems}{8}
+\contentsline {subsubsection}{Responsiveness}{9}
+\contentsline {subsubsection}{Resilience}{9}
+\contentsline {subsubsection}{Elasticity}{9}
+\contentsline {subsubsection}{Message-Driven}{9}
+\contentsline {subsection}{\numberline {3.1.4}Dependency Injection}{9}
+\contentsline {subsubsection}{Google Guice}{9}
+\contentsline {subsection}{\numberline {3.1.5}Feature Extraction and Filtering}{10}
+\contentsline {subsection}{\numberline {3.1.6}Persistence}{10}
+\contentsline {subsubsection}{Redis}{10}
+\contentsline {subsubsection}{MongoDB}{10}
+\contentsline {subsection}{\numberline {3.1.7}Indexing and Retrieval}{11}
+\contentsline {subsubsection}{Terrier Information Retrieval Platform}{11}
+\contentsline {subsection}{\numberline {3.1.8}Metrics Reporting}{11}
+\contentsline {subsubsection}{Play Framework}{12}
+\contentsline {section}{\numberline {3.2}Front-End Architecture}{12}
+\contentsline {subsection}{\numberline {3.2.1}Programming Language}{12}
+\contentsline {subsection}{\numberline {3.2.2}Single-Page Application}{13}
+\contentsline {subsection}{\numberline {3.2.3}Component-Based Design}{13}
+\contentsline {subsubsection}{React Router}{13}
+\contentsline {chapter}{\numberline {4}Implementation \& Design}{14}
+\contentsline {section}{\numberline {4.1}Server Implementation}{14}
+\contentsline {subsection}{\numberline {4.1.1}Tools \& Practices}{14}
+\contentsline {subsubsection}{Git}{14}
+\contentsline {subsubsection}{GitHub}{14}
+\contentsline {subsubsection}{Agile Software Development}{14}
+\contentsline {subsubsection}{Kanban \& Trello}{14}
+\contentsline {subsubsection}{SBT (Scala Build Tool)}{15}
+\contentsline {subsection}{\numberline {4.1.2}Feature Extraction}{15}
+\contentsline {subsection}{\numberline {4.1.3}Batched Feature Extraction}{16}
+\contentsline {subsection}{\numberline {4.1.4}Indexing}{18}
+\contentsline {subsection}{\numberline {4.1.5}Retrieval}{18}
+\contentsline {subsection}{\numberline {4.1.6}Metrics Reporting}{19}
+\contentsline {subsection}{\numberline {4.1.7}Real-time Trending Hashtags}{19}
+\contentsline {section}{\numberline {4.2}Client Implementation}{21}
+\contentsline {subsection}{\numberline {4.2.1}Tools \& Practices}{21}
+\contentsline {subsubsection}{LESS}{21}
+\contentsline {subsubsection}{CSS Flexbox}{21}
+\contentsline {subsubsection}{CommonJS Modules}{21}
+\contentsline {subsubsection}{Gulp}{22}
+\contentsline {subsubsection}{Node Package Manager}{22}
+\contentsline {subsection}{\numberline {4.2.2}User Interface}{22}
+\contentsline {subsection}{\numberline {4.2.3}Searching}{23}
+\contentsline {subsection}{\numberline {4.2.4}Query Results}{24}
+\contentsline {subsection}{\numberline {4.2.5}Encouraging Interaction}{24}
+\contentsline {subsection}{\numberline {4.2.6}Previewing Twitter Users}{25}
+\contentsline {chapter}{\numberline {5}Evaluation}{26}
+\contentsline {section}{\numberline {5.1}Experiments}{26}
+\contentsline {subsection}{\numberline {5.1.1}Experimenting With Filtering Controls}{26}
+\contentsline {subsection}{\numberline {5.1.2}Investigating the Effects of Stream Replay Rate}{26}
+\contentsline {section}{\numberline {5.2}User Evaluation}{27}
+\contentsline {subsection}{\numberline {5.2.1}Questionnaires}{27}
+\contentsline {subsection}{\numberline {5.2.2}Usability Study}{27}
+\contentsline {subsection}{\numberline {5.2.3}Relevance Judgements}{27}
+\contentsline {section}{\numberline {5.3}Behaviour Testing}{28}
+\contentsline {subsection}{\numberline {5.3.1}Server}{28}
+\contentsline {subsection}{\numberline {5.3.2}Client}{28}
+\contentsline {section}{\numberline {5.4}Integration Testing}{28}
+\contentsline {section}{\numberline {5.5}Performance Testing}{28}
+\contentsline {subsection}{\numberline {5.5.1}Actor Message Response Time Testing}{28}
+\contentsline {subsection}{\numberline {5.5.2}Server Throughput Testing}{28}
+\contentsline {subsection}{\numberline {5.5.3}Profiling Client Side Performance}{28}
+\contentsline {chapter}{\numberline {6}Conclusion}{29}
+\contentsline {section}{\numberline {6.1}Reflecting on Requirements}{29}
+\contentsline {section}{\numberline {6.2}Future Work}{29}
+\contentsline {section}{\numberline {6.3}Reflection}{29}
+\contentsline {chapter}{Appendices}{30}
+\contentsline {chapter}{\numberline {A}Running the Programs}{31}
+\contentsline {chapter}{\numberline {B}Generating Random Graphs}{32}
