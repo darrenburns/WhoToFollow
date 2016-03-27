@@ -1,13 +1,52 @@
 \begin{thebibliography}{1}
 
-\bibitem{ckt}
-Peter Cheeseman, Bob Kanefsky, and William~M. Taylor.
-\newblock {Where the really hard problems are}.
-\newblock In {\em Proceedings {IJCAI'91}}, pages 331--337, 1991.
+\bibitem{reactive}
+Jonas Boner, Dave Farley, Roland Kuhn, and Martin Thompson.
+\newblock The reactive manifesto, 2014.
 
-\bibitem{am97}
-Brian Hayes.
-\newblock Can't get no satisfaction.
-\newblock {\em American Scientist}, 85:108--112, 1997.
+\bibitem{twitterWTF}
+Pankaj Gupta, Ashish Goel, Jimmy Lin, Aneesh Sharma, Dong Wang, and Reza Zadeh.
+\newblock Wtf: The who to follow service at twitter.
+\newblock In {\em Proceedings of the 22Nd International Conference on World
+  Wide Web}, WWW '13, pages 505--514, New York, NY, USA, 2013. ACM.
+
+\bibitem{celmaLamere}
+Celma~\& Lamere.
+\newblock {Music Recommendation Tutorial, ISMIR}.
+\newblock
+  \url{http://ocelma.net/MusicRecommendationTutorial-ISMIR2007/slides/music-rec-ismir2007-low.pdf},
+  2007.
+
+\bibitem{macdonald2012puppy}
+Craig Macdonald, Richard McCreadie, Rodrygo~LT Santos, and Iadh Ounis.
+\newblock From puppy to maturity: Experiences in developing terrier.
+\newblock {\em Proc. of OSIR at SIGIR}, pages 60--63, 2012.
+
+\bibitem{klout}
+Adithya Rao, Nemanja Spasojevic, Zhisheng Li, and Trevor DSouza.
+\newblock Klout score: Measuring influence across multiple social networks.
+\newblock 2015.
+
+\bibitem{twitterNews}
+Tom Rosenstiel, Jeff Sonderman, Kevin Loker, Maria Ivancin, and Nina Kjarval.
+\newblock {Twitter and the News: How people use the social network to learn
+  about the world}.
+\newblock
+  \url{http://www.americanpressinstitute.org/wp-content/uploads/2015/09/Twitter-and-News-How-people-use-Twitter-to-get-news-American-Press-Institute.pdf},
+  2015.
+
+\bibitem{leavingTwitter}
+Ross Sandler, Lloyd Walmsley, Deepak Mathivanan, and Kevin LaBuz.
+\newblock {Deutsche Bank Markets Research: A Closer Look At Twitter’s User
+  Funnel Issue}.
+\newblock 2014.
+
+\bibitem{Vosecky2012}
+Jan Vosecky, Kenneth Wai-Ting Leung, and Wilfred Ng.
+\newblock {\em Database Systems for Advanced Applications: 17th International
+  Conference, DASFAA 2012, Busan, South Korea, April 15-19, 2012, Proceedings,
+  Part I}, chapter Searching for Quality Microblog Posts: Filtering and Ranking
+  Based on Content Analysis and Implicit Links, pages 397--413.
+\newblock Springer Berlin Heidelberg, Berlin, Heidelberg, 2012.
 
 \end{thebibliography}
