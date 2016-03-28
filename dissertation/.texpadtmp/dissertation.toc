@@ -74,15 +74,12 @@
 \contentsline {subsection}{\numberline {5.1.1}Questionnaires}{32}
 \contentsline {subsubsection}{Twitter Usage Questionnaire}{32}
 \contentsline {subsubsection}{Post-Evaluation Questionnaire}{35}
-\contentsline {subsection}{\numberline {5.1.2}Think-Aloud Study}{35}
-\contentsline {section}{\numberline {5.2}Experiments}{36}
-\contentsline {subsection}{\numberline {5.2.1}Experimenting With Filtering Controls}{36}
-\contentsline {subsection}{\numberline {5.2.2}Investigating the Effects of Stream Replay Rate}{37}
-\contentsline {section}{\numberline {5.3}Behaviour Testing}{38}
-\contentsline {section}{\numberline {5.4}Integration Testing}{38}
-\contentsline {section}{\numberline {5.5}Performance Testing}{39}
-\contentsline {subsection}{\numberline {5.5.1}Server Throughput Tests}{39}
-\contentsline {subsection}{\numberline {5.5.2}Profiling Client Side Performance}{39}
+\contentsline {subsection}{\numberline {5.1.2}Think-Aloud Study}{36}
+\contentsline {section}{\numberline {5.2}Experiments}{37}
+\contentsline {subsection}{\numberline {5.2.1}Experimenting With Filtering Controls}{37}
+\contentsline {subsection}{\numberline {5.2.2}Investigating the Effects of Stream Replay Rate}{38}
+\contentsline {section}{\numberline {5.3}Behaviour Testing}{39}
+\contentsline {section}{\numberline {5.4}Integration Testing}{39}
 \contentsline {chapter}{\numberline {6}Conclusion}{40}
 \contentsline {section}{\numberline {6.1}Future Work}{40}
 \contentsline {subsection}{\numberline {6.1.1}Improving Results Using Learning To Rank}{40}

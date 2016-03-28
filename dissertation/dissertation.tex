@@ -417,8 +417,11 @@ Guice was primarily used for the injection of actor references into other actors
 
 \chapter{Implementation}
                     
+%TODO: Introduction to impl section
 
 \section{Server Implementation}
+
+The implementation of the server involved a wide range of tools and practices which aimed to assist in the development process.
 
     \subsection{Tools \& Practices}
     
@@ -799,23 +802,23 @@ As a result of the code above, any requests to a URL beginning with \code{/\#/qu
 After implementation had concluded, the application was evaluated using a variety of different evaluation techniques. The purpose of this evaluation was to attempt to answer the following questions:
 
 \begin{enumerate}
+\item Is there a gap in the market for this product?
 \item Did users find the system to be usable?
 \item Did the system help users find Twitter users with expertise in ongoing events?
-\item How well 
 \item What impact on results and the number of users discarded do different filtering configurations have?
-\item What is the impact of altering the rate at which the system processes tweets?
+\item What is the impact of altering the rate at which the system reads tweets?
 \end{enumerate}
 
 
 \section{User Evaluation}
 
-    In addition to weekly feedback from the project supervisor, a user evaluation study was conducted in the final weeks of the project.
+    In addition to weekly feedback from the project supervisor, a user evaluation study was conducted in the final weeks of the project to determine users opinions on the application.
 
     \subsection{Questionnaires}
     Two separate questionnaires were used. The first aimed to gain insight into how people use Twitter, and the second was a post-evaluation questionnaire enabling them to provide additional feedback after the think-aloud session.
     
         \subsubsection{Twitter Usage Questionnaire}
-        This questionnaire was distributed to a subset of Level 4 Computing Science students at the University of Glasgow. 18 students completed this questionnaire. The intention was to determine how people use Twitter, specifically in the context of events. It also aimed to discover what motivates them to use Twitter and the considerations they make before following users. By gaining insight into these areas, we can gain a better understanding of the difficulties that Twitter users have, and it will allow future work to be focussed on solving these issues. If planned future work was found not to be an issue based on the results of this survey, then it would have to be re-prioritised.
+        This questionnaire was distributed to a subset of Level 4 Computing Science students at the University of Glasgow. 18 students completed this questionnaire. The intention was to determine how people use Twitter, specifically in the context of events. It also aimed to discover what motivates them to use Twitter and the considerations they make before following users. By gaining insight into these areas, we can gain a better understanding of the difficulties that Twitter users have, allowing us to determine whether there exists a gap in the market for this product.
 
 \begin{enumerate}
 
@@ -875,7 +878,7 @@ Participants in general found it relatively simply to find users tweeting about 
 \includegraphics[scale=0.7]{findingusersfreq.png}
 \label{findingusersfreq}
 \end{figure}
-When tasked with finding users who are frequently tweeting about an ongoing event, particpants say they have more difficulty. The results are skewed towards \textit{Very difficult}, in contrast with question 5.
+When tasked with finding users who are frequently tweeting about an ongoing event, particpants say they have more difficulty. The results are skewed towards \textit{Very difficult}, in contrast with question 5. This suggests that Twitter's existing product has been relatively unsuccessful  at assisting people in meeting their need for expertise with regards to events.
 
 \item \textit{Do you believe you would use Twitter more if you followed more people you are interested in?}
 \par
@@ -886,10 +889,24 @@ When tasked with finding users who are frequently tweeting about an ongoing even
 \end{figure}
 The majority of questionnaire respondents said that they would use Twitter more if they followed more people that they are interested in. This suggests that recommending users which meet the information needs or interests of users is likely to increase the amount of time that people spend on Twitter.
 
+\item \textit{I am more likely to use Twitter if an event I am interested in is currently happening. (1 represents strongly disagree, 5 represents strongly agree)}
+\par
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.55]{morelikelytwitter.png}
+\label{morelikelytwitter}
+\end{figure}
+This question aimed to determine the influence that ongoing events have on peoples decision to visit Twitter. A majority of respondents replied saying that they either ``Agree'' or ``Strongly Agree'' that ongoing events that they have an interest in increase the likelihood of them visiting Twitter.
+
+
+
 \end{enumerate}
+
+
+The results of this questionnaire show that Twitter users have issues with the existing services which are similar to this project. In particular, they struggle to recommend users who have been frequently discussing ongoing events, despite a large number of respondents saying that such events make them more likely to use Twitter. This would suggest that there is indeed a gap in the market for this product, targeting the subset of the population which use Twitter to follow ongoing events.
                
         \subsubsection{Post-Evaluation Questionnaire}
-        The purpose of this questionnaire was to retrieve feedback from users after they have evaluated the project. The questionnaire asked users for feedback on system usability as for their opinion on the overall relevance of the suggestions. Participants were asked to answer questions on a scale from 0 to 9, where 0 represents ``strongly disagree'' and 9 represents ``strongly agree''. The results of the usability section of this questionnaire are shown in the table below.
+        The purpose of this questionnaire was to retrieve feedback from users after they have evaluated the project, and to attempt to answer evaluation questions 2 and 3 (listed at the start of this chapter). The questionnaire asked users for feedback on system usability, and for their opinion on the overall relevance of the suggestions. Participants were asked to answer questions on a scale from 0 to 9, where 0 represents ``strongly disagree'' and 9 represents ``strongly agree''. The results of the usability section of this questionnaire are shown in the Table \ref{table:posteval}.
         
 \begin{table}[H]
     \centering
@@ -913,7 +930,7 @@ The majority of questionnaire respondents said that they would use Twitter more 
     \caption{\label{table:posteval}The average responses from the usability section of the post-evaluation questionnaire.}
 \end{table}
 
-The project score an average of 7.71 out of 10 across all usability questions, indicating that users were overall quite happy with it from this perspective. However, responses to individual questions indicate that there are certainly areas which can be improved. For example, increasing the level of feedback users receive when they perform actions may result in an improvement in mean response for the lowest scoring question (I believe the system kept me informed of what it was doing).
+The project score an average of 7.71 out of 10 across all usability questions, indicating that users overall found the system to be usable. However, responses to individual questions indicate that there are certainly areas which can be improved. For example, increasing the level of feedback users receive when they perform actions may result in an improvement in mean response for the lowest scoring question (``I believe the system kept me informed of what it was doing'').
 
 Participants were also asked to judge whether they were happy with more specific areas of the project, such as the suggestions made and the impact of individual elements of the user interface. The results from this part of the evaluation are shown in the Table \ref{table:posteval2}.
 
@@ -924,11 +941,14 @@ Participants were also asked to judge whether they were happy with more specific
     Question & Mean Response \\ \hline
     I believe that the updating ranks gave me insight new participants on discussions. & 7.17 \\ \hline
     I found the ranking of users suggested by the system to be accurate. & 6.33  \\ \hline
-    I found the 'Trending' hashtags list encouraged me to use the system. & 7.50 \\
+    I found the 'Trending' hashtags list encouraged me to use the system. & 7.50 \\ \hline
+    I found the users suggested by the system to be relevant. & 7.00 \\
     \hline
     \end{tabular}
-    \caption{\label{table:posteval2}}
+    \caption{\label{table:posteval2} Responses to remaining post-evaluation questions.}
 \end{table}
+
+The results from this section of the post-evaluation questionnaire suggest that users overall were relatively happy with the suggestions made by the system, giving it the suggestions an average score of 7. However, users were less satisfied with the ranking of these results, with a lower average response of 6.33. These scores suggest that the application did indeed assist users in finding users tweeting about ongoing events.
  
     \subsection{Think-Aloud Study}
     All six evaluation participants participated in a ``think-aloud'' study, whereby they speak their thoughts aloud as they interact with the application. The intention of this study was to determine whether the application had any significant usability issues that multiple users noticed, and to determine the size of the ``Gulf of Execution''. That is, we try to determine the extent by which the actions that users perceive as being required to complete the task and the correct actions required differ. The task given to the users was to try and find users that are currently tweeting about the 2016 BRIT Awards.
@@ -961,13 +981,14 @@ This feature was present in an older version of the product, and it was an overs
 
 \item \textit{Most users completely ignored the help text provided.}
 
-
 \end{itemize}
+
+The information gathered from the think-aloud sessions show that there are certainly areas of the application that can be improved on from a usability perspective. However, there were no critical issues discovered, and the overall feedback received was positive (as shown previously in Table \ref{table:posteval}).
 
 \section{Experiments}
     
     \subsection{Experimenting With Filtering Controls}
-    The implications of altering the threshold at which tweets are discarded during the filtering stage were examined. It was hypothesised that the ``Spelling Accuracy'' and ``Follower Count'' filters would have the largest impact on the number of users discarded. By altering this configuration, the effect of filtering on the number of users the application has to process was investigated. Using the default filtering controls shown in Table \ref{table:standardfilters}, it was found that in a sample of 15000 tweets, approximately $97\%$ of users were discarded at the filtering stage. This shows that the combination of seemingly relaxed filters can result in a large number of users being dropped and therefore massively reducing the load on the server. 
+    The implications of altering the threshold at which tweets are discarded during the filtering stage were examined in order to answer evaluation question 4. It was hypothesised that the ``Spelling Accuracy'' and ``Follower Count'' filters would have the largest impact on the number of users discarded. By altering this configuration, the effect of filtering on the number of users the application has to process was investigated. Using the default filtering controls shown in Table \ref{table:standardfilters}, it was found that in a sample of 15000 tweets, approximately $97\%$ of users were discarded at the filtering stage. This shows that the combination of seemingly relaxed filters can result in a large number of users being dropped and therefore massively reducing the load on the server. 
     
 Further experiments were performed to determine the impact that the individual default filters have on the overall number of users filtered. This experiment was performed by disabling all user filtering, and examining the effects of individual filters by applying them in isolation. The determined contribution of the individual default filtering controls is shown in Table \ref{table:filteringresults}. The total percentage of users filtered is greater than 100\% because a single tweet will usually fail the checks imposed by several filters at once.
 
@@ -985,7 +1006,7 @@ Further experiments were performed to determine the impact that the individual d
     \caption{\label{table:filteringresults}The individual impact of different filtering controls. ($N=15000$).}
 \end{table}
 
-Three participants repeated the practical evaluation using the system under a modified set of filtering controls. The modified controls were identical to the default controls shown in Table \ref{table:standardfilters}, except the ``follower count'' filter was completely removed. As a result of this, the additional 44\% of users with less than 300 followers are processed. The participants who examined this modified configuration all said that a significantly larger number of suggestions were made by the application. They also said that there was very little noticeable difference between the quality or relevance of the results when comparing the two configurations. This may indicate that the ``Follower Count'' signal should not be weighted so heavily when deciding which users to filter from the stream. This observation suggests that manual filter controls are difficult to properly tune without repeated evaluation. Therefore, using classification techniques based on machine learning may provide a more 
+Three participants repeated the practical evaluation using the system under a modified set of filtering controls. The modified controls were identical to the default controls shown in Table \ref{table:standardfilters}, except the ``follower count'' filter was completely removed. As a result of this, the additional 44\% of users with less than 300 followers are processed. The participants who examined this modified configuration all said that a significantly larger number of suggestions were made by the application. They also said that there was very little noticeable difference between the quality or relevance of the results when comparing the two configurations. This may indicate that the ``Follower Count'' signal should not be weighted so heavily when deciding which users to filter from the stream. This observation suggests that manual filter controls are difficult to properly tune without repeated evaluation. Therefore, using classification techniques based on machine learning may provide a more robust means of finding an optimal weighting to apply to filtering parameters.
     
 
    
@@ -1007,7 +1028,7 @@ Three participants repeated the practical evaluation using the system under a mo
 
     
     \subsection{Investigating the Effects of Stream Replay Rate}
-    The rate at which tweets are read when using a source file has a direct effect on system performance and usability. An investigation was conducted into the performance and usability impact of altering the \textit{stream replay rate}. The stream replay rate is the rate at which new tweets are read into the system from a source file. This rate is configurable using two parameters: ``BatchDuration'' and ``BatchSize'' (\textbf{Note}: these parameters are unrelated to the batching performed by Spark Streaming described in the ``Implementation'' chapter). The ``BatchDuration'' parameter defines the time between examining batches of tweets from the source. The ``BatchSize'' parameter defines the number of tweets in each of these batches. These parameters can be configured using the file entitled ``application.conf'', and are shown in Listing 5.1. Users were given the opportunity to perform tasks with the system with two different stream replay rates, and asked to provide feedback on which version they preferred. The replay rates that users evaluated are described in Tables \ref{table:replayrate1} and \ref{table:replayrate2}.
+    The rate at which tweets are read when using a source file has a direct effect on system performance and usability, in order to answer evaluation question 5. An investigation was conducted into the performance and usability impact of altering the \textit{stream replay rate}. The stream replay rate is the rate at which new tweets are read into the system from a source file. This rate is configurable using two parameters: ``BatchDuration'' and ``BatchSize'' (\textbf{Note}: these parameters are unrelated to the batching performed by Spark Streaming described in the ``Implementation'' chapter). The ``BatchDuration'' parameter defines the time between examining batches of tweets from the source. The ``BatchSize'' parameter defines the number of tweets in each of these batches. These parameters can be configured using the file entitled ``application.conf'', and are shown in Listing 5.1. Users were given the opportunity to perform tasks with the system with two different stream replay rates, and asked to provide feedback on which version they preferred. The replay rates that users evaluated are described in Tables \ref{table:replayrate1} and \ref{table:replayrate2}.
     
 \begin{table}[H]
     \centering
@@ -1052,25 +1073,7 @@ Participants stated that they preferred the rate at which suggestions are made u
 \section{Integration Testing}
     In addition to tests which ensure that components behave as expected, tests were also written to ensure that they work correctly within their intended environment. In the context of actor systems, this is done by testing how actors respond to \textit{stimulus} from a \textit{probe}. Since actors perform computation in response to messages, we can probe their behaviour by sending them test messages and ensuring that they respond as expected.
     
-    As an example of how integration testing was useful: When a \code{SparkContext} has been started, it is illegal to attempt to register additional actions on the data. Since the system registers Spark actions in asynchronous calls, it is a possibility that the \code{SparkContext} is started before all actions are registered. To avoid this scenario, any actor registering Spark actions must inform its parent when it has done so. The parent will wait for all child actors to make this confirmation before starting the context. Integration testing is used to ensure that all actors which register Spark actions correctly inform their parent when this registration is complete, and thus avoids a runtime \code{IllegalStateException}.
-
-\section{Performance Testing}
-
-    \subsection{Server Throughput Tests}
-    %TODO: Examine the maximum read rate that can be achieved.
-    TODO
-    %TODO: Use Chrome devtools for paint regions, profiling 'jank' etc.
-    \subsection{Profiling Client Side Performance}
-    TODO
-    
-    765 rules (95\%) of CSS not used by the current page.
-    
-    Use Chrome devtools and painting and profiling info here... Read the Google Developers tutorial again.
-        
-    
-    
-
-
+    As an example of how integration testing was useful: When a \code{SparkContext} has been started, it is illegal to attempt to register additional actions on the data. Since the system registers Spark actions in asynchronous calls, it is a possibility that the \code{SparkContext} is started before all actions are registered. To avoid this scenario, any actor registering Spark actions must inform its parent when it has done so. The parent will wait for all child actors to make this confirmation before starting the context. Integration testing is used to ensure that all actors which register Spark actions correctly inform their parent when this registration is complete, and thus avoids a runtime \code{IllegalStateException}.   
 
 \chapter{Conclusion}
     
