@@ -31,6 +31,7 @@ Warning--to sort, need author or key in github
 Warning--to sort, need author or key in kanban
 Warning--to sort, need author or key in trello
 Warning--to sort, need author or key in sbt
+Warning--to sort, need author or key in maven
 Warning--to sort, need author or key in less
 Warning--to sort, need author or key in flexbox
 Warning--to sort, need author or key in commonjs
@@ -43,48 +44,49 @@ Name 1 in "Belshe, M., Peon, R., and M. Thomson, Ed." has a comma at the end for
 while executing---line 1090 of file plain.bst
 Too many commas in name 1 of "Belshe, M., Peon, R., and M. Thomson, Ed." for entry http2
 while executing---line 1090 of file plain.bst
+Warning--empty institution in lambdamart
 Warning--empty journal in klout
 Warning--empty journal in leavingTwitter
 Warning--can't use both author and editor fields in Vosecky2012
-You've used 43 entries,
+You've used 45 entries,
             2118 wiz_defined-function locations,
-            665 strings with 9140 characters,
-and the built_in function-call counts, 9071 in all, are:
-= -- 867
-> -- 254
-< -- 7
-+ -- 121
-- -- 76
-* -- 425
-:= -- 1204
-add.period$ -- 98
-call.type$ -- 43
-change.case$ -- 166
+            673 strings with 9305 characters,
+and the built_in function-call counts, 9435 in all, are:
+= -- 902
+> -- 262
+< -- 8
++ -- 125
+- -- 78
+* -- 443
+:= -- 1260
+add.period$ -- 103
+call.type$ -- 45
+change.case$ -- 173
 chr.to.int$ -- 0
-cite$ -- 78
-duplicate$ -- 370
-empty$ -- 1014
-format.name$ -- 76
-if$ -- 2120
+cite$ -- 82
+duplicate$ -- 386
+empty$ -- 1052
+format.name$ -- 78
+if$ -- 2199
 int.to.chr$ -- 0
-int.to.str$ -- 43
+int.to.str$ -- 45
 missing$ -- 7
-newline$ -- 185
-num.names$ -- 22
-pop$ -- 345
+newline$ -- 194
+num.names$ -- 24
+pop$ -- 357
 preamble$ -- 1
-purify$ -- 124
+purify$ -- 129
 quote$ -- 0
-skip$ -- 374
+skip$ -- 387
 stack$ -- 0
-substring$ -- 337
-swap$ -- 77
-text.length$ -- 7
+substring$ -- 347
+swap$ -- 79
+text.length$ -- 8
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 170
-warning$ -- 35
-while$ -- 34
-width$ -- 45
-write$ -- 346
+type$ -- 178
+warning$ -- 37
+while$ -- 36
+width$ -- 47
+write$ -- 363
 (There were 4 error messages)

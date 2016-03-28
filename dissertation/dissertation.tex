@@ -79,7 +79,6 @@ I would like to thank my supervisor Dr Craig Macdonald for his extensive support
 \chapter{Introduction}
 \pagenumbering{arabic}
 
-%TODO: Include preliminary definitions?
 This chapter will introduce the goals and motivations behind the ``Who To Follow In Context'' project and examine related products and research.
 
 \section{Aims}
@@ -100,15 +99,15 @@ From a social media perspective, recommending interesting people to follow is ex
 
 Hence, by directing users towards Twitter accounts which meet their information needs, it is hypothesised that they are less likely to quit the service. For social media platforms in particular, retaining users is of vital importance since it is directly associated with their primary source of income: advertisements.
 
-Another study by the American Press Institute showed that 28\% of people who use Twitter do so in order to follow live events such as sports matches, TV shows, and breaking news \cite{twitterNews}. These users have different information needs from those who who use it as a standard social network. When looking for information about ongoing events, intuition tells us that users are more interested in people who are \textit{currently} discussing the event over those who have discussed a similar event in the past. Suggesting accounts with a general, long-term interest in the topic does not assist the user in finding the latest, up-to-the-moment information they desire.
+Another study by the American Press Institute showed that 28\% of people who use Twitter do so in order to follow live events such as sports matches, TV shows, and breaking news \cite{twitterNews}. These users have different information needs from those who use it as a standard social network. When looking for information about ongoing events, intuition tells us that users are more interested in people who are \textit{currently} discussing the event over those who have discussed a similar event in the past. Suggesting accounts with a general, long-term interest in the topic does not assist the user in finding the latest, up-to-the-moment information they desire.
 
-Although several products exist today which attempt to solve the problem of user recommendation on social media, they tend to disregard the quickly evolving nature of live events by providing a static set of results and focus on suggesting users based on their long-term interests. Given the rapidly changing and sometimes fleeting nature of events, immediate consideration of new tweets may give users insight into how new ``event experts'' emerge as they become relevant, and how that relevance changes over time. By providing a user suggestion service centred around ongoing events, we can assist the 28\% of users who rely on Twitter for live ``infotainment'' in meeting their information needs.
+Although several products exist today which attempt to solve the problem of user recommendation on social media, they tend to disregard the quickly evolving nature of live events by providing a static set of results and focus on suggesting users based on their long-term interests. Given the rapidly changing and sometimes fleeting nature of events, immediate consideration of new tweets may give users insight into how new ``event experts'' emerge as they become relevant, and how that relevance changes over time. By providing a user suggestion service centered around ongoing events, we can assist the 28\% of users who rely on Twitter for live ``infotainment'' in meeting their information needs.
 
 
 \section{Related Products}
 
 \subsection{Twitter Search}
-Twitter's existing search service (shown in Figure \ref{twittersearch}) allows searching for accounts based on a search query. This works similarly to traditional search engines in that the user enters a query and the service returns a list of users that attempt to satisfy the user's need for expertise based on that query. While this service works well for suggesting users based on their \textit{long term} interests, it is not so useful for an ongoing event which may only occur for a few hours. Figure \ref{twittersearch} presents a scenario where a user has visited Twitter Search in order to try and find information about the 2016 BRIT Awards, which were ongoing at the time. By searching for the hashtag associated with the event (\#brits), the user may expect to see suggestions for accounts currently discussing the BRIT Awards. However, the service appears to ignore the fact that the query is a hashtag, and makes suggestions based on Twitter usernames and biographies. Whilst usernames and biographies may signal the long-term interests of a user, they are independent from the discussions that the user has recently participated in, and thus have little use in determining the immediate relevance of the user with respect to a live event.
+Twitter's existing search service (shown in Figure \ref{twittersearch}) allows searching for accounts based on a search query. This works similarly to traditional expert search engines in that the user enters a query and the service returns a list of users that attempt to satisfy the user's need for expertise based on that query. While this service works well for suggesting users based on their \textit{long term} interests, it is not so useful for an ongoing event which may only occur for a few hours. Figure \ref{twittersearch} presents a scenario where a user has visited Twitter Search in order to try and find information about the 2016 BRIT Awards, which were ongoing at the time. By searching for the hashtag associated with the event (\#brits), the user may expect to see suggestions for accounts currently discussing the BRIT Awards. However, the service appears to ignore the fact that the query is a hashtag, and makes suggestions based on Twitter usernames and biographies. Whilst usernames and biographies may signal the long-term interests of a user, they are independent from the discussions that the user has recently participated in, and thus have little use in determining the \textit{immediate} relevance of the user with respect to a live event.
 
 \begin{figure}[H]
 \centering
@@ -121,16 +120,18 @@ In order to determine the short-term interests of Twitter accounts, the ``Who To
 evidence from new tweets is immediately applied, and suggestions update in real-time, modelling the evolving nature of the events that many users are interested in. If a query result page is left open, the ranking of accounts will be adjusted as people start and stop discussing the query topic, providing users with an insight into how new participants in the discussion emerge. This differs from Twitter Search, which provides a static set of results based on a query.
 
 \subsection{Twitter's Whom To Follow Service}
-``Whom To Follow'' (known as ``Who To Follow'' until March 2016) is the service used at Twitter which recommends accounts to follow based on the people already followed by an account. In order to do this, it relies on a ``user graph'' \cite{twitterWTF}. The user graph is a directed graph where vertices represent Twitter accounts, and edges represent a ``following'' relationship. That is, an edge $(A, B)$ in the directed graph means that user $A$ \textit{follows} user $B$ on Twitter, and is therefore subscribed to their tweets. Since the initial deployment of this service in 2010, Twitter announced they are reimplementing the service using Pig and Hadoop to improve scalability, and also to apply machine learning approaches using a wider variety of signals. It is unclear whether the new system is now in place.
+``Whom To Follow'' (known as ``Who To Follow'' until March 2016) is the service used at Twitter which recommends accounts to follow based on the people already followed by an account. In order to do this, it relies on a ``user graph'' \cite{twitterWTF}. The user graph is a directed graph where vertices represent Twitter accounts, and edges represent a ``following'' relationship. That is, an edge $(A, B)$ in the directed graph means that user $A$ \textit{follows} user $B$ on Twitter, and is therefore subscribed to their tweets. 
 
 \begin{figure}[H]
 \centering
 \includegraphics[scale=0.75]{whomtofollow.png}
-\caption{The user interface of Twitter's Whom To Follow Service}
+\caption{The user interface of Twitter's Whom To Follow service}
 \label{whomtofollow}
 \end{figure}
 
-Since the service relies on the relationships between users in the user graph, it suggests accounts similar to those that you already follow. While this provides excellent suggestions based on long-term interests, it cannot be configured or queried in order to provide recommendations under a different context. Additionally, recommendations for users are done in batches, and are therefore not updated in real-time. This means that even if the user graph did provide signals as to the immediate relevance of a Twitter user with respect to an ongoing event, it is likely that this relevance will have decayed by the time the recommendations are delivered.
+Since the service relies on the relationships between users in the user graph, it suggests accounts similar to those that you already follow. While this provides excellent suggestions based on long-term interests, it cannot be configured or queried in order to provide recommendations under a different context (such as events). Additionally, recommendations for users are done in batches, and are therefore not updated in real-time. This means that even if the user graph did provide signals as to the immediate relevance of a Twitter user with respect to an ongoing event, it is likely that this relevance will have decayed by the time the recommendations are delivered.
+
+Since the initial deployment of this service in 2010, Twitter announced they are reimplementing the service using Pig and Hadoop to improve scalability, and also to apply machine learning approaches using a wider variety of signals. It is unclear whether the new system is now in place.
 
 \subsection{Klout}
 Klout provides a well-known system for ranking the influence of users across numerous social media platforms and online communities. It takes into account over 3600 features from these sources, and processes around 500 million user interactions each day \cite{klout}. Although Klout does not attempt to solve the exact same problem as this project (Klout ranks users based on a static context: \textit{``How influential is this user?''} rather than their relevance based on a query), its well documented architecture and popularity in the domain make it worthy of mention.
@@ -144,8 +145,6 @@ Klout provides a well-known system for ranking the influence of users across num
 
 \section{Relevant Research}
 
-    %TODO: Discuss the research examined at the start of the project.
-
     \subsection{Searching For Quality Microblog Posts}
     This paper examines an array of metrics for examining whether a post on a microblog is high quality or not \cite{Vosecky2012}. It introduces an array of features which can be extracted from tweets, and examines the impact of the reputation of external URLs linked to from the tweet. Many of the techniques examined in this paper are applied in the filtering stages of this project, in order to discard tweets which do not meet a threshold on the extracted features.
     
@@ -153,9 +152,8 @@ Klout provides a well-known system for ranking the influence of users across num
 After introducing the goals and motivations behind the project, existing services which tackle similar problems were examined. These services were shown to be effective at finding users based on their long-term interests, but to be lacking in the context of live events. The approach taken by the ``Who To Follow In Context'' application was also introduced, in terms of how it attempts to solve the flaws present in the existing services.
 
 \chapter{Requirements}
-%TODO: User stories, use case scenarios
 
-Requirements were gathered during the initial meetings between the author and the project supervisor. These requirements were frequently updated as new considerations were made and new restrictions realised. To ensure the customer (the project supervisor) that progress was being made in satisfying these requirements, weekly status reports were produced during the implementation stage. 
+Requirements were gathered during the initial meetings between the author and the project supervisor. These requirements were frequently updated as new considerations were made and new restrictions realised, but in general, they aimed to solve the issues that the related products listed in Chapter 1 have when it comes to live events. To ensure the customer (the project supervisor) that progress was being made in satisfying these requirements, weekly status reports were produced during the implementation stage. 
 
     \section{Functional Requirements}
     
@@ -260,21 +258,21 @@ This chapter describes the architecture of the system, and goes on to discuss ho
 \label{mvc}
 \end{figure}
 
-``Who To Follow In Context'' is designed with a web interface, as per requirement \textbf{M.1}. This interface is implemented entirely on the client, and communication between client and server is handled using HTTP (Hyper Text Transfer Protocol). The client can send HTTP requests to the server, and the controller will handle that request by communicating it with the relevant aspect of the application. HTTP requests from sent from the view to the controller can either request that data be retrieved from or stored in the model layer. Additionally, an HTTP request can ask the server to upgrade the connection to a WebSocket \cite{websocket}. A request of this form is required in the case that a continuous stream of data is to be sent to the user (this is required to satisfy requirement \textbf{M.6}, for example).
+``Who To Follow In Context'' is designed with a web interface, as per requirement \textbf{M.1}. This interface is implemented entirely on the client, and communication between client and server is handled using HTTP (Hyper Text Transfer Protocol). The client can send HTTP requests to the server, and the controller will handle that request by communicating it to the relevant component within the application. HTTP requests sent from the view to the controller can either request that data be retrieved from or stored in the model layer. Additionally, an HTTP request can ask the server to upgrade the connection to a WebSocket \cite{websocket}. A request of this form is required in the case that a continuous stream of data is to be sent to the user (this is required to satisfy requirement \textbf{M.6}, for example).
     
     \subsection{Model Layer Technologies}
-    Terrier, Redis, and MongoDB provide the persistence layer of the application. Each of these provide different benefits and so the decision of which to use and where varied depending on context.
+    Terrier, Redis, and MongoDB provide the persistence layer of the application. Each of these technologies provide different benefits and so the decision of which to use and where to use it varied depending on context.
     
         \subsubsection{Indexing Tweets}
         The model layer of the application contains an ``indexer'' component which stores incoming tweets in an index, so that they can be efficiently retrieved. The index structure used is provided by \textit{Terrier}, an information retrieval platform developed at the University of Glasgow \cite{macdonald2012puppy}. The \code{MemoryIndex} structure used enables the index to be built online, meaning that it can be queried as it is being constructed. This capability was vital in order to satisfy requirements \textbf{M.5} and \textbf{M.6}.
         
         \subsubsection{Feature Storage}
-        \textit{Redis} is an in-memory data structure storage engine which is used for storage of extracted features (requirement \textbf{S.6})\cite{redis}. By keeping data in memory it enables quick reads and writes in comparison to on disk solutions such as relational or NoSQL databases. Therefore, at the cost of memory, the server spends less time reading and writing data and has more resources spare to perform other tasks. Redis's built in data structures also simplified the implementation of certain features. For example, a Redis SortedSet data structure is used for the calculation of the median time since the user last made use of the query term as a hashtag. Since the application must process vastly more reads than writes for individual users, allowing Redis to perform the sorting step at write time make the system more efficient than if we were required to sort an array each time the latest results were retrieved for a user.
+        \textit{Redis} is an in-memory data structure storage engine which is used for storage of extracted features (requirement \textbf{S.6})\cite{redis}. By keeping data in memory it enables quick reads and writes in comparison to on disk solutions such as relational or NoSQL databases. Therefore, at the cost of memory, the server spends less time reading and writing data and has more resources spare to perform other tasks. Redis's built in data structures also simplified the implementation of certain features. For example, a Redis SortedSet data structure is used for the calculation of the median time since the user last made use of the query term as a hashtag. Since the application must process vastly more reads than writes for individual users, allowing Redis to perform the sorting step at write time makes the system more efficient than if we were required to sort an array each time the latest results were retrieved for a user.
         
          \subsubsection{Miscellaneous Storage}
          \textit{MongoDB} is a NoSQL database used for the caching of Twitter user metadata in order to reduce the number of Twitter API requests required \cite{mongo}. This assists the application in staying within the restrictions of the Twitter API rate-limiting policy (as per requirement \textbf{N.7}). For example, we store the URL of the user's profile picture and timeline colour in MongoDB and check for its existence here before making an additonal API request for the information. We also store user relevance feedback in MongoDB for evaluation purposes.
          
-         NoSQL was used due to the lack of need of relational features. Each category of item stored in this database is entirely independent from the others, and thus guaranteed that relational database tools such as joins would not be necessary.
+         NoSQL was used due to the lack of need of relational features. Each category of item stored in this database is entirely independent from the others, and thus guaranteed that relational database features such as joins would not be necessary.
 
     \subsection{View Layer Technologies}
     
@@ -303,7 +301,7 @@ Although we gain an overall more responsive experience using this architecture, 
         The \textit{Play Framework} was used for its WebSocket implementation and to create REST API endpoints, such as the endpoint used in fetching the timeline and metadata for a user when they are clicked on in a result set \cite{play}. Since routing and rendering was done on the front-end, only a small subset of the features of Play were required. This framework provided the benefit of having excellent integration with other technologies used in the implementation, such as Akka (Play is also written using Akka) and Guice, allowing WebSocket connections to be accepted using actors. An additional benefit of using this framework is that it is one of the most popular web frameworks for Java and Scala, and as such it has an active developer community with clear and extensive documentation.
     
     \section{Server Architecture}
-    Whilst interaction between the client and server follows the Model-View-Controller pattern, other components exist within the architecture which do not fit so precisely into this framework. These components perform a variety of functions, such as the processing of incoming tweets and the real-time reporting of system statistics. Figure \ref{architecture} shows how the system is designed in terms of the flow of data between components, and the following sections will describe the purpose and technology decisions behind each component.
+    Whilst interaction between the client and server follows the Model-View-Controller pattern, other components exist within the architecture which do not fit so precisely into this framework. These components perform a variety of functions, such as the processing of incoming tweets and the real-time reporting of system statistics. Figure \ref{architecture} shows how the system is designed in terms of the flow of data between components, and the following sections will describe the purpose and technology-related decisions behind each component.
     
 \begin{figure}[H]
 \centering
@@ -319,15 +317,15 @@ Although we gain an overall more responsive experience using this architecture, 
         
         After low quality tweets have been filtered (according to requirement \textbf{M.4}), the features of the remaining tweets are stored for future use, and the remaining tweets are progressed to the indexing stage of the pipeline.
 
-Both the feature extraction and filtering components may receive tweets from other locations within the system. If the system ever deems a user to be relevant (for example, if they appear in a result stream for an open channel, or a user of the system views their profile), then the tweets present on that user’s timeline are fed back into the pipeline in order to extract further evidence in the hopes of improving the relevance of results. This ability to examine a user's timeline is stated in requirement \textbf{S.1}.
+Both the feature extraction and filtering components may receive tweets from other locations within the system. If the system ever deems a user to be relevant (for example, if they appear in a result stream for an open channel, or a user of the system views their profile), then the tweets present on that user's timeline are fed back into the pipeline in order to extract further evidence in the hopes of improving the relevance of results. This ability to examine a user's timeline is stated in requirement \textbf{S.1}.
 
         \subsection{Indexing \& Retrieval}
         After low quality tweets have been discarded, those remaining are sent to the indexer (part of the model layer) where they will be stored for efficient retrieval. 
         
-        When a query is received, the Query Service will construct a result stream between the information retrieval engine and the user who entered the query. Terrier will then be frequently polled for new results, and the new results will be sent to the user as soon as they are available. Any user which enters the same query thereafter will see the same stream of results.
+        When a query is received, the Query Service will construct a result stream between the information retrieval engine and the user who entered the query. Terrier will then be frequently polled for new results, and the new results will be sent to the user as soon as they are available. Any user which enters the same query thereafter will see the same stream of results. The implementation details of this component are left for the ``Implementation'' chapter.
               
         \subsection{Metrics Reporting}
-        Throughout different stages of the pipeline, different metrics are collected. These metrics are both logged and sent to the user in real-time to provide insight into the operation of the system (thus satisfying requirement \textbf{S.5}). This is important as it ensures the user that the system is working as expected. If a large period of time passes and no new users have appeared in the stream of results they are viewing, they might think that something has went wrong. By keeping them constantly updated on the number of users the system has seen, they are ensured that it is working as expected.
+        Throughout different stages of the pipeline, different metrics are collected. These metrics are both logged and sent to the user in real-time to provide insight into the operation of the system (thus satisfying requirement \textbf{S.5}). This is important as it ensures the user that the system is working as expected. If a large period of time passes and no new users have appeared in the stream of results they are viewing, they might think that something has went wrong. By keeping them constantly updated on the number of users the application has processed, they are ensured that it is working as expected.
         
         Numerous different technologies were examined for providing this functionality, including the \textit{Comet model} in HTTP 1.X, the WebSocket protocol, and using the persistent connection and multiplexing capabilities of HTTP 2.0.
         
@@ -345,7 +343,7 @@ Both the feature extraction and filtering components may receive tweets from oth
     A number of decisions had to be made with regards to the overall architecture of the application. These included which programming language to employ, how to handle concurrency, and how to design the system so as to minimise the coupling between components.
 
     \subsection{Server Programming Language}
-            The server is written using the \textit{Scala} programming language, which is a hybrid of the object-oriented and functional paradigms \cite{scala}. Scala was chosen for its lightweight syntax and the fact that it compiles to Java Virtual Machine byte-code, allowing for clean interoperability with existing Java libraries and frameworks. In fact, a number of extremely popular Java libraries are written in Scala, including Apache Spark, Akka, and the Play Framework. Additionally, Scala provides powerful means of asynchronous programming through \code{Future}s and \code{Promise}s, and its \code{Option[T]} type and powerful pattern-matching features make \code{NullPointerException}s impossible since it explicitly requires the developer to check for the possibility that the \code{Option[T]} type contains a \code{None} value. Scala also benefits from its powerful REPL (Read-Execute-Print Loop) which comes bundled with the Scala compiler. This allows developers to immediately evaluate expressions and see the results. Existing code can even be loaded into the REPL so that the effects of performing actions on user defined objects can be examined.
+            The server is written using the statically typed \textit{Scala} programming language, which is a hybrid of the object-oriented and functional paradigms \cite{scala}. Scala was chosen for its lightweight syntax and the fact that it compiles to Java Virtual Machine byte-code, allowing for clean interoperability with existing Java libraries and frameworks. In fact, a number of extremely popular Java libraries are written in Scala, including Apache Spark, Akka, and the Play Framework. Additionally, Scala provides powerful means of asynchronous programming through \code{Future}s and \code{Promise}s, and its \code{Option[T]} type and powerful pattern-matching features make \code{NullPointerException}s impossible since it explicitly requires the developer to check for the possibility that the \code{Option[T]} type contains a \code{None} value. Scala also benefits from its powerful REPL (Read-Execute-Print Loop) which comes bundled with the Scala compiler. This allows developers to immediately evaluate expressions and see the results. Existing code can even be loaded into the REPL so that the effects of performing actions on user defined objects can be examined.
             
         Other languages examined in the initial investigations were Python \cite{python}, NodeJS \cite{node}, and Java \cite{java}. Python was ruled out due to its poor support for concurrency, and its dynamic typing would likely have caused difficulty as the complexity of the project source code increased. 
         
@@ -373,7 +371,7 @@ JavaDStream<String> words = lines.flatMap(
 
     \subsection{Concurrency Model}
     
-    The real-time nature of the application means that if performance is poor then it will immediately impact user experience. Should feature extraction for a user timeline take longer than expected, then a user will have to wait until the system gets around to processing that user. As such, high levels of concurrency were deemed vital in order to meet user requests in a timely manner (as stated in requirements \textbf{N.1} and \textbf{N.2}). To accommodate such a requirement, the system was designed using the \textit{Actor model}.
+    The real-time nature of the application means that if response times are poor then it will immediately impact user experience. Should feature extraction for a batch of tweets from a user's timeline take longer than expected, then a user will have to wait until the system gets around to processing that user. As such, high levels of concurrency were deemed vital in order to meet user requests in a timely manner (as stated in requirements \textbf{N.1} and \textbf{N.2}). To accommodate such a requirement, the system was designed using the \textit{Actor model}.
     
     \subsubsection{The Actor Model}
 
@@ -381,27 +379,24 @@ Actor systems provide an alternative means of concurrency that avoid the pitfall
 
 \subsubsection{Akka}
 
-    \textit{Akka} is a framework for Scala and Java which implements the actor model \cite{akka}. Despite vastly simplifying the concurrency aspect of the implementation, Akka required very little overhead. The actor model framework provided by Akka supports passing approximately 50 million messages per second on an average machine, and around 2.5 million actors can exist per gigabyte of heap space. Each component of the architecture was implemented as an actor, and communication between components in the system was facilitated through message passing.
-            
-        %TODO: Reword this para and Include Akka-TestKit details
-        
-        %TODO: Move the following paragraph, it's definitely in the wrong place.
-        Despite being primarily used for its concurrency model, Akka provided a number of features ``out-of-the-box'' which satisfied several project requirements. Actors in Akka have a ``supervision strategy'' which defines what actions should be taken when an exception occurs within them. This allows the system to meet the high degrees of fault tolerance and resilience required. The default supervision strategy (simply restarting the actor when an exception occurs) solved many issues that were encountered. For example, it was common for the Twitter streaming API to become unavailable (due to network issues) and an exception was therefore thrown. The actor handling the stream was automatically restarted and the stream handle resent to all of the actors that required access to it. No explicit error handling code was required, yet the application was able to self-heal and become fully functional as soon as the streaming API became available again.
+    \textit{Akka} is a framework for Scala and Java which implements the actor model \cite{akka}. Despite vastly simplifying the concurrency aspect of the implementation, Akka required very little overhead in terms of memory. The actor model framework provided by Akka supports passing approximately 50 million messages per second on an average machine, and around 2.5 million actors can exist per gigabyte of heap space. Each component of the architecture was implemented as one or more actors, and communication between components in the system was facilitated through message passing.
+                    
+        Despite being primarily used for its concurrency model, Akka provided a number of features ``out-of-the-box'' which satisfied several project requirements. Actors in Akka have a ``supervision strategy'' which defines what actions should be taken when an exception occurs within them. This allows the system to meet the high degrees of fault tolerance and resilience required. The default supervision strategy (simply restarting the actor when an exception occurs) solved many issues that were encountered. For example, it was common for the Twitter streaming API to become unavailable (due to network issues) and an exception was therefore thrown. The actor handling the stream was automatically restarted and the stream handle resent to all of the actors that required access to it. No explicit error handling code was required, yet the application was able to self-heal and become fully functional as soon as the streaming API became available again. As a result, using Akka greatly assisted in furthering requirement \textbf{N.3}.
 
         \subsection{Reactive Systems}
-        The architecture of the system is implemented to conform to many of the tenets described in the ``Reactive Manifesto'' \cite{reactive}. That is, the system architecture is designed to be responsive, resilient, elastic, and message-driven.
+        The architecture of the system is implemented to conform to many of the tenets described in the ``Reactive Manifesto'' \cite{reactive}. That is, the system architecture is designed to be responsive, resilient, elastic, and message-driven. It was hoped that this architecture would assist in the satisfaction of several of the non-functional requirements listed in the previous chapter.
         
             \subsubsection{Responsiveness}
-            Responsiveness is a key aim of the application. Messages passed from actor to actor in potential bottlenecks are load-balanced in order to minimise the work queued on a single actor or thread and maximise throughput. Within each defined actor is a response time guarantee which, if not met, causes the actor to be restarted in attempt to regain responsiveness. 
+            Responsiveness is a key aim of the design. Messages passed between actors in potential areas of bottleneck are load-balanced in order to minimise the work queued on a single actor or thread and maximise throughput. Within each defined actor is a response time guarantee which, if not met, causes the actor to be restarted in attempt to regain responsiveness. 
             
             \subsubsection{Resilience}
-            The application provides the guarantee of resilience through ``self-healing''. Should an actor executing some computation encounter an exception, its parent is notified and takes the appropriate action in order to cleanly recover. Additionally, if an exception occurs within any actor, it is treated in isolation, and other actors are not affected unless the parent actor's supervision strategy explicitly calls for it. Therefore, problems are compartmentalised and only closely related actors are affected.
+            The application provides the guarantee of resilience through ``self-healing''. Should an actor executing some computation encounter an exception, its parent is notified and takes the appropriate action in order to cleanly recover. Additionally, if an exception occurs within any actor, it is treated in isolation, and other actors are not affected unless the parent actor's supervision strategy explicitly calls for it. Therefore, problems are compartmentalised and the cascading effect of errors spreading through the system is reduced.
             
             \subsubsection{Elasticity}
             Some actors within the system are implemented as state machines with the ability to change their behaviour at run-time, in response to certain events. This can be useful, for example, if the application hits the Twitter API rate-limit. The behaviour of the corresponding actor can be modified to stop making API requests for a specified period of time, and then modified back to its original API-reliant behaviour after this time period has expired.
             
             \subsubsection{Message-Driven}
-            The application is entirely message driven. The root messages are batches of tweets read from a stream of tweets, or user interactions with the system. Each of these messages results in a chain of messages being sent asynchronously between actors as they handle the situation.       
+            The architecture is entirely message driven. The root messages are batches of tweets read from a stream of tweets, or user interactions with the system. Each of these messages results in a chain of messages being sent asynchronously between actors as they handle the situation. Using a message driven architecture also provides an excellent abstraction for handling real-time data processing.      
         
         \subsection{Dependency Injection}
         
@@ -414,12 +409,11 @@ Actor systems provide an alternative means of concurrency that avoid the pitfall
 Guice was primarily used for the injection of actor references into other actors. If we ever wish to send a message to an existing actor in order for it to perform some computation, we simply ask Guice for the instance of the required actor by injecting the actor into the constructor of the current class using the \code{@Inject} and \code{@Named} annotations provided by the framework.
 
     \section{Summary}
-    The architecture of the system uses a number of different technologies which were chosen because it was believed that they would make improve the implementation of the project in some way. The technologies chosen for both client and server emphasise separation of concerns
+    The architecture of the system uses a number of different technologies which were chosen because it was believed that they would make improve the implementation of the project in some way. The technologies chosen for both client and server emphasise were picked so as to maximise the use of good software engineering principals.
         
 
 \chapter{Implementation}
                     
-%TODO: Introduction to impl section
 Both client and server side were implemented so as to resemble the architecture described in the previous section. This chapter will examine the implementation challenges that arose during the construction of both client and server.
 
 \section{Server Implementation}
@@ -442,7 +436,7 @@ Both client and server side were implemented so as to resemble the architecture 
              Project task management was done using the ``Kanban'' system \cite{kanban}, where projects are represented as a set of named lists and cards. \textit{Trello} is an online platform which implements this system, and it was used extensively throughout all stages of the project \cite{trello}.
          
              \subsubsection{SBT (Scala Build Tool)}
-         \textit{SBT} is a build management system commonly used in Scala projects \cite{sbt} which is similar to popular Java build tools such as Maven and Gradle. SBT was used in the project to maintain and resolve dependencies, run tests, and to build and run the project.
+         \textit{SBT} is a build management system commonly used in Scala projects \cite{sbt} which is similar to popular Java build tools such as Maven \cite{maven}. SBT was used in the project to maintain and resolve dependencies, run tests, and to build and run the project.
 
     
 % Each subsection should be modelled around one of the components mentioned in the requirements section. 
@@ -487,9 +481,9 @@ Both client and server side were implemented so as to resemble the architecture 
 \label{loadbalancing}
 \end{figure}
         
-        Akka made implementation of this load balancing simple since it provides extensive built-in support for such tasks, including protocols much more advanced than the Round-Robin method used in this component. The code for implementing a worker pool was a single line, as can be seen in the code for creating the \code{WriteWorkerPool} shown below.
+        Akka made implementation of this load balancing simple since it provides extensive built-in support for such tasks, including protocols much more advanced than the Round-Robin method used in this component. The code for implementing a worker pool was a single line, as can be seen in the code for creating the \code{WriteWorkerPool} shown in Listing \ref{actorpool}.
         
-        \begin{lstlisting}[caption=Creating an actor pool to reduce the work required by any single actor.]
+        \begin{lstlisting}[caption=Creating an actor pool to reduce the work required by any single actor.,label=actorpool]
           val writingWorkerPool = context.actorOf(RoundRobinPool(4)
                 .props(Props[RedisWriterWorker]), "writingWorkerPool")
         \end{lstlisting}
@@ -502,9 +496,9 @@ Both client and server side were implemented so as to resemble the architecture 
         
         To minimise the disruption caused by any sudden influx of new tweets, extraction of features from tweets from a user's timeline was performed using the \code{Future} asynchronous programming abstraction provided by Scala. A \code{Future} represents a value that may become available \textit{at some point in the future}. Therefore, the value contained within a \code{Future} cannot be used until an associated computation is completed. A \textit{callback function} can be used to access the value when it is available.
         
-        Since we want to avoid extracting features for the same tweet twice, we must check to see if the tweet has already been processed. To do this, we \textit{ask} the \code{RedisActor} if this is the case by sending it a message asynchronously. This actor has to go and do additional work to figure out how to reply, and therefore will not be able to respond immediately. Since the response is delayed, a \code{Future} is an ideal abstraction. The annotated code below shows how for each status in the batch we check if it has been processed in a non-blocking way. (Note: the \code{?} syntax is how we asynchronously send another actor a message and capture the eventual response in a \code{Future}.)
+        Since we want to avoid extracting features for the same tweet twice, we must check to see if the tweet has already been processed. To do this, we \textit{ask} the \code{RedisActor} if this is the case by sending it a message asynchronously. This actor has to go and do additional work to figure out how to reply, and therefore will not be able to respond immediately. Since the response is delayed, a \code{Future} is an ideal abstraction. The annotated code in Listing \ref{asyncfutures} shows how for each status in the batch we check if it has been processed in a non-blocking way. (Note: the \code{?} syntax is how we asynchronously send another actor a message and capture the eventual response in a \code{Future}.)
         
-\begin{lstlisting}[caption=Check asynchronously whether a status has already been processed.]
+\begin{lstlisting}[caption=Check asynchronously whether a status has already been processed.,label=asyncfutures]
 var tweetAnalysisHistory = 
     scala.collection.immutable.Set.empty[Future[(Long, Boolean)]]
 // No iteration of this loop blocks waiting for a response, ensuring that
@@ -519,9 +513,9 @@ tweets.foreach(tweet => {
         
 \code{tweetAnalysisHistory} is a set of \code{Future}s, each of which will eventually contain a pair of the form (TweetID, Boolean), where the boolean value is true if the tweet already been processed. Only after \textit{all} of these \code{Future}s are complete can we determine which tweets we have seen before and so will be discarded.
 
-To determine when all of the \code{Future}s in the set are complete, we can \textit{compose} them into a single combined \code{Future}. Specifically, the set of type \code{Set[Future[(Long, Boolean)]]} is mapped to the type \code{Future[Set[(Long, Boolean)]]} using the \code{Future.sequence} method. Thus, rather than writing a callback function for every status in the set (which itself is impossible since we cannot know its cardinality until run-time), we can write a single callback function to handle the case where all \code{Future}s are complete, and this gives us access to the \code{Set[(Long, Boolean)]} contained within. The code showing this process is shown below, and has been annotated with comments and types for clarity (adapted from  \code{BatchFeatureExtraction.scala}).
+To determine when all of the \code{Future}s in the set are complete, we can \textit{compose} them into a single combined \code{Future}. Specifically, the set of type \code{Set[Future[(Long, Boolean)]]} is mapped to the type \code{Future[Set[(Long, Boolean)]]} using the \code{Future.sequence} method. Thus, rather than writing a callback function for every status in the set (which itself is impossible since we cannot know its cardinality until run-time), we can write a single callback function to handle the case where all \code{Future}s are complete, and this gives us access to the \code{Set[(Long, Boolean)]} contained within. The code showing this process is shown in Listing \ref{composefutures}, and has been annotated with comments and types for clarity (adapted from  \code{BatchFeatureExtraction.scala}).
 
-\begin{lstlisting}[caption=Composing Futures unto a single future and registering the onComplete callback.]
+\begin{lstlisting}[caption=Composing Futures unto a single future and registering the onComplete callback.,label=composefutures]
 // Compose the Futures in tweetAnalysisHistory and register the
 // callback to be fired when the composed Future completes.
 Future.sequence(tweetAnalysisHistory) onComplete {
@@ -538,8 +532,7 @@ Future.sequence(tweetAnalysisHistory) onComplete {
 The feature extraction code itself (contained in the ``Success'' case of the pattern matching expression in the snippet above) is computationally expensive and as a result also relies heavily on asynchronous constructs, and uses many of the techniques described in this section.
 
         \subsection{Indexing}
-        %TODO: How was terrier configured? What rate was memory consumed? (Try getCollectionStats)
-        Tweets received at the indexing component are stored in a Terrier \code{MemoryIndex}. This is a special type of index that can be updated  online, and therefore is especially suited to this application. Each document stored in the index consists of one or more tweets from a single Twitter user. More specifically, the index stores a mapping from the terms in tweets to lists of Twitter users who have used that term. By storing data in this way, Terrier can achieve an $O(1)$ lookup of every user who has used a query term, allowing it to carry out retrieval quickly and efficiently.
+        Tweets received at the indexing component are stored in a Terrier \code{MemoryIndex}. This is a special type of index that can be updated  online, and therefore is especially suited to this application. Each document stored in the index consists of one or more tweets from a single Twitter user. More specifically, the index stores a mapping from the terms in tweets to lists of Twitter users who have used that term. By storing data in this way, Terrier can achieve an $O(1)$ lookup of every user who has used a query term, allowing it to carry out retrieval quickly and efficiently. Since the index is stored in memory, further work will be required to ensure that the index is at least partially stored on disk when memory usage becomes too high.
         
         A secondary, ``metadata'' index is also maintained. The purpose of this index is to quickly retrieve metadata for any users it retrieves. Terrier will fetch only the document ID (equivalent to the Twitter user ID) for relevant users, and this auxiliary structure allows us to retrieve the metadata associated with that ID. The benefit of doing this is that it avoids the need to ask the Twitter API for that information just to display the results to the user. Preventing overuse of the Twitter API was a key aim of the application, as stated in non-functional requirement \textbf{N.7}. The metadata stored in this structure for each user includes their username, their screen name, and their profile biography.
         
@@ -556,9 +549,9 @@ The feature extraction code itself (contained in the ``Success'' case of the pat
 \label{channels}
 \end{figure}     
         
-        When a channel is created, it registers a scheduled request to poll Terrier for the latest result set in a configurable interval. The code below shows how the polling rate was read from a dependency injected configuration file in a way that avoids \code{null} values, and then used to schedule the channel's work.
+        When a channel is created, it registers a scheduled request to poll Terrier for the latest result set in a configurable interval. The code in Listing \ref{pollterrier} shows how the polling rate was read from a dependency injected configuration file in a way that avoids \code{null} values, and then used to schedule the channel's work.
         
-        \begin{lstlisting}[caption=Reading configuration from a file and scheduling the updates of results.]
+        \begin{lstlisting}[caption=Reading configuration from a file and scheduling the updates of results.,label=pollterrier]
           // Read the polling duration from the config file  
           val resultPollDuration = config.getInt("results.pollingrate").getOrElse(1000)
           
@@ -567,16 +560,16 @@ The feature extraction code itself (contained in the ``Success'' case of the pat
                 .schedule(Duration.Zero, FiniteDuration(resultPollDuration, TimeUnit.MILLISECONDS), self, FetchLatestQueryResults)
         \end{lstlisting}
 
-        Through repeated polling, the result sets obtained from Terrier were transformed into a stream of results and sent to clients. These result sets are calculated using the BM25 weighting model, which is a popular information retrieval model known to generally give relevant results across a variety of collections. Further investigation would be required to determine the most effective retrieval technique.
+        Through repeated polling, the result sets obtained from Terrier were transformed into a stream of results and sent to clients. These result sets are calculated using the BM25 weighting model, which is a popular information retrieval model known to generally give relevant results across a variety of test collections. Further investigation would be required to determine the most effective retrieval technique.
         
         Channels will remain open for a query for as long as at least one user is connected to the result stream. In order to determine whether any user is interested in the channel, connected users automatically send special ``keep-alive'' messages that the server interprets as a user expressing a desire to keep the channel open. Each open channel monitors the timestamp associated with the latest keep-alive received, and will free its associated resources if the latest keep-alive is ever older than some configurable threshold. In this way we ensure that a channel is never closed while a user is viewing a stream of results. Using this technique also allows us to close result streams when they are no longer required and therefore prevents resource leaks.
         
      
         
     \subsection{Metrics Reporting}
-    This component is implemented as a single actor which can receive data from any other component in the system. By sending information to this actor, and specifying how it should translate this information (e.g. a Scala case class) to JSON, it allows any component to communicate with the client. In the example shown below, the \code{MetricsReporting} actor receives a message from some other actor informing it of the number of Twitter users that have been processed, and sends this message to all connected clients.
+    This component is implemented as a single actor which can receive data from any other component in the system. By sending information to this actor, and specifying how it should translate this information (e.g. a Scala case class) to JSON, it allows any component to communicate with the client. In the example shown in Listing \ref{forward}, the \code{MetricsReporting} actor receives a message from some other actor informing it of the number of Twitter users that have been processed, and sends this message to all connected clients.
     
-    \begin{lstlisting}[caption=Forwarding new messages through the WebSocket to connected clients.]
+    \begin{lstlisting}[caption=Forwarding new messages through the WebSocket to connected clients.,label=forward]
       override def receive = {
         case numUsers @ NumberOfUsersSeen(_) => 
             channelMeta.channel push Json.toJson(numUsers)
@@ -584,9 +577,9 @@ The feature extraction code itself (contained in the ``Success'' case of the pat
       }
     \end{lstlisting}
 
-The code which maps user-defined Scala types to valid JSON relies on the Play Framework's ``Writes'' converters. The converter for the example above is shown below:
+The code which maps user-defined Scala types to valid JSON relies on the Play Framework's ``Writes'' converters. The converter for the example above is shown in Listing \ref{writesconverter}.
 
-    \begin{lstlisting}[caption=Code for conversion of the NumberOfUsersSeen Scala case class to JSON format.]
+    \begin{lstlisting}[caption=Code for conversion of the NumberOfUsersSeen Scala case class to JSON format.,label=writesconverter]
       implicit val numberOfUsersSeenWrites = new Writes[NumberOfUsersSeen] {
         def writes(numberOfUsersSeen: NumberOfUsersSeen) = Json.obj(
             "numUsersSeen" -> numberOfUsersSeen.numUsers
@@ -598,9 +591,9 @@ The code which maps user-defined Scala types to valid JSON relies on the Play Fr
 
 One of the more interesting features to implement was the real-time hashtag usage counter. This component counts the number of occurrences of each hashtag within a configurable window of time, and updates this number as more tweets are processed. The user interface of this aspect of the system is shown in Figure \ref{trending}. The code which generates the data for this component is written using Apache Spark Streaming, and consists of several steps which in combination produce an output of \code{(hashtag, count)} pairs which are then sent to connected clients for rendering.
 
-The initial step of this process maps the incoming stream of tweets into a stream of \code{(String, Int)} tuples, where the string is the text of the hashtag and the integer is the value 1. Figure \ref{mappingstep} shows this process diagrammatically, and the code used in this mapping process is shown below.
+The initial step of this process maps the incoming stream of tweets into a stream of \code{(String, Int)} tuples, where the string is the text of the hashtag and the integer is the value 1. Figure \ref{mappingstep} shows this process diagrammatically, and the code used in this mapping process is shown in Listing \ref{tweetstohashtags}.
 
-\begin{lstlisting}[caption=Initial mapping of tweets to hashtags pairs.]
+\begin{lstlisting}[caption=Initial mapping of tweets to hashtags pairs.,label=tweetstohashtags]
     // Map the tweets in the stream to a stream of (hashtag, 1) tuples
     val hashtags = stream flatMap(status => {
       status.getHashtagEntities map(hashtag => (hashtag.getText toLowerCase, 1))
@@ -620,9 +613,9 @@ The new stream of tuples is then \textit{reduced} within a sliding window using 
 (p: Int, q: Int) => p + q
 \end{lstlisting}
 
-After applying this reduction, the data in the stream is now of the required form. After sorting the stream, a subset of the results are sent to the client to be displayed to connected users. The code which performs windowed reduction, sorts the results, and sends those results to all connected clients is shown below.
+After applying this reduction, the data in the stream is now of the required form. After sorting the stream, a subset of the results are sent to the client to be displayed to connected users. The code which performs windowed reduction, sorts the results, and sends those results to all connected clients is shown in Listing \ref{reduce}.
 
-\begin{lstlisting}[caption=Counting the hashtags used within a temporal window.]
+\begin{lstlisting}[caption=Counting the hashtags used within a temporal window.,label=reduce]
     // Aggregate hashtags within the window
     val hashtagCountInWindow = hashtags
       .reduceByKeyAndWindow(
@@ -647,9 +640,8 @@ After applying this reduction, the data in the stream is now of the required for
 \label{trending}
 \end{figure}
                        
-%TODO: Discuss how Play provided an interface/API for the client to use.                       
-    \subsection{Server Interface}
-    Using the Play Framework, we expose an interface which the client side of the application can interact with. This interface consists of URL endpoints which can store or retrieve data from the model layer, or open up a new channel. The endpoints available to the client are shown in Listing \ref{endpoints}.
+    \subsection{HTTP Interface}
+    Using the Play Framework, we expose an interface that the client side of the application can interact with. This interface consists of HTTP endpoints which can instruct the server to store or retrieve data from the model layer, or to open up a new channel (see Section 4.1.5). The endpoints available to the client are shown in Listing \ref{endpoints}.
     
 \begin{lstlisting}[label=endpoints,caption=The exposed interface of the server.]
 GET     /
@@ -661,20 +653,20 @@ POST    /learning/rate-user
 GET     /learning/get-user-relevance                
 \end{lstlisting}
 
-Each of these URLs are mapped to an associated method defined within a Play Controller. By sending a request of the appropriate type to these endpoints, the client can interact with the server. The first defined endpoint (``/'') returns a sparse HTML document which contains a mount point. The client side renders the application inside this mount, as shown in Listing \ref{routerdef}.
+Each of these URLs are mapped to an associated method defined within a Play Framework Controller. By sending a request of the appropriate type to these endpoints, the client can interact with the server. The first defined endpoint (``GET /'') returns a sparse HTML document which contains a mount point. The client side renders the application's user interface inside this mount, as shown in Listing \ref{routerdef}.
 
                           
 \section{Client Implementation}
-The implementation of the client made use of several software development tools and practices which aimed to ease the development process. As described in Chapter 3, the front-end is constructed as a single page application which relies heavily on AJAX and WebSockets to efficiently fetch updates from the server, using those endpoints defined in Listing \ref{endpoints}.
+The implementation of the client made use of several software development tools and practices which aimed to ease the development process. As described in Chapter 3, the front-end is constructed as a single page application which relies heavily on AJAX (Asynchronous JavaScript and XML) and WebSockets to efficiently fetch updates from the server, using those endpoints defined in Listing \ref{endpoints}.
 
         \subsection{Tools \& Practices}
         A number of tools were used on the front-end to assist in the design and build processes.
            
         \subsubsection{LESS}
-        \textit{LESS} is a compiled superset to CSS (Cascading Style Sheets) which introduces a number of additional features including variables, nested definitions, and a module/import system \cite{less}.
+        \textit{LESS} is a compiled superset of CSS (Cascading Style Sheets) which introduces a number of additional features including variables, nested definitions, and a module/import system \cite{less}.
         
         \subsubsection{CSS Flexbox}
-        \textit{Flexbox} is a W3C specification for laying out elements within some parent element \cite{flexbox}. The majority of user interface elements used in ``Who To Follow In Context'' are built specifically for this project rather than from an external component library, and Flexbox was used to align child elements within these components.
+        \textit{Flexbox} is a W3C specification for laying out elements within some parent element \cite{flexbox}. The majority of user interface elements used in ``Who To Follow In Context'' are built specifically for this project rather than from an external component library, and Flexbox was used extensively to align child elements within these components.
 
         \subsubsection{CommonJS Modules}
         \textit{CommonJS} introduces a module system into JavaScript/TypeScript \cite{commonjs}. As a result, it avoids the need to add one script tag to our index HTML page for each TypeScript file created. During the compilation step, the dependency tree of the front-end application is scanned and bundled into a single file.
@@ -692,10 +684,8 @@ The implementation of the client made use of several software development tools 
 \caption{An early user interface prototype.}
 \label{initialui}
 \end{figure} 
-        
-        %TODO: Remember to discuss responsive design, animations used for specific reasons.
-        %TODO: Show timeline of UI evolution
-        The user interface was one of the most heavily iterated upon aspects of the application. Using a component-based user interface framework allowed components to be iterated on in isolation, and so changing the UI could be done gradually to allow for progress on other features.
+
+        The user interface was one of the most heavily iterated upon aspects of the application. Using a component-based user interface library (React) allowed components to be iterated on in isolation, and so changing the UI could be done gradually to allow for progress on other features.
         
         An early proof of concept of the user interface (show in Figure \ref{initialui} displayed the stream of incoming tweets on the left half of the window, and the recommendations for the current query on the right hand side. After creating the proof of concept, mockups of several different UI components were created. An example of those created for the user suggestion components is shown in Figure \ref{suggestionsmockups}.
         
@@ -726,7 +716,7 @@ After multiple iterations and further refinement of the project requirements, th
 
 The final user interface consists of a search box shown on the left side of the display. By entering a query into this box and pressing ``enter'', a list of suggestions will appear underneath. These suggestions, as explained previously, update in real-time. This is to model the evolving nature of the live events they are providing suggestions for. By selecting a user in the list, we display a preview of the user's Twitter timeline. At the top right hand corner of the screen, we display real-time lists of ``Recent Searches'' and ``Trending Hashtags'', which exist to provide suggestions of queries that users may wish to enter.
 
-    As discussed in the previous chapter, the user interface is implemented using a library called React. React allows user interfaces to be implemented using an extension of the syntax of JavaScript known as JSX. This syntax is compiled back into standard JavaScript in order to be parsed and executed by web browsers. The ``tsc'' TypeScript compiler comes with a built-in JSX compiler, and this was used by enabling it in TypeScript configuration file (\code{tsconfig.json}). This configuration is shown in Listing \ref{tsconfig}.
+    As discussed in the previous chapter, the user interface is implemented using a library called React. React allows user interfaces to be implemented using an extension of the syntax of JavaScript known as JSX, which is similar to XML. This syntax is compiled back into standard JavaScript in order to be parsed and executed by web browsers. The ``tsc'' TypeScript compiler comes with a built-in JSX compiler, and this was used by enabling it in TypeScript configuration file (\code{tsconfig.json}). This configuration is shown in Listing \ref{tsconfig}.
     
 \begin{lstlisting}[label=tsconfig,caption=TypeScript compiler configuration.]
 {
@@ -769,7 +759,7 @@ export class ScrollingListItem
 This component does not contain any internal state. Instead, it simply receives data from its parent component in the view hierarchy, and is tasked with displaying it. By keeping components stateless, they are more generic, and therefore more reusable. Writing reusable code in this way assists in satisfying requirement \textbf{N.5}, which says that the application must be constructed in a maintainable manner.
 
         \subsection{Searching}
-        When a user enters a hashtag $Q$ into the search box and presses enter, an event handler is fired which changes the URL to \code{/\#/query/Q}. Since we are using React Router, the hierarchy of components mounted on the screen relates directly to the current URL. The TypeScript/JSX code which defines this hierarchy of components and their associated URLs is shown below.
+        When a user enters a hashtag $Q$ into the search box and presses enter, an event handler is fired which changes the URL to \code{/\#/query/Q}. Since we are using React Router, the hierarchy of components mounted on the screen relates directly to the current URL. The TypeScript/JSX code which defines this hierarchy of components and their associated URLs is shown in Listing \ref{routerdef}.
         
 \begin{lstlisting}[caption=Definition of the hierarchy of React component and how they map to the URL.,label=routerdef]
 ReactDOM.render((
@@ -785,7 +775,7 @@ ReactDOM.render((
 ), document.getElementById("wtfc-app-mount"));
 \end{lstlisting}
          
-As a result of the code above, any requests to a URL beginning with \code{/\#/query} results in the \code{QueryResults} component and all of its parents to be mounted. In this way, all routing logic within the application is handled by the client. Immediately as \code{QueryResults} mounts, React calls its \code{componentDidMount} method, shown below. Inside this method, we send a request to the server to start the WebSocket handshake, and the server will create the channel for this query. In addition, we register callback functions which will execute when the client receives data from the server through the connected WebSocket, and the keep-alive messages that the client will send to the server for as long as \code{QueryResults} remains mounted. The TypeScript code which handles this process is shown in Listing \ref{code:setquerychannel} (extracted from the file \code{QueryResults.tsx}).
+As a result of the code above, any requests to a URL beginning with \code{/\#/query} results in the \code{QueryResults} component and all of its parents to be mounted. In this way, all routing logic within the application is handled by the client. Immediately as \code{QueryResults} mounts, React calls its \code{componentDidMount} method, shown in Listing \ref{code:setquerychannel}. Inside this method, we send a request to the server to start the WebSocket handshake, and the server will create the channel for this query. In addition, we register callback functions which will execute when the client receives data from the server through the connected WebSocket, and the keep-alive messages that the client will send to the server for as long as \code{QueryResults} remains mounted. The TypeScript code which handles this process is shown in Listing \ref{code:setquerychannel} (extracted from the file \code{QueryResults.tsx}).
 
 \begin{lstlisting}[caption=The method called by React when a new component mounts.,label=code:setquerychannel]
     componentDidMount: function() {
@@ -846,10 +836,10 @@ As a result of the code above, any requests to a URL beginning with \code{/\#/qu
 \end{figure} 
         
         \subsection{Encouraging Interaction}
-        At the top right hand corner of the screen we display real-time lists of the latest queries which have been entered by users of the system. We also display the most popular hashtags found within the past 10 minutes of streaming. The aim of these components is to encourage users to interact with the system by providing them with up-to-the-moment information on what is popular on Twitter and what users are currently searching for. By selecting an item in the list, it is entered as a query. It was hoped that this feature would make people more likely to interact with the system, since it may provide them with suggestions for hashtags they could search for.
+        At the top right hand corner of the screen we display real-time lists of the latest queries which have been entered by users of the system. We also display the most popular hashtags found within the past 10 minutes of streaming. The aim of these components is to encourage users to interact with the system by providing them with up-to-the-moment information on what is popular on Twitter and what users are currently searching for. By selecting an item in the list, it is entered as a query. It was hoped that this feature would make people more likely to interact with the system, since it may provide them with suggestions for hashtags they could search for. As discussed in the Evaluation chapter of this report, users said that these features did indeed make them more likely to interact with the application.
         
         \subsection{Previewing Twitter Users}
-        On selecting a suggested account, users are shown a preview of that account without having to leave the application. Figure \ref{userpreview} shows how we display the preview to users. Several elements of this view are personalised for each user, taking into consideration the colours used in their Twitter profile. Any occurrences of the query term within tweets are highlighted to bring attention to potentially relevant tweets. By previewing the suggestion within the application, users can provide relevance feedback for the purposes of evaluation and improving the relevance of future query results. This component fades into view, so that data remaining from the old component is displaced in a natural way. This prevents confusion that may be caused in the case that another user was being viewed and is immediately replaced by a new user. This animation was created using \textit{Velocity-React}, which allows animations to be specified declaratively \cite{velocityreact}.
+        On selecting a suggested account, users are shown a preview of that account without having to leave the application. Figure \ref{userpreview} shows how we display the preview to users. Several elements of this view are personalised for each user, taking into consideration the colours used in their Twitter profile. Any occurrences of the query term within tweets are highlighted to bring attention to potentially relevant tweets. By previewing the suggestion within the application, users can provide relevance feedback for the purposes of evaluation and improving the relevance of future query results. This component fades into view, to prevent confusion that may be caused in the case that another user was being viewed and is immediately replaced by a new user. This animation was created using \textit{Velocity-React}, which allows animations to be specified declaratively \cite{velocityreact} using JSX syntax.
         
 \begin{figure}
 \centering
@@ -862,7 +852,7 @@ As a result of the code above, any requests to a URL beginning with \code{/\#/qu
     \section{Summary}
     Both client and server presented a number of implementation challenges. This chapter has described some of these challenges and how they were overcome. On the server it was shown how feature extraction, indexing, and retrieval were performed. The use of real-time technologies such as the use of WebSockets to implement channels was also discussed. A variety of techniques for improving system responsiveness such as asynchronous programming, and actor pooling were also described.
     
-    In the description of the implementation of the client side, the use of a single page application and client side routing was explained. Early prototypes of the user interface were shown, and then the final iteration of the user interface was displayed its components were described.        
+    In the description of the implementation of the client side, the use of a single page application and client side routing were explained. Early prototypes of the user interface were shown, and then the final iteration of the user interface was displayed, and its components were described.        
         
         
 \chapter{Evaluation}
@@ -1208,16 +1198,16 @@ Section 5.2.2 examined the impact of altering the ``stream replay rate''. It was
 
     The final iteration of the ``Who To Follow In Context'' product implements a majority of the project's requirements. The project can analyse a stream of tweets in real-time, from either a source file or the Twitter live streaming API, and display dynamic results to users.
     
-     The architecture of the product has been thoroughly documented in this report, and the implementation of several of its components has been discussed in detail. The development of the user interface was also discussed, as well as several implementation challenges and design decisions that were associated with it.
+     The architecture of the product has been thoroughly documented in this report, and the implementation of several of its components has been discussed in detail. The functions of these components ranged from processing a stream of tweets to handling concurrent queries submitted from several users. The development of the user interface was also discussed, as well as several implementation challenges and design decisions that were associated with it. In particular, the decision to construct the application as a single-page application was of note, since it involved the unusual decision of delegating URL routing logic to the client-side. The benefits of such an architecture were discussed in the Implementation chapter.
     
-     During the evaluation it was shown that this analysis can be performed without a noticeable impact on the responsiveness of the user interface. It has also been shown that users are overall happy with the usability of the final product, and the quality of the suggestions that it makes. Finally, we found that removing a relatively impactful filter (follower count) had little to no impact on users perception of the quality of suggestions.
+     During the evaluation it was shown that this analysis can be performed without a noticeable impact on the responsiveness of the user interface. It has also been shown that users are overall happy with the usability of the final product, and the quality of the suggestions that it makes. Evaluation work also suggested that there is a segment of the market suffer from the problems which this application aims to solve. Finally, we found that removing a relatively impactful filter (follower count) had little to no impact on users perception of the quality of suggestions. The evaluation phase also proved extremely useful in discovering candidate ideas for future development.
     
     \section{Future Work}
     
     If work was to continue on the project, there are several areas which could be improved or extended. Some of these suggestions are made with the power of hindsight, whilst others are made as a result of the evaluation conducted in the previous section.
     
         \subsection{Improving Results Using Learning To Rank}
-        As of writing, the application has extracted features from the tweets of $3,893,913$ unique Twitter users. By collecting a large set of relevance judgements for these users under different queries, a learning to rank model could be trained in order to improve the relevance of the suggestion made by the application. The Terrier Information Retrieval Platform contains an implementation of the LambdaMART learning to rank technique, meaning that most of the infrastructure required for such work is already in place \cite{l2r}.
+        As of writing, the application has extracted features from the tweets of $3,893,913$ unique Twitter users. By collecting a large set of relevance judgements for these users under different queries, a learning to rank model could be trained in order to improve the relevance of the suggestion made by the application. The Terrier Information Retrieval Platform contains an implementation of the LambdaMART learning to rank technique \cite{lambdamart}, meaning that most of the infrastructure required for such work is already in place \cite{l2r}.
         
         \subsection{Implementing Evaluation Feedback}
         A large collection of constructive criticism was received during the evaluation stage of the project. Some of the issues that participants had came up in several evaluations of the product. It should therefore be a priority to fix any issues that were not isolated incidents of misunderstanding.

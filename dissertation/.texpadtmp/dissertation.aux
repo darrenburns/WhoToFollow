@@ -14,12 +14,12 @@
 \newlabel{twittersearch}{{1.1}{3}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {1.3.2}Twitter's Whom To Follow Service}{3}}
 \citation{klout}
-\citation{Vosecky2012}
-\@writefile{lof}{\contentsline {figure}{\numberline {1.2}{\ignorespaces The user interface of Twitter's Whom To Follow Service}}{4}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1.2}{\ignorespaces The user interface of Twitter's Whom To Follow service}}{4}}
 \newlabel{whomtofollow}{{1.2}{4}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {1.3.3}Klout}{4}}
-\@writefile{lof}{\contentsline {figure}{\numberline {1.3}{\ignorespaces The three users with the highest Klout scores.}}{4}}
-\newlabel{kloutimage}{{1.3}{4}}
+\citation{Vosecky2012}
+\@writefile{lof}{\contentsline {figure}{\numberline {1.3}{\ignorespaces The three users with the highest Klout scores.}}{5}}
+\newlabel{kloutimage}{{1.3}{5}}
 \@writefile{toc}{\contentsline {section}{\numberline {1.4}Relevant Research}{5}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {1.4.1}Searching For Quality Microblog Posts}{5}}
 \@writefile{toc}{\contentsline {section}{\numberline {1.5}Summary}{5}}
@@ -109,6 +109,7 @@
 \citation{kanban}
 \citation{trello}
 \citation{sbt}
+\citation{maven}
 \citation{mongo}
 \@writefile{lof}{\contentsline {figure}{\numberline {4.1}{\ignorespaces Tweets are batched temporally and sent throughout feature extraction together.}}{19}}
 \newlabel{slidingwindow}{{4.1}{19}}
@@ -119,29 +120,37 @@
 \citation{redis}
 \@writefile{lof}{\contentsline {figure}{\numberline {4.2}{\ignorespaces An example of how requests were load-balanced in order to prevent overworked actors and maximise concurrency. This is a lower level view into the inner workings of the ``Feature Storage'' component shown in Figure 3.2\hbox {}}}{20}}
 \newlabel{loadbalancing}{{4.2}{20}}
+\newlabel{actorpool}{{4.1}{20}}
 \@writefile{lol}{\contentsline {lstlisting}{\numberline {4.1}Creating an actor pool to reduce the work required by any single actor.}{20}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.1.3}Batched Feature Extraction}{21}}
+\newlabel{asyncfutures}{{4.2}{21}}
 \@writefile{lol}{\contentsline {lstlisting}{\numberline {4.2}Check asynchronously whether a status has already been processed.}{21}}
+\newlabel{composefutures}{{4.3}{21}}
 \@writefile{lol}{\contentsline {lstlisting}{\numberline {4.3}Composing Futures unto a single future and registering the onComplete callback.}{21}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.1.4}Indexing}{22}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.1.5}Retrieval}{22}}
 \@writefile{lof}{\contentsline {figure}{\numberline {4.3}{\ignorespaces \textit  {An example of the one-to-many relationship that exists between users and channels}. Users A and B both connect to a single channel after entering the same query (``superbowl''), and will receive the results it outputs. This channel will perform the exact same actions regardless of the number of users connected.}}{23}}
 \newlabel{channels}{{4.3}{23}}
+\newlabel{pollterrier}{{4.4}{23}}
 \@writefile{lol}{\contentsline {lstlisting}{\numberline {4.4}Reading configuration from a file and scheduling the updates of results.}{23}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.1.6}Metrics Reporting}{23}}
+\newlabel{forward}{{4.5}{24}}
 \@writefile{lol}{\contentsline {lstlisting}{\numberline {4.5}Forwarding new messages through the WebSocket to connected clients.}{24}}
+\newlabel{writesconverter}{{4.6}{24}}
 \@writefile{lol}{\contentsline {lstlisting}{\numberline {4.6}Code for conversion of the NumberOfUsersSeen Scala case class to JSON format.}{24}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.1.7}Real-time Trending Hashtags}{24}}
+\newlabel{tweetstohashtags}{{4.7}{24}}
 \@writefile{lol}{\contentsline {lstlisting}{\numberline {4.7}Initial mapping of tweets to hashtags pairs.}{24}}
 \@writefile{lof}{\contentsline {figure}{\numberline {4.4}{\ignorespaces Example of how a tweet stream is mapped to a stream of pairs in the initial step of the real-time hashtag counting process.}}{25}}
 \newlabel{mappingstep}{{4.4}{25}}
 \@writefile{lof}{\contentsline {figure}{\numberline {4.5}{\ignorespaces The trending hashtags component. This screenshot was taken during the 2016 BRIT awards and the Kids Choice Awards.}}{25}}
 \newlabel{trending}{{4.5}{25}}
+\newlabel{reduce}{{4.8}{25}}
 \@writefile{lol}{\contentsline {lstlisting}{\numberline {4.8}Counting the hashtags used within a temporal window.}{25}}
 \citation{less}
 \citation{flexbox}
 \citation{commonjs}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.8}Server Interface}{26}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.8}HTTP Interface}{26}}
 \newlabel{endpoints}{{4.9}{26}}
 \@writefile{lol}{\contentsline {lstlisting}{\numberline {4.9}The exposed interface of the server.}{26}}
 \@writefile{toc}{\contentsline {section}{\numberline {4.2}Client Implementation}{26}}
@@ -219,13 +228,14 @@
 \newlabel{integrationtest}{{5.3}{42}}
 \@writefile{lol}{\contentsline {lstlisting}{\numberline {5.3}Ensuring that the FeatureExtraction actor is correctly instantiated.}{42}}
 \@writefile{toc}{\contentsline {section}{\numberline {5.5}Summary}{42}}
+\citation{lambdamart}
 \citation{l2r}
 \@writefile{toc}{\contentsline {chapter}{\numberline {6}Conclusion}{44}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \@writefile{toc}{\contentsline {section}{\numberline {6.1}Future Work}{44}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {6.1.1}Improving Results Using Learning To Rank}{44}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.1.2}Implementing Evaluation Feedback}{44}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1.2}Implementing Evaluation Feedback}{45}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {6.1.3}Machine Learning Based Filtering}{45}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {6.1.4}Deploying Across A Cluster}{45}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {6.1.5}Formal Evaluation of Suggestions}{45}}
@@ -248,35 +258,37 @@
 \bibcite{gulp}{{10}{}{{}}{{}}}
 \bibcite{java}{{11}{}{{}}{{}}}
 \bibcite{less}{{12}{}{{}}{{}}}
-\bibcite{mongo}{{13}{}{{}}{{}}}
-\bibcite{node}{{14}{}{{}}{{}}}
-\bibcite{npm}{{15}{}{{}}{{}}}
-\bibcite{python}{{16}{}{{}}{{}}}
-\bibcite{react}{{17}{}{{}}{{}}}
-\bibcite{reactrouter}{{18}{}{{}}{{}}}
-\bibcite{redis}{{19}{}{{}}{{}}}
-\bibcite{sbt}{{20}{}{{}}{{}}}
-\bibcite{specs2}{{21}{}{{}}{{}}}
-\bibcite{l2r}{{22}{}{{}}{{}}}
-\bibcite{git}{{23}{}{{}}{{}}}
-\bibcite{kanban}{{24}{}{{}}{{}}}
-\bibcite{play}{{25}{}{{}}{{}}}
-\bibcite{scala}{{26}{}{{}}{{}}}
-\bibcite{trello}{{27}{}{{}}{{}}}
-\bibcite{twitter4j}{{28}{}{{}}{{}}}
-\bibcite{typescript}{{29}{}{{}}{{}}}
-\bibcite{velocityreact}{{30}{}{{}}{{}}}
-\bibcite{flexbox}{{31}{}{{}}{{}}}
-\bibcite{reactvsangular}{{32}{}{{}}{{}}}
-\bibcite{http2}{{33}{}{{}}{{}}}
-\bibcite{reactive}{{34}{}{{}}{{}}}
-\bibcite{websocket}{{35}{}{{}}{{}}}
-\bibcite{twitterWTF}{{36}{}{{}}{{}}}
-\bibcite{actormodel}{{37}{}{{}}{{}}}
-\bibcite{celmaLamere}{{38}{}{{}}{{}}}
-\bibcite{macdonald2012puppy}{{39}{}{{}}{{}}}
-\bibcite{klout}{{40}{}{{}}{{}}}
-\bibcite{twitterNews}{{41}{}{{}}{{}}}
-\bibcite{leavingTwitter}{{42}{}{{}}{{}}}
-\bibcite{Vosecky2012}{{43}{}{{}}{{}}}
+\bibcite{maven}{{13}{}{{}}{{}}}
+\bibcite{mongo}{{14}{}{{}}{{}}}
+\bibcite{node}{{15}{}{{}}{{}}}
+\bibcite{npm}{{16}{}{{}}{{}}}
+\bibcite{python}{{17}{}{{}}{{}}}
+\bibcite{react}{{18}{}{{}}{{}}}
+\bibcite{reactrouter}{{19}{}{{}}{{}}}
+\bibcite{redis}{{20}{}{{}}{{}}}
+\bibcite{sbt}{{21}{}{{}}{{}}}
+\bibcite{specs2}{{22}{}{{}}{{}}}
+\bibcite{l2r}{{23}{}{{}}{{}}}
+\bibcite{git}{{24}{}{{}}{{}}}
+\bibcite{kanban}{{25}{}{{}}{{}}}
+\bibcite{play}{{26}{}{{}}{{}}}
+\bibcite{scala}{{27}{}{{}}{{}}}
+\bibcite{trello}{{28}{}{{}}{{}}}
+\bibcite{twitter4j}{{29}{}{{}}{{}}}
+\bibcite{typescript}{{30}{}{{}}{{}}}
+\bibcite{velocityreact}{{31}{}{{}}{{}}}
+\bibcite{flexbox}{{32}{}{{}}{{}}}
+\bibcite{reactvsangular}{{33}{}{{}}{{}}}
+\bibcite{http2}{{34}{}{{}}{{}}}
+\bibcite{reactive}{{35}{}{{}}{{}}}
+\bibcite{lambdamart}{{36}{}{{}}{{}}}
+\bibcite{websocket}{{37}{}{{}}{{}}}
+\bibcite{twitterWTF}{{38}{}{{}}{{}}}
+\bibcite{actormodel}{{39}{}{{}}{{}}}
+\bibcite{celmaLamere}{{40}{}{{}}{{}}}
+\bibcite{macdonald2012puppy}{{41}{}{{}}{{}}}
+\bibcite{klout}{{42}{}{{}}{{}}}
+\bibcite{twitterNews}{{43}{}{{}}{{}}}
+\bibcite{leavingTwitter}{{44}{}{{}}{{}}}
+\bibcite{Vosecky2012}{{45}{}{{}}{{}}}
 \providecommand\NAT@force@numbers{}\NAT@force@numbers

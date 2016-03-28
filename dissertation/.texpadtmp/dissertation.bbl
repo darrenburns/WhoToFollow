@@ -48,6 +48,10 @@ Angularjs, official website.
 {LESS CSS, official website}.
 \newblock \url{https://www.lesscss.org/}.
 
+\bibitem{maven}
+{Maven, official website}.
+\newblock \url{https://maven.apache.org/}.
+
 \bibitem{mongo}
 {MongoDB, official website}.
 \newblock \url{https://www.mongodb.org/}.
@@ -139,6 +143,11 @@ Peon-R. Belshe, M. and Ed. M.~Thomson.
 \bibitem{reactive}
 Jonas Boner, Dave Farley, Roland Kuhn, and Martin Thompson.
 \newblock The reactive manifesto, 2014.
+
+\bibitem{lambdamart}
+Christopher~J.C. Burges.
+\newblock From ranknet to lambdarank to lambdamart: An overview.
+\newblock Technical Report MSR-TR-2010-82, June 2010.
 
 \bibitem{websocket}
 I.~Fette and A.~Melnikov.
