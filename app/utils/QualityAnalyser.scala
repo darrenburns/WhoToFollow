@@ -2,7 +2,6 @@ package utils
 
 import learn.actors.FeatureExtraction.TweetFeatures
 import play.api.Play.current
-import twitter4j.Status
 
 
 object QualityAnalyser {
@@ -49,7 +48,7 @@ class QualityAnalyser(text: String) extends Serializable {
     counts
   }
 
-  def countWords(): Int = splitText.length
+  def countWords(): Int = if (text == "") 0 else words.length
 
   /** Count the number of capitalised words in a string.
    *
@@ -58,9 +57,11 @@ class QualityAnalyser(text: String) extends Serializable {
   def countCapitalisedWords(): Int = {
     var count = 0
     words.foreach(word => {
-      val uppers = word.filter(c => c.isUpper)
-      if (uppers.length == word.length) {
-        count += 1
+      if (word.length > 0) {
+        val uppers = word.filter(c => c.isUpper)
+        if (uppers.length == word.length) {
+          count += 1
+        }
       }
     })
     count

@@ -19,6 +19,9 @@ while executing---line 1049 of file plain.bst
 Too many commas in name 1 of "Belshe, M., Peon, R., and M. Thomson, Ed." for entry http2
 while executing---line 1049 of file plain.bst
 Warning--to sort, need author or key in scala
+Warning--to sort, need author or key in python
+Warning--to sort, need author or key in node
+Warning--to sort, need author or key in java
 Warning--to sort, need author or key in erlang
 Warning--to sort, need author or key in akka
 Warning--to sort, need author or key in di
@@ -34,6 +37,7 @@ Warning--to sort, need author or key in commonjs
 Warning--to sort, need author or key in gulp
 Warning--to sort, need author or key in npm
 Warning--to sort, need author or key in velocityreact
+Warning--to sort, need author or key in specs2
 Warning--to sort, need author or key in l2r
 Name 1 in "Belshe, M., Peon, R., and M. Thomson, Ed." has a comma at the end for entry http2
 while executing---line 1090 of file plain.bst
@@ -42,45 +46,45 @@ while executing---line 1090 of file plain.bst
 Warning--empty journal in klout
 Warning--empty journal in leavingTwitter
 Warning--can't use both author and editor fields in Vosecky2012
-You've used 39 entries,
+You've used 43 entries,
             2118 wiz_defined-function locations,
-            653 strings with 8808 characters,
-and the built_in function-call counts, 8435 in all, are:
-= -- 807
-> -- 250
+            665 strings with 9140 characters,
+and the built_in function-call counts, 9071 in all, are:
+= -- 867
+> -- 254
 < -- 7
-+ -- 117
++ -- 121
 - -- 76
-* -- 405
-:= -- 1136
-add.period$ -- 90
-call.type$ -- 39
-change.case$ -- 154
+* -- 425
+:= -- 1204
+add.period$ -- 98
+call.type$ -- 43
+change.case$ -- 166
 chr.to.int$ -- 0
-cite$ -- 70
-duplicate$ -- 342
-empty$ -- 922
+cite$ -- 78
+duplicate$ -- 370
+empty$ -- 1014
 format.name$ -- 76
-if$ -- 1960
+if$ -- 2120
 int.to.chr$ -- 0
-int.to.str$ -- 39
+int.to.str$ -- 43
 missing$ -- 7
-newline$ -- 169
+newline$ -- 185
 num.names$ -- 22
-pop$ -- 313
+pop$ -- 345
 preamble$ -- 1
-purify$ -- 116
+purify$ -- 124
 quote$ -- 0
-skip$ -- 342
+skip$ -- 374
 stack$ -- 0
-substring$ -- 317
-swap$ -- 73
+substring$ -- 337
+swap$ -- 77
 text.length$ -- 7
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 154
-warning$ -- 31
+type$ -- 170
+warning$ -- 35
 while$ -- 34
-width$ -- 41
-write$ -- 318
+width$ -- 45
+write$ -- 346
 (There were 4 error messages)

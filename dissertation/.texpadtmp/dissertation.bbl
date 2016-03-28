@@ -40,6 +40,10 @@ Angularjs, official website.
 {Gulp.js - The Streaming Build System, official website}.
 \newblock \url{http://gulpjs.com/}.
 
+\bibitem{java}
+{Java Programming Language, official website}.
+\newblock \url{https://www.oracle.com/java/index.html}.
+
 \bibitem{less}
 {LESS CSS, official website}.
 \newblock \url{https://www.lesscss.org/}.
@@ -48,9 +52,17 @@ Angularjs, official website.
 {MongoDB, official website}.
 \newblock \url{https://www.mongodb.org/}.
 
+\bibitem{node}
+{NodeJS, official website}.
+\newblock \url{https://nodejs.org/en/}.
+
 \bibitem{npm}
 Npm, official website.
 \newblock \url{https://www.npmjs.com/}.
+
+\bibitem{python}
+{Python Programming Language, official website}.
+\newblock \url{https://www.python.org/}.
 
 \bibitem{react}
 React, official webpage.
@@ -67,6 +79,10 @@ Redis, official website.
 \bibitem{sbt}
 {Scala Build Tool, official website}.
 \newblock \url{http://www.scala-sbt.org/}.
+
+\bibitem{specs2}
+{Specs2 Scala Testing Framework, official webpage}.
+\newblock \url{https://etorreborre.github.io/specs2/}.
 
 \bibitem{l2r}
 {Terrier Information Retrieval Platform Documentation, Learning To Rank With

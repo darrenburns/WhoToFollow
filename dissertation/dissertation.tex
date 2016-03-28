@@ -59,14 +59,12 @@
 
 \begin{abstract}
 
-%TODO ABSTRACT GOES HERE
-abstract here....
-
+A large number of users of Twitter rely on the service to follow discussions relating to ongoing events. The ``Who To Follow In Context'' project assists these users in finding other Twitter users who have been recently discussing such events. In particular, this project introduces real-time, frequently updating suggestions of users which model the evolving nature of the events that these recommendations are being made for. By architecting and designing the project as a message-driven, reactive application, we are able to process incoming streams of social media data in real-time whilst retaining overall system responsiveness. After implementation of the design concluded, it was extensively evaluated using a series of questionnaires, user evaluations, and experiments. This evaluation suggested that users appreciate the problem areas targeted by the project. It also showed that users found the system to be highly usable, and that they were overall pleased with the suggestions made.
 \end{abstract}
 
 \renewcommand{\abstractname}{Acknowledgements}
 \begin{abstract}
-I would like to thank my supervisor Dr Craig Macdonald for his support and guidance throughout the course of the project.
+I would like to thank my supervisor Dr Craig Macdonald for his extensive support and guidance throughout the course of the project.
 \end{abstract}
 
 
@@ -84,11 +82,11 @@ I would like to thank my supervisor Dr Craig Macdonald for his support and guida
 %TODO: Include preliminary definitions?
 This chapter will introduce the goals and motivations behind the ``Who To Follow In Context'' project and examine related products and research.
 
-\section{Goal}
+\section{Aims}
 The aim of this project was to create an application which provides a relevant set of Twitter accounts to follow for information about events. In particular, we are interested in recommending accounts which are relevant at the current moment in time. Therefore, a large portion of the project is concerned with providing real-time updates and corrections to recommendations based on the evidence provided via a stream of Twitter statuses.
 
 
-\section{Motivation}
+\section{Motivations}
 Guiding users towards the information they require is becoming increasingly important aspect in the development of online services such as social media and e-commerce websites. Without this guidance, users are much less likely to find what they are looking for, and therefore less likely to remain engaged with the service.
 
 The impact of this guidance should not be understated: Celma \& Lamere noted that two thirds of movies rented via Netflix were through recommendation, and 35\% of sales made via Amazon are through recommendation \cite{celmaLamere}. For large companies, this may equate to billions of pounds of additional revenue.
@@ -104,7 +102,7 @@ Hence, by directing users towards Twitter accounts which meet their information 
 
 Another study by the American Press Institute showed that 28\% of people who use Twitter do so in order to follow live events such as sports matches, TV shows, and breaking news \cite{twitterNews}. These users have different information needs from those who who use it as a standard social network. When looking for information about ongoing events, intuition tells us that users are more interested in people who are \textit{currently} discussing the event over those who have discussed a similar event in the past. Suggesting accounts with a general, long-term interest in the topic does not assist the user in finding the latest, up-to-the-moment information they desire.
 
-Although several products exist today which attempt to solve the problem of user recommendation on social media, they tend to disregard the quickly evolving nature of live events by providing a static set of results and focus on suggesting users based on their long-term interests. Given the rapidly changing and sometimes fleeting nature of events, immediate consideration of new tweets may give users insight into how new ``event experts'' emerge as they become relevant, and how that relevance changes over time. By providing a user suggestion service centered around ongoing events, we can assist the 28\% of users who rely on Twitter for live ``infotainment'' in meeting their information needs.
+Although several products exist today which attempt to solve the problem of user recommendation on social media, they tend to disregard the quickly evolving nature of live events by providing a static set of results and focus on suggesting users based on their long-term interests. Given the rapidly changing and sometimes fleeting nature of events, immediate consideration of new tweets may give users insight into how new ``event experts'' emerge as they become relevant, and how that relevance changes over time. By providing a user suggestion service centred around ongoing events, we can assist the 28\% of users who rely on Twitter for live ``infotainment'' in meeting their information needs.
 
 
 \section{Related Products}
@@ -285,7 +283,7 @@ This chapter describes the architecture of the system, and goes on to discuss ho
     \subsubsection{Programming Language}
         The programming language used to create the front-end of the application was \textit{TypeScript}. TypeScript is a typed superset of JavaScript which provides compile-time type checking which eliminates a large number of run-time errors \cite{typescript}. Existing JavaScript libraries can be used from within TypeScript by including a ``type definitions'' file in the project. The purpose of such files is to provide a mapping from the non-typed JavaScript constructs to their corresponding TypeScript types. Since TypeScript is a type checked language, we also gain the benefits of code-completion and refactoring capabilities within certain integrated development environments.
         
-        The front-end was initally written in JavaScript and then migrated to TypeScript as the number of type related errors began to increase due to the increasing complexity of the front-end. Although the initial migration to TypeScript was extremely time consuming, the number of run-time errors encountered significantly decreased, making the system far more robust than before (thereby furthering requirement \textbf{N.3}).
+        The front-end was initially written in JavaScript and then migrated to TypeScript as the number of type related errors began to increase due to the increasing complexity of the front-end. Although the initial migration to TypeScript was extremely time consuming, the number of run-time errors encountered significantly decreased, making the system far more robust than before (thereby furthering requirement \textbf{N.3}).
     
         \subsubsection{User Interface}
         The components which combine to form the overall user interface are written using \textit{React}. React is a JavaScript library developed by Facebook for constructing user interfaces in a component-based fashion \cite{react}. There is an abundance of modern libraries and frameworks for developing user interfaces. React was chosen primarily for its enforcement of the idea of ``separation of concerns'' and its renowned performance.
@@ -347,9 +345,13 @@ Both the feature extraction and filtering components may receive tweets from oth
     A number of decisions had to be made with regards to the overall architecture of the application. These included which programming language to employ, how to handle concurrency, and how to design the system so as to minimise the coupling between components.
 
     \subsection{Server Programming Language}
-            The server is written using the \textit{Scala} programming language, which is a hybrid of the object-oriented and functional paradigms \cite{scala}. Scala was chosen for its lightweight syntax and the fact that it compiles to Java Virtual Machine bytecode, allowing for clean interoperability with existing Java libraries and frameworks. In fact, a number of extremely popular Java libraries are written in Scala, including Apache Spark, Akka, and the Play Framework. Additionally, Scala provides powerful means of asynchronous programming through \code{Future}s and \code{Promise}s, and its \code{Option[T]} type and powerful pattern-matching features make \code{NullPointerException}s impossible since it explicitly requires the developer to check for the possibility that the \code{Option[T]} type contains a \code{None} value. Scala also benefits from its powerful REPL (Read-Execute-Print Loop) which comes bundled with the Scala compiler. This allows developers to immediately evaluate expressions and see the results. Existing code can even be loaded into the REPL so that the effects of performing actions on user defined objects can be examined.
+            The server is written using the \textit{Scala} programming language, which is a hybrid of the object-oriented and functional paradigms \cite{scala}. Scala was chosen for its lightweight syntax and the fact that it compiles to Java Virtual Machine byte-code, allowing for clean interoperability with existing Java libraries and frameworks. In fact, a number of extremely popular Java libraries are written in Scala, including Apache Spark, Akka, and the Play Framework. Additionally, Scala provides powerful means of asynchronous programming through \code{Future}s and \code{Promise}s, and its \code{Option[T]} type and powerful pattern-matching features make \code{NullPointerException}s impossible since it explicitly requires the developer to check for the possibility that the \code{Option[T]} type contains a \code{None} value. Scala also benefits from its powerful REPL (Read-Execute-Print Loop) which comes bundled with the Scala compiler. This allows developers to immediately evaluate expressions and see the results. Existing code can even be loaded into the REPL so that the effects of performing actions on user defined objects can be examined.
             
-        Other languages examined in the initial investigations were Python, NodeJS, and Java. Python was ruled out due to its poor support for concurrency, and its dynamic typing would likely have caused difficulty as the complexity of the project source code increased. NodeJS was considered for its renowned support for real-time web applications. However, the ecosystem surrounding the language has not expanded into the field of processing data streams. As with Python, NodeJS is dynamically typed, and this also factored into the decision to rule it out. Finally, Java was considered due to its unmatched ecosystem of libraries and frameworks and its type system. Java has a massive range of libraries available, but they make excessive use of \code{null} values, which greatly increase the possibility of run-time failure. Java is also extremely verbose in comparison to Scala, as can be seen in Listings \ref{scala} (Scala) and \ref{java} (Java), which show Spark Streaming code for splitting a line from a text stream into an array of words.
+        Other languages examined in the initial investigations were Python \cite{python}, NodeJS \cite{node}, and Java \cite{java}. Python was ruled out due to its poor support for concurrency, and its dynamic typing would likely have caused difficulty as the complexity of the project source code increased. 
+        
+        NodeJS was considered for its renowned support for real-time web applications. However, the ecosystem surrounding the language has not expanded into the field of processing data streams. As with Python, NodeJS is dynamically typed, and this also factored into the decision to rule it out. 
+        
+        Finally, Java was considered due to its unmatched ecosystem of libraries and frameworks and its type system. Java has a massive range of libraries available, but they make excessive use of \code{null} values, which greatly increase the possibility of run-time failure. Java is also extremely verbose in comparison to Scala, as can be seen in Listings \ref{scala} (Scala) and \ref{java} (Java), which show Spark Streaming code for splitting a line from a text stream into an array of words.
 
 \begin{lstlisting}[caption=Scala example of splitting a line in Spark Streaming.,label=scala]
 // Split each line into words
@@ -435,8 +437,6 @@ Both client and server side were implemented so as to resemble the architecture 
              
              \subsubsection{Agile Software Development}
              The \textit{Agile} software development process was followed throughout the lifetime of the project. Although there was an initial requirements gathering stage, these requirements frequently changed, and the product itself changed as a result. The project was implemented with the knowledge that requirements are highly dynamic, and no commitment was ever made to any single implementation.
-             
-             %TODO: expand this
              
              \subsubsection{Kanban \& Trello}
              Project task management was done using the ``Kanban'' system \cite{kanban}, where projects are represented as a set of named lists and cards. \textit{Trello} is an online platform which implements this system, and it was used extensively throughout all stages of the project \cite{trello}.
@@ -547,7 +547,7 @@ The feature extraction code itself (contained in the ``Success'' case of the pat
 
         To maximise performance, it was important to ensure that two users entering the same query does not result in the system computing the same stream of results twice. The traditional means of preventing this is through caching query results. Unfortunately, caching is not as practical in a system that is performing real-time indexing and providing results as a stream, since the results of a query change so frequently.
         
-        To get around this limitation, we map each new query to a ``channel'', that the results of that query are forwarded through. When a user inputs a query to the system, they are connected to a channel and will see the same stream of results for that query as any other user who has entered the query. If the channel corresponding to their query does not already exist, then it is created. Figure \ref{channels} gives a simplified example of what the clients/channels relationship may look when the system is running.
+        To get around this limitation, each new query received opens a ``channel'', which the results of that query are forwarded through. The results that get forwarded through the channel are constructed by repeated polling of Terrier. Since the index is being constructed online, these results will be modified as the contents of the index changes. Every change in the set of results that is returned is sent through the channel to any connected clients. Clients can then use this data to re-render the user interface to display these changes. Figure \ref{channels} gives a simplified example of what the clients/channels relationship may look when the system is running. When a user inputs a query to the system, they are connected to a channel and will see the same stream of results for that query as any other user who has entered the query. If the channel corresponding to their query does not already exist, then it is created.
         
 \begin{figure}
 \centering
@@ -569,7 +569,7 @@ The feature extraction code itself (contained in the ``Success'' case of the pat
 
         Through repeated polling, the result sets obtained from Terrier were transformed into a stream of results and sent to clients. These result sets are calculated using the BM25 weighting model, which is a popular information retrieval model known to generally give relevant results across a variety of collections. Further investigation would be required to determine the most effective retrieval technique.
         
-        Channels will remain open for a query for as long as at least one user is connected to the result stream. In order to determine whether any user is interested in the channel, connected users automatically send special ``keep-alive'' messages that the server interprets as a user expressing a desire to keep the channel open. Each open channel monitors the timestamp associated with the latest keep-alive receieved, and will free its associated resources if the latest keep-alive is ever older than some configurable threshold. In this way we ensure that a channel is never closed while a user is viewing a stream of results. Using this technique also allows us to close result streams when they are no longer required and therefore prevents resource leaks.
+        Channels will remain open for a query for as long as at least one user is connected to the result stream. In order to determine whether any user is interested in the channel, connected users automatically send special ``keep-alive'' messages that the server interprets as a user expressing a desire to keep the channel open. Each open channel monitors the timestamp associated with the latest keep-alive received, and will free its associated resources if the latest keep-alive is ever older than some configurable threshold. In this way we ensure that a channel is never closed while a user is viewing a stream of results. Using this technique also allows us to close result streams when they are no longer required and therefore prevents resource leaks.
         
      
         
@@ -674,7 +674,7 @@ The implementation of the client made use of several software development tools 
         \textit{LESS} is a compiled superset to CSS (Cascading Style Sheets) which introduces a number of additional features including variables, nested definitions, and a module/import system \cite{less}.
         
         \subsubsection{CSS Flexbox}
-        \textit{Flexbox} is W3C specification for laying out elements within some parent element \cite{flexbox}. The majority of user interface elements used in ``Who To Follow In Context'' are built specifically for this project rather than from an external component library, and Flexbox was used to align child elements within these components.
+        \textit{Flexbox} is a W3C specification for laying out elements within some parent element \cite{flexbox}. The majority of user interface elements used in ``Who To Follow In Context'' are built specifically for this project rather than from an external component library, and Flexbox was used to align child elements within these components.
 
         \subsubsection{CommonJS Modules}
         \textit{CommonJS} introduces a module system into JavaScript/TypeScript \cite{commonjs}. As a result, it avoids the need to add one script tag to our index HTML page for each TypeScript file created. During the compilation step, the dependency tree of the front-end application is scanned and bundled into a single file.
@@ -766,7 +766,7 @@ export class ScrollingListItem
 }
 \end{lstlisting}
 
-This component does not contain any internal state. Instead, it simply receives data from its parent component in the view hierarchy, and is tasked with displaying it. By keeping components stateless, they are more generic, and therefore more reusable. Keeping components is useful because it prevents 
+This component does not contain any internal state. Instead, it simply receives data from its parent component in the view hierarchy, and is tasked with displaying it. By keeping components stateless, they are more generic, and therefore more reusable. Writing reusable code in this way assists in satisfying requirement \textbf{N.5}, which says that the application must be constructed in a maintainable manner.
 
         \subsection{Searching}
         When a user enters a hashtag $Q$ into the search box and presses enter, an event handler is fired which changes the URL to \code{/\#/query/Q}. Since we are using React Router, the hierarchy of components mounted on the screen relates directly to the current URL. The TypeScript/JSX code which defines this hierarchy of components and their associated URLs is shown below.
@@ -1138,12 +1138,49 @@ Participants stated that they preferred the rate at which suggestions are made u
 
 \section{Behaviour Testing}
 
-    Testing was done using the \textit{Specs 2} Scala testing framework alongside \textit{Akka TestKit}. Akka TestKit made it possible test the direct output of the internal behaviour of actors by exposing the methods defined inside the actor. This testing focussed on a subset of actors.
+    Testing was done using the \textit{Specs 2} Scala testing framework \cite{specs2}. This framework allows us to define how our application works in terms of its behaviours. Tests were written to examine feature extraction, querying, and the servers response to requests for the single page the application is mounted at. These tests worked in isolation, but the author was unable to configure the Play Framework in order to run all of the tests using the same application. It proved extremely difficult to configure the environment that the tests execute in to match the environment that the application runs in. As such, each Specs2 specification had to be run individually, using a separate Play application for each. Unfortunately, these issues proved cumbersome to work around, and so testing focuses primarily on critical areas of source code. Further work would be required in this area to resolve this issue. 
+     
+    Akka TestKit \cite{akka} made it possible test the direct output of the internal behaviour of actors by exposing the methods defined inside the actor. These methods are traditionally hidden by Akka. An example of how the internal behaviour can be examined is shown in Listing \ref{test}.
+    
+\begin{lstlisting}[label=test,caption={Testing the internal behaviour of an actor.}]
+"A QueryService actor" should {
+
+    "return an empty TerrierResultSet with an actual size of 0 on an empty query" in new Actors {
+      running(app) {
+        // Get the underlying actor (typically hidden by Akka)
+        val queryServiceActor = TestActorRef(app.injector.instanceOf(
+            BindingKey(classOf[QueryService]))
+        ).underlyingActor
+        // Check the response
+        queryServiceActor.doQuery(EmptyQuery).actualSize must be equalTo 0
+      }
+    }
+    
+    ...
+\end{lstlisting}
+    
         
 \section{Integration Testing}
     In addition to tests which ensure that components behave as expected, tests were also written to ensure that they work correctly within their intended environment. In the context of actor systems, this is done by testing how actors respond to \textit{stimulus} from a \textit{probe}. Since actors perform computation in response to messages, we can probe their behaviour by sending them test messages and ensuring that they respond as expected.
     
-    As an example of how integration testing was useful: When a \code{SparkContext} has been started, it is illegal to attempt to register additional actions on the data. Since the system registers Spark actions in asynchronous calls, it is a possibility that the \code{SparkContext} is started before all actions are registered. To avoid this scenario, any actor registering Spark actions must inform its parent when it has done so. The parent will wait for all child actors to make this confirmation before starting the context. Integration testing is used to ensure that all actors which register Spark actions correctly inform their parent when this registration is complete, and thus avoids a runtime \code{IllegalStateException}.   
+    As an example of how integration testing was useful: When a \code{SparkContext} has been started, it is illegal to attempt to register additional actions on the data. Since the system registers Spark actions in asynchronous calls, it is a possibility that the \code{SparkContext} is started before all actions are registered. To avoid this scenario, any actor registering Spark actions must inform its parent when it has done so. The parent will wait for all child actors to make this confirmation before starting the context. Integration testing is used to ensure that all actors which register Spark actions correctly inform their parent when this registration is complete, and thus avoids a runtime \code{IllegalStateException}. The associated test is shown in Listing \ref{integrationtest}.
+    
+\begin{lstlisting}[label=integrationtest,caption=Ensuring that the FeatureExtraction actor is correctly instantiated.]
+"The FeatureExtraction actor should respond that it is ready when it receives a Twitter stream handle" in new Actors {
+    running(app) {
+      val featureExtractionActorRef = TestActorRef(app.injector.instanceOf(BindingKey(classOf[FeatureExtraction])))
+      val probe = TestProbe()  // Construct the 'probe'
+      val config = app.injector.instanceOf(classOf[Configuration])
+      val streamPath = app.configuration.getString("stream.sourcefile.path").get
+      val handle = SparkInit.ssc.actorStream[Status]
+          (TweetStreamSimulator.props[Status](streamPath, 10, 10), TweetStreamSimulator.name)
+      // Apply 'stimulus'    
+      featureExtractionActorRef.tell(ActiveTwitterStream(handle), probe.ref)
+      // Ensure correct response is received within 10 seconds
+      probe.expectMsgType[PipelineActorReady](FiniteDuration(10, TimeUnit.SECONDS))
+    }
+  }
+\end{lstlisting}    
 
     \section{Summary}
     Throughout this chapter, we have attempted to answer the evaluation questions listed at the beginning of the chapter. These answers are summarised below.
@@ -1168,14 +1205,22 @@ Section 5.2.2 examined the impact of altering the ``stream replay rate''. It was
     
 
 \chapter{Conclusion}
+
+    The final iteration of the ``Who To Follow In Context'' product implements a majority of the project's requirements. The project can analyse a stream of tweets in real-time, from either a source file or the Twitter live streaming API, and display dynamic results to users.
+    
+     The architecture of the product has been thoroughly documented in this report, and the implementation of several of its components has been discussed in detail. The development of the user interface was also discussed, as well as several implementation challenges and design decisions that were associated with it.
+    
+     During the evaluation it was shown that this analysis can be performed without a noticeable impact on the responsiveness of the user interface. It has also been shown that users are overall happy with the usability of the final product, and the quality of the suggestions that it makes. Finally, we found that removing a relatively impactful filter (follower count) had little to no impact on users perception of the quality of suggestions.
     
     \section{Future Work}
+    
+    If work was to continue on the project, there are several areas which could be improved or extended. Some of these suggestions are made with the power of hindsight, whilst others are made as a result of the evaluation conducted in the previous section.
     
         \subsection{Improving Results Using Learning To Rank}
         As of writing, the application has extracted features from the tweets of $3,893,913$ unique Twitter users. By collecting a large set of relevance judgements for these users under different queries, a learning to rank model could be trained in order to improve the relevance of the suggestion made by the application. The Terrier Information Retrieval Platform contains an implementation of the LambdaMART learning to rank technique, meaning that most of the infrastructure required for such work is already in place \cite{l2r}.
         
         \subsection{Implementing Evaluation Feedback}
-        A large collection of constructive criticism was received during the evaluation stage of the project. Some of the issues that particpants had came up in several evaluations of the product. It should therefore be a priority to fix any issues that were not isolated incidents of misunderstanding.
+        A large collection of constructive criticism was received during the evaluation stage of the project. Some of the issues that participants had came up in several evaluations of the product. It should therefore be a priority to fix any issues that were not isolated incidents of misunderstanding.
         
         \subsection{Machine Learning Based Filtering}
         The current implementation uses a configurable set of quality threshold ``filters'' which can be modified in order to change which tweets are discarded during the filtering stage. Using a machine learning based classifier such as a Support Vector Machine trained on real world judgements of the quality of tweets would avoid the need for having to evaluate arbitrary filter control values. The classifier itself would find the optimal filtering criteria based on the training data. A Support Vector Machine is suggested because it remains efficient even with an extremely large number of features, and would thus allow feature extraction to be expanded in scope with minimum computational overhead.
@@ -1187,7 +1232,7 @@ Section 5.2.2 examined the impact of altering the ``stream replay rate''. It was
     The frequently updating nature of the suggested users made performing a formal evaluation of the results more difficult than it otherwise would be in a traditional search engine, where the results are displayed and are static. Relevance judgements received by users indicate whether a user is relevant at the current moment in time, but not if they are relevant within the overall list of suggestions made by the application. A formal evaluation of the suggestions could be performed by building an identically configured index offline, and then asking users to evaluate the results of querying this index. The results from an offline evaluation could then be used to tune the retrieval parameters of application.
     
     \section{Reflection}
-    Working on this project has improved my programming abilty and has introduced me to a huge range of new technologies, many of which represent entirely different views on software design from those that I am accustomed to. Before working on this project, I had never worked with Scala, TypeScript, Redis or the Actor model, and so working with these techologies was a great opportunity to learn new skills and I am happy that I chose them.
+    Working on this project has improved my programming ability and has introduced me to a huge range of new technologies, many of which represent entirely different views on software design from those that I am accustomed to. Before working on this project, I had never worked with Scala, TypeScript, Redis or the Actor model, and so working with these technologies was a great opportunity to learn new skills and I am happy that I chose them.
     
     The most enjoyable part of the project was working with Akka, since it represents a paradigm of concurrency with its own benefits and flaws which I have never experienced before. It made me more appreciative of the field of software engineering with the realisation that such vastly different views on architecture exist. I also enjoyed working with the WebSocket API, since I have personal interest in how real-time technologies can improve user experience on the web, and using them allowed me to explore this further.
     
@@ -1200,29 +1245,36 @@ Section 5.2.2 examined the impact of altering the ``stream replay rate''. It was
 %%%%%%%%%%%%%%%%
 \begin{appendices}
 
-\chapter{Running the Programs}
+\chapter{Building and Running the Project}
 An example of running from the command line is as follows:
 \begin{verbatim}
-      > java MaxClique BBMC1 brock200_1.clq 14400
+ > cd WhoToFollow/app/assets/typescript  # Go the the front-end root
+ > npm install  # Install front-end dependencies. 
+ > tsd install  # Fetch TypeScript definition files. 
+ > gulp less  # Compile and bundle the LESS files. 
+ > gulp build  # Transpile and concatenate TypeScript. 
+ > cd ../../../  # Return to the project root 
+ > activator run  # Get server dependencies, compile, run
 \end{verbatim}
-This will apply $BBMC$ with $style = 1$ to the first brock200 DIMACS instance allowing 14400 seconds of cpu time.
 
-\chapter{Generating Random Graphs}
-\label{sec:randomGraph}
-We generate Erd\'{o}s-R\"{e}nyi random graphs $G(n,p)$ where $n$ is the number of vertices and
-each edge is included in the graph with probability $p$ independent from every other edge. It produces
-a random graph in DIMACS format with vertices numbered 1 to $n$ inclusive. It can be run from the command line as follows to produce 
-a clq file
-\begin{verbatim}
-      > java RandomGraph 100 0.9 > 100-90-00.clq
-\end{verbatim}
+Note that several technologies are required in order to run these commands, including:
+
+\begin{itemize}
+\item NodeJS \& NPM
+\item TypeScript Definition Manager (TSD)
+\item Gulp
+\end{itemize}
+
+Other dependencies are installed automatically during the build process.
+
+The application should now be accessible at \code{localhost:9000/\#/}.
+
 \end{appendices}
 
 %%%%%%%%%%%%%%%%%%%%
 %   BIBLIOGRAPHY   %
 %%%%%%%%%%%%%%%%%%%%
 
-%TODO: FINISH REFERENCES FOR SOFTWARE USED
 \bibliographystyle{plain}
 \bibliography{bib}
 
