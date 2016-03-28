@@ -3,48 +3,84 @@ Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: dissertation.aux
 The style file: plain.bst
 Database file #1: ../bib.bib
+Warning--to sort, need author or key in redis
+Warning--to sort, need author or key in mongo
+Warning--to sort, need author or key in typescript
+Warning--to sort, need author or key in react
+Warning--to sort, need author or key in angular
+Warning--to sort, need author or key in reactvsangular
+Warning--to sort, need author or key in reactrouter
+Warning--to sort, need author or key in play
+Warning--to sort, need author or key in twitter4j
+Warning--to sort, need author or key in sparkstreaming
+Warning--to sort, need author or key in comet
+Name 1 in "Belshe, M., Peon, R., and M. Thomson, Ed." has a comma at the end for entry http2
+while executing---line 1049 of file plain.bst
+Too many commas in name 1 of "Belshe, M., Peon, R., and M. Thomson, Ed." for entry http2
+while executing---line 1049 of file plain.bst
+Warning--to sort, need author or key in scala
+Warning--to sort, need author or key in erlang
+Warning--to sort, need author or key in akka
+Warning--to sort, need author or key in di
+Warning--to sort, need author or key in guice
+Warning--to sort, need author or key in git
+Warning--to sort, need author or key in github
+Warning--to sort, need author or key in kanban
+Warning--to sort, need author or key in trello
+Warning--to sort, need author or key in sbt
+Warning--to sort, need author or key in less
+Warning--to sort, need author or key in flexbox
+Warning--to sort, need author or key in commonjs
+Warning--to sort, need author or key in gulp
+Warning--to sort, need author or key in npm
+Warning--to sort, need author or key in velocityreact
+Warning--to sort, need author or key in l2r
+Name 1 in "Belshe, M., Peon, R., and M. Thomson, Ed." has a comma at the end for entry http2
+while executing---line 1090 of file plain.bst
+Too many commas in name 1 of "Belshe, M., Peon, R., and M. Thomson, Ed." for entry http2
+while executing---line 1090 of file plain.bst
 Warning--empty journal in klout
 Warning--empty journal in leavingTwitter
 Warning--can't use both author and editor fields in Vosecky2012
-You've used 8 entries,
+You've used 39 entries,
             2118 wiz_defined-function locations,
-            546 strings with 5921 characters,
-and the built_in function-call counts, 2996 in all, are:
-= -- 282
-> -- 178
-< -- 4
-+ -- 71
-- -- 62
-* -- 202
-:= -- 493
-add.period$ -- 24
-call.type$ -- 8
-change.case$ -- 54
+            653 strings with 8808 characters,
+and the built_in function-call counts, 8435 in all, are:
+= -- 807
+> -- 250
+< -- 7
++ -- 117
+- -- 76
+* -- 405
+:= -- 1136
+add.period$ -- 90
+call.type$ -- 39
+change.case$ -- 154
 chr.to.int$ -- 0
-cite$ -- 11
-duplicate$ -- 105
-empty$ -- 209
-format.name$ -- 62
-if$ -- 629
+cite$ -- 70
+duplicate$ -- 342
+empty$ -- 922
+format.name$ -- 76
+if$ -- 1960
 int.to.chr$ -- 0
-int.to.str$ -- 8
-missing$ -- 6
-newline$ -- 42
-num.names$ -- 16
-pop$ -- 75
+int.to.str$ -- 39
+missing$ -- 7
+newline$ -- 169
+num.names$ -- 22
+pop$ -- 313
 preamble$ -- 1
-purify$ -- 47
+purify$ -- 116
 quote$ -- 0
-skip$ -- 89
+skip$ -- 342
 stack$ -- 0
-substring$ -- 129
-swap$ -- 33
-text.length$ -- 4
+substring$ -- 317
+swap$ -- 73
+text.length$ -- 7
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 30
-warning$ -- 3
-while$ -- 25
-width$ -- 9
-write$ -- 85
-(There were 3 warnings)
+type$ -- 154
+warning$ -- 31
+while$ -- 34
+width$ -- 41
+write$ -- 318
+(There were 4 error messages)

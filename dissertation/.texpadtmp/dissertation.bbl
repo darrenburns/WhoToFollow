@@ -1,14 +1,146 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{10}
+
+\bibitem{akka}
+Akka, official website.
+\newblock \url{https://akka.io/}.
+
+\bibitem{angular}
+Angularjs, official website.
+\newblock \url{https://angular.io/}.
+
+\bibitem{sparkstreaming}
+{Apache Spark Streaming, official website}.
+\newblock \url{http://spark.apache.org/streaming/}.
+
+\bibitem{comet}
+{Comet Sockets, Play Framework Documentation}.
+\newblock \url{https://www.playframework.com/documentation/2.5.x/JavaComet}.
+
+\bibitem{commonjs}
+{CommonJS, official website}.
+\newblock \url{http://www.commonjs.org/}.
+
+\bibitem{di}
+{Dependency Inject - Martin Fowler}.
+\newblock \url{http://www.martinfowler.com/articles/injection.html}.
+
+\bibitem{erlang}
+{Erlang Programming Language, official website}.
+\newblock \url{https://www.erlang.org/}.
+
+\bibitem{github}
+{GitHub: Who To Follow In Context Remote Git Repository}.
+\newblock \url{https://github.com/darrenburns/WhoToFollow}.
+
+\bibitem{guice}
+{Google Guice Dependency Injection Framework, official repository on GitHub}.
+\newblock \url{https://github.com/google/guice}.
+
+\bibitem{gulp}
+{Gulp.js - The Streaming Build System, official website}.
+\newblock \url{http://gulpjs.com/}.
+
+\bibitem{less}
+{LESS CSS, official website}.
+\newblock \url{https://www.lesscss.org/}.
+
+\bibitem{mongo}
+{MongoDB, official website}.
+\newblock \url{https://www.mongodb.org/}.
+
+\bibitem{npm}
+Npm, official website.
+\newblock \url{https://www.npmjs.com/}.
+
+\bibitem{react}
+React, official webpage.
+\newblock \url{https://facebook.github.io/react/}.
+
+\bibitem{reactrouter}
+{React Router, official repository on GitHub}.
+\newblock \url{https://github.com/reactjs/react-router}.
+
+\bibitem{redis}
+Redis, official website.
+\newblock \url{https://redis.io/}.
+
+\bibitem{sbt}
+{Scala Build Tool, official website}.
+\newblock \url{http://www.scala-sbt.org/}.
+
+\bibitem{l2r}
+{Terrier Information Retrieval Platform Documentation, Learning To Rank With
+  Terrier}.
+\newblock \url{http://terrier.org/docs/v4.1/learning.html}.
+
+\bibitem{git}
+{The Git Version Control System, official website}.
+\newblock \url{https://git-scm.com/}.
+
+\bibitem{kanban}
+{The Kanban System}.
+\newblock \url{http://www.everydaykanban.com/what-is-kanban/}.
+
+\bibitem{play}
+{The Play Framework, official website}.
+\newblock \url{https://www.playframework.com/}.
+
+\bibitem{scala}
+{The Scala Programming Language, official website}.
+\newblock \url{http://www.scala-lang.org/}.
+
+\bibitem{trello}
+Trello.
+\newblock \url{http://trello.com/}.
+
+\bibitem{twitter4j}
+{Twitter4J, official website}.
+\newblock \url{http://twitter4j.org/en/index.html}.
+
+\bibitem{typescript}
+Typescript, official website.
+\newblock \url{http://www.typescriptlang.org/}.
+
+\bibitem{velocityreact}
+{Velocity React Demo Page}.
+\newblock \url{http://twitter-fabric.github.io/velocity-react/}.
+
+\bibitem{flexbox}
+{W3C Flexible Box Layout Module, candidate recommendation}.
+\newblock \url{https://www.w3.org/TR/2016/CR-css-flexbox-1-20160301/}.
+
+\bibitem{reactvsangular}
+{Codementor - React vs Angular vs KnockOut vs Raw DOM performance comparison}.
+\newblock
+  \url{https://www.codementor.io/reactjs/tutorial/reactjs-vs-angular-js-performance-comparison-knockout},
+  2015.
+
+\bibitem{http2}
+Peon-R. Belshe, M. and Ed. M.~Thomson.
+\newblock {Hypertext Transfer Protocol Version 2 (HTTP/2)}.
+\newblock {RFC} 7540, {RFC Editor}, May 2015.
 
 \bibitem{reactive}
 Jonas Boner, Dave Farley, Roland Kuhn, and Martin Thompson.
 \newblock The reactive manifesto, 2014.
+
+\bibitem{websocket}
+I.~Fette and A.~Melnikov.
+\newblock {The WebSocket Protocol}.
+\newblock {RFC} 6455, {RFC Editor}, December 2011.
 
 \bibitem{twitterWTF}
 Pankaj Gupta, Ashish Goel, Jimmy Lin, Aneesh Sharma, Dong Wang, and Reza Zadeh.
 \newblock Wtf: The who to follow service at twitter.
 \newblock In {\em Proceedings of the 22Nd International Conference on World
   Wide Web}, WWW '13, pages 505--514, New York, NY, USA, 2013. ACM.
+
+\bibitem{actormodel}
+Carl Hewitt, Peter Bishop, and Richard Steiger.
+\newblock A universal modular actor formalism for artificial intelligence.
+\newblock In {\em Proceedings of the 3rd International Joint Conference on
+  Artificial Intelligence}, IJCAI'73, pages 235--245, San Francisco, CA, USA,
+  1973. Morgan Kaufmann Publishers Inc.
 
 \bibitem{celmaLamere}
 Celma~\& Lamere.
@@ -19,7 +151,7 @@ Celma~\& Lamere.
 
 \bibitem{macdonald2012puppy}
 Craig Macdonald, Richard McCreadie, Rodrygo~LT Santos, and Iadh Ounis.
-\newblock From puppy to maturity: Experiences in developing terrier.
+\newblock {From puppy to maturity: Experiences in developing Terrier}.
 \newblock {\em Proc. of OSIR at SIGIR}, pages 60--63, 2012.
 
 \bibitem{klout}
